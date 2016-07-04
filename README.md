@@ -3,6 +3,7 @@ Multiple variables plotted against time in multiple synchronised chart
 
 # Json Structure
 
+```
 {
 	"dimensions" : {
 		"width" : 400,
@@ -47,3 +48,4 @@ Multiple variables plotted against time in multiple synchronised chart
 		"y3" : 108
 	}]
 }
+```
