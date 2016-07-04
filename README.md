@@ -5,56 +5,27 @@ Multiple variables plotted against time in multiple synchronised chart
 
 ```
 {
-	"dimensions" : {
+	"dimensions" : {					// Size of canvas
 		"width" : 400,		
 		"height" : 400,
 	},
 
 	"ticks" : {
-		"xaxis" : 5,					// Number of ticks to be shown on either of X or Y axis
+		"xaxis" : 5,					// Number of ticks to be shown on X and Y axis
 		"yaxis" : 5
 	},
 
 	"caption" : "Caption here",
 	"subcaption" : "Sub Caption here",
 	"xaxisname" : "Time",				// Label for X-axis
-	"yaxiscount" : 3,					// Will map to number of charts
-	"yaxisnames" : ["Label 1", 			// Y-axis names for different charts
+	"yaxisnames" : ["Label 1", 			// Label for Y axes of different sub charts
 					"Label 2",			 
 					"Label 3"],  
+					
+	"separator" : "|", 					// delimiter for data source; '|' default
 
-	"datasource" : [{					// Datasource; array of objects
-		"time" : {						// time required
-			year : 2011,		
-			month : 4
-		},
-
-		"data" : [ "93",				// Data will be an array
-		 			{ 
-		 				index : 2,		// Object or values
-		 				value : 96		// if value chart will be mapped with array index
-		 			}]
-	},
-
-	{
-		"time" : {
-			year : 2009,
-			month : 5
-		},
-
-		"data" : [89, 56, 78]		// Only values
-	}, 
-	
-	{
-		"time" : {
-			year : 2013,
-			month : 1
-		},
-
-		"data" : [{					// Only objects
-				index : 1,
-				value : 3
-			}]
-	}]
+	"datasource" : ["04-13-2015|0|96",	// time|index|value
+					"01-19-2015|1|56",	// time in mm-dd-yyyy
+					"03-25-106|1|90"]			
 }
 ```
