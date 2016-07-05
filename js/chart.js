@@ -37,7 +37,6 @@
 		this.data.yaxisnames = data.yaxisnames || [];	// Default blank array for yaxisname
 		this.data.separator = data.separator || '|';	// Default '|' for separator
 
-		this.data.data = [];							// Initialize default blank array 'data'
 		this.data.category = [];						// A array to store array of data 
 														// on basis of their yaxis index
 
@@ -90,6 +89,8 @@
 
 			}	// End for loop
 		}	// End copy data 
+
+		console.log(this.data.category);
 	}	// End Chart Constructor Function
 
 })();
