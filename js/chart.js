@@ -93,4 +93,55 @@
 		console.log(this.data.category);
 	}	// End Chart Constructor Function
 
+	Chart.prototype.xAxisRange = function(){
+
+		var i, j, leni, lenj, itemi, item;	// Loop interation variables
+		var minYear. minMonth, maxYear, maxMonth;	// Finding Ranges
+		for(i = 0, leni = this.data.category.length; i < leni; ++i){	// Loop to find ranges
+			itemi = this.data.category[i];
+			for(j = 0, lenj = itemi.length; j < lenj; ++j){
+				item = itemi[j];
+
+				minYear = minYear ? minYear : item.year;	// Initiazlizing min max variables to
+				maxYear = maxYear ? maxYear : item.year;	// first items value
+				minMonth = minMonth ? minMonth : item.month;
+				maxMonth = maxMonth ? maxMonth : item.month;
+
+				if(minYear > item.year){
+					minYear = item.year;
+					minMonth = item.month;
+				}
+
+				if(maxYear < item.year){
+					maxYear = item.year;
+					maxMonth = item.month;
+				}
+
+				if(minYear === item.year && minMonth > item.month){	// Change minMonth only when year
+					minMonth = item.month;							// is minimum
+				}
+
+				if(maxYear === item.year && maxMonth < item.month){	// Change maxMonth only when year 
+					maxMonth = item.month;							// is maximum
+				}
+
+			} // End for-j
+		}  // End for-i
+
+		return [[minMonth, minYear], [maxMonth, maxYear]];
+	} // End xAxisRange
+
+	Chart.prototype.yAxisRange = function(idx){	// Find y-axis range of data with index value provided
+
+		var i, len;		// Loop iteration variables
+		var arr = this.data.category[idx];	// Fetching the required array
+		var min, max;	// variables for range
+
+		for(i = 0, len = arr.length; i < len; ++i){
+			min = min ? min : arr[i].value;		// Setting first index value of array
+			max = max ? max : arr[i].value;		// to min and max
+		}
+
+	} // End yAxisRange
+
 })();
