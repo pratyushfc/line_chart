@@ -6,14 +6,24 @@
 	global.RenderChart = function(data, selector){
 		var chart = new Chart(data);
 		console.log(chart.xAxisRange());
-		console.log(chart.yAxisRange("sale"));
+		console.log("sale", chart.yAxisRange("sale"));
 	};
 
 	var sortByTime = function(a, b){
 		if(a.year === b.year){
-			a.month > b.month;
+			return a.month > b.month;
 		}
 		return a.year > b.year;
+	}
+
+	var joinDate = function(year, month){
+		return ((year * 12) + month);
+	}
+	var splitDate = function(date){
+		return {
+			year : Math.floor(date / 12),
+			month : date % 12
+		};
 	}
 
 	function Chart(data){			// Contructor function to parse and validate data
@@ -84,63 +94,53 @@
 			}	// End for loop
 		}	// End copy data 
 		
-		
+		// Sorting each category's data array by time
+		for(key in this.data.category){
+			this.data.category[key].sort(sortByTime);
+		}
+
 		console.log(this.data.category);
 	}	// End Chart Constructor Function
 
 	Chart.prototype.xAxisRange = function(){
 
 		var i, j, leni, lenj, itemi, item;	// Loop interation variables
-		var minYear, minMonth, maxYear, maxMonth;	// Finding Ranges
+		var minDate, maxDate, dateRange = [];		// Finding the range based on
+		var itemDate;											// tick values
+
 		for(i in this.data.category){	// Loop to find ranges
 			itemi = this.data.category[i];
 			for(j = 0, lenj = itemi.length; j < lenj; ++j){
 				item = itemi[j];
+				itemDate = joinDate(item.year, item.month);
+				minDate = minDate ? minDate : itemDate;
+				maxDate = maxDate ? maxDate : itemDate;
 
-				minYear = minYear ? minYear : item.year;	// Initiazlizing min max variables to
-				maxYear = maxYear ? maxYear : item.year;	// first items value
-				minMonth = minMonth ? minMonth : item.month;
-				maxMonth = maxMonth ? maxMonth : item.month;
-
-				if(minYear > item.year){
-					minYear = item.year;
-					minMonth = item.month;
+				if(minDate > itemDate){
+					minDate = itemDate;
+				}
+				if(maxDate < itemDate){
+					maxDate = itemDate;
 				}
 
-				if(maxYear < item.year){
-					maxYear = item.year;
-					maxMonth = item.month;
-				}
-
-				if(minYear === item.year && minMonth > item.month){	// Change minMonth only when year
-					minMonth = item.month;							// is minimum
-				}
-
-				if(maxYear === item.year && maxMonth < item.month){	// Change maxMonth only when year 
-					maxMonth = item.month;							// is maximum
-				}
 
 			} // End for-j
 		}  // End for-i
 
-		// return [[minMonth, minYear], [maxMonth, maxYear]];
-		return {
-			min : {
-				year : minYear,
-				month : minMonth
-			},
-			max : {
-				year : maxYear,
-				month : maxMonth
-			}
-		};
+		// Calculating range points
+		for(i = 0; i < this.data.ticks.xaxis; ++i){
+			dateRange.push(Math.floor(((i * (maxDate - minDate) / (this.data.ticks.xaxis - 1))) + minDate));
+		}
+
+		return dateRange;
 	} // End xAxisRange
 
 	Chart.prototype.yAxisRange = function(idx){		// Find y-axis range of data with index value provided
 
 		var i, len;									// Loop iteration variables
 		var arr = this.data.category[idx];			// Fetching the required array
-		var min, max;								// variables for range	
+		var min, max;	
+		var valueRange = [];						// array for range	
 		for(i = 0, len = arr.length; i < len; ++i){
 			min = min ? min : arr[i].value;			// Setting first index value of array
 			max = max ? max : arr[i].value;			// to min and max
@@ -154,11 +154,11 @@
 			}
 		}
 
+		for(i = 0; i < this.data.ticks.yaxis; ++i){
+			valueRange.push(Math.floor(((i * (max - min) / (this.data.ticks.yaxis - 1))) + min));
+		}
 		//return [min, max];
-		return {
-			min : min,
-			max : max
-		};
+		return valueRange;
 	} // End yAxisRange
 
 })();
@@ -194,12 +194,14 @@ RenderChart({
 			sale : 45
 		},{
 			time : "01-09-2006",			// time in mm-dd-yyyy format
-			sale : 150
+			sale : 150,
+			hike : 1.2
 		},{
 			time : "05-02-2011",			// time in mm-dd-yyyy format
 			sale : 103
 		},{
 			time : "04-11-2012",			// time in mm-dd-yyyy format
-			sale : 89
+			sale : 89,
+			hike : 1.3
 		},]			
 });
