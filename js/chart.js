@@ -5,8 +5,9 @@
 	// Exposing public Api
 	global.RenderChart = function(data, selector){
 		var chart = new Chart(data);
-		console.log(chart.xAxisRange());
+		console.log("x-axis", chart.xAxisRange());
 		console.log("sale", chart.yAxisRange("sale"));
+		console.log("interval ", chart.intervalOf())
 	};
 
 	var sortByTime = function(a, b){
@@ -160,6 +161,16 @@
 		//return [min, max];
 		return valueRange;
 	} // End yAxisRange
+
+
+	Chart.prototype.intervalOf = function(){ // Function to find div intervals
+
+		return {
+			X : (this.data.dimensions.width / this.data.ticks.xaxis),
+			Y : (this.data.dimensions.height / this.data.ticks.yaxis)
+		}
+
+	} // End interval
 
 })();
 
