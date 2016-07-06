@@ -18,14 +18,18 @@ Multiple variables plot against time in multiple synchronised chart
 	"caption" : "Caption here",
 	"subcaption" : "Sub Caption here",
 	"xaxisname" : "Time",				// Label for X-axis
-	"yaxisnames" : ["Label 1", 			// Label for Y axes of different sub charts
-					"Label 2",			 
-					"Label 3"],  
-					
+	"variables" : ['sale', 'population'], 	// If not provided all unique   
+											// attributes will be mapped
+
 	"separator" : "|", 					// delimiter for data source; '|' default
 
-	"data" : ["04-13-2015|0|96",		// time|index|value
-					"01-19-2015|1|56",	// time in mm-dd-yyyy
-					"03-25-106|1|90"]			
+	"data" : [{
+			time : 05-15-2012,			// time in mm-dd-yyyy format
+			sale : 120
+		}, 
+		{
+			time : 06-26-2015,
+			hike : 1.5
+		}]			
 }
 ```

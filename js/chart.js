@@ -10,27 +10,27 @@
 		console.log("interval ", chart.intervalOf())
 	};
 
-	var sortByTime = function(a, b){
+	var sortByTime = function(a, b){		// Helper function to sort array by time
 		if(a.year === b.year){
 			return a.month > b.month;
 		}
 		return a.year > b.year;
 	}
 
-	var joinDate = function(year, month){
-		return ((year * 12) + month);
+	var joinDate = function(year, month){	// Helper function to combine year and 
+		return ((year * 12) + month);		// month
 	}
-	var splitDate = function(date){
-		return {
+	var splitDate = function(date){			// Helper function to split year and month
+		return {							// joined by previous function
 			year : Math.floor(date / 12),
 			month : date % 12
 		};
 	}
 
-	function Chart(data){			// Contructor function to parse and validate data
+	function Chart(data){					// Contructor function to parse and validate data
 
 		var i, len, key,					// Varibles for loop iteration
-			item, 					// Data parsing variables
+			item, 							// Data parsing variables
 			date,
 			index,
 			value;
@@ -39,13 +39,13 @@
 			data = JSON.parse(data);	// JSON object
 		}
 
-		this.data = {};				// Initialize Chart's data variable
-		this.data.dimensions = {	// Initializing dimension property with default value
+		this.data = {};					// Initialize Chart's data variable
+		this.data.dimensions = {		// Initializing dimension property with default value
 			width : 500,
 			height : 500
 		};
 
-		this.data.ticks = {			// Initializing ticks property in Chart's data
+		this.data.ticks = {				// Initializing ticks property in Chart's data
 			xaxis : 5,
 			yaxis : 5
 		}
@@ -73,7 +73,7 @@
 		}
 
 
-		if(Array.isArray(data.data)){	// Copy over data to category if Array
+		if(Array.isArray(data.data)){					// Copy over data to category if Array
 			for(i = 0, len = data.data.length; i < len; ++i){
 				item = data.data[i];
 				date = new Date(item.time);
@@ -105,11 +105,11 @@
 
 	Chart.prototype.xAxisRange = function(){
 
-		var i, j, leni, lenj, itemi, item;	// Loop interation variables
+		var i, j, leni, lenj, itemi, item;			// Loop interation variables
 		var minDate, maxDate, dateRange = [];		// Finding the range based on
-		var itemDate;											// tick values
+		var itemDate;								// tick values
 
-		for(i in this.data.category){	// Loop to find ranges
+		for(i in this.data.category){				// Loop to find ranges
 			itemi = this.data.category[i];
 			for(j = 0, lenj = itemi.length; j < lenj; ++j){
 				item = itemi[j];
@@ -177,23 +177,23 @@
 
 
 RenderChart({
-	"dimensions" : {					// Size of canvas
+	"dimensions" : {						// Size of canvas
 		"width" : 400,		
 		"height" : 400,
 	},
 
 	"ticks" : {
-		"xaxis" : 5,					// Number of ticks to be shown on X and Y axis
+		"xaxis" : 5,						// Number of ticks to be shown on X and Y axis
 		"yaxis" : 5
 	},
 
 	"caption" : "Caption here",
 	"subcaption" : "Sub Caption here",
-	"xaxisname" : "Time",				// Label for X-axis
+	"xaxisname" : "Time",					// Label for X-axis
 	"variables" : ['sale', 'population'], 	// If not provided all unique   
 											// attributes will be mapped
 
-	"separator" : "|", 					// delimiter for data source; '|' default
+	"separator" : "|", 						// delimiter for data source; '|' default
 
 	"data" : [{
 			time : "05-05-2012",			// time in mm-dd-yyyy format
