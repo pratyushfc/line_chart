@@ -7,9 +7,10 @@
 	// Exposing public Api
 	global.RenderChart = function(data, selector){
 		var chart = new Chart(data);
-		console.log("x-axis", chart.xAxisRange());
-		console.log("sale", chart.yAxisRange("sale"));
-		console.log("interval ", chart.intervalOf())
+		console.log("Min", chart.getMinX(), chart.getMaxX());
+		console.log("Sale", chart.getMinY('sale'), chart.getMaxY('sale'));
+		console.log("Get X", chart.getX());
+		console.log("Get sale", chart.getY("sale"));
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -61,6 +62,7 @@
 
 		this.data.category = {};						// An object to store array of data 
 														// on basis of their yaxis variable names
+		this.data.dateArray = [];						// Array to store all dates
 
 		if(data.dimensions){							// If parameter data has dimensions, copy them over to
 														// Chart's data
@@ -94,6 +96,12 @@
 
 				}
 
+				// Push current date to date Array
+				this.data.dateArray.push({
+					year : date.getYear(),
+					month : date.getMonth()
+				});
+
 			}	// End for loop
 		}	// End copy data 
 		
@@ -101,77 +109,54 @@
 		for(key in this.data.category){
 			this.data.category[key].sort(sortByTime);
 		}
+		// Sorting the date array
+		this.data.dateArray.sort(sortByTime);
 
 		console.log(this.data.category);
 	}	// End Chart Constructor Function
 
-	Chart.prototype.xAxisRange = function(){
+	Chart.prototype.getMinX = function(){
+		return this.data.dateArray[0];
+	}	//  End getMinX
 
-		var i, j, leni, lenj, itemi, item;			// Loop interation variables
-		var minDate, maxDate, dateRange = [];		// Finding the range based on
-		var itemDate;								// tick values
+	Chart.prototype.getMaxX = function(){
+		return this.data.dateArray[this.data.dateArray.length - 1];
+	}	//  End getMaxX
 
-		for(i in this.data.category){				// Loop to find ranges
-			itemi = this.data.category[i];
-			for(j = 0, lenj = itemi.length; j < lenj; ++j){
-				item = itemi[j];
-				itemDate = joinDate(item.year, item.month);
-				minDate = minDate ? minDate : itemDate;
-				maxDate = maxDate ? maxDate : itemDate;
-
-				if(minDate > itemDate){
-					minDate = itemDate;
-				}
-				if(maxDate < itemDate){
-					maxDate = itemDate;
-				}
-
-
-			} // End for-j
-		}  // End for-i
-
-		// Calculating range points
-		for(i = 0; i < this.data.ticks.xaxis; ++i){
-			dateRange.push(Math.floor(((i * (maxDate - minDate) / (this.data.ticks.xaxis - 1))) + minDate));
-		}
-
-		return dateRange;
-	} // End xAxisRange
-
-	Chart.prototype.yAxisRange = function(idx){		// Find y-axis range of data with index value provided
-
+	Chart.prototype.getMinY = function(idx){
 		var i, len;									// Loop iteration variables
 		var arr = this.data.category[idx];			// Fetching the required array
-		var min, max;	
-		var valueRange = [];						// array for range	
+		var min;	
 		for(i = 0, len = arr.length; i < len; ++i){
-			min = min ? min : arr[i].value;			// Setting first index value of array
-			max = max ? max : arr[i].value;			// to min and max
+			min = min ? min : arr[i].value;			// Setting first index value of array to min
 
 			if(min > arr[i].value){
 				min = arr[i].value;
 			}
+		}
+		return min;
+	}	//  End getMinY
+	
+	Chart.prototype.getMaxY = function(idx){
+		var i, len;									// Loop iteration variables
+		var arr = this.data.category[idx];			// Fetching the required array
+		var max;	
+		for(i = 0, len = arr.length; i < len; ++i){
+			max = max ? max : arr[i].value;			// Setting first index value of array to max
 
 			if(max < arr[i].value){
 				max = arr[i].value;
 			}
 		}
+		return max;
+	}	//  End getMaxY
 
-		for(i = 0; i < this.data.ticks.yaxis; ++i){
-			valueRange.push(Math.floor(((i * (max - min) / (this.data.ticks.yaxis - 1))) + min));
-		}
-		//return [min, max];
-		return valueRange;
-	} // End yAxisRange
+	Chart.prototype.getX = function(){
+		return this.data.dateArray;
+	} // end getX
 
-
-	Chart.prototype.intervalOf = function(){ // Function to find div intervals
-
-		return {
-			X : (this.data.dimensions.width / this.data.ticks.xaxis),
-			Y : (this.data.dimensions.height / this.data.ticks.yaxis)
-		}
-
-	} // End interval
+	Chart.prototype.getY = function(idx){
+		return this.data.category[idx];
+	} // end getY
 
 })();
