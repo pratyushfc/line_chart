@@ -187,21 +187,91 @@
 
 		var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
 
-		if(difference < (Math.pow(10, numDig - 1) + ( 0.1 * Math.pow(10, numDig - 1)) )){
+		/*if(difference < (Math.pow(10, numDig - 1) + ( 0.1 * Math.pow(10, numDig - 1)) )){
 			beautyNumber = beautyNumber / 10;
-		}
+		}*/
 
 		minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
 
-		beautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
-
+		if((difference / maxValue) > 0.1){
+			var newBeautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
+			beautyNumber = beautyNumber > newBeautyNumber ? beautyNumber : newBeautyNumber;
+		}
+		
 		maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
 
-		return {
+		return { 
 			min : minValue,
 			max : maxValue
 		};
 
 	} // End getYLimits
+
+	Engine.prototype.getYRange = function(idx){
+		var i, j, temp;
+
+		var rangeArray = [];			// final range array that the 
+										// function will return
+		var calcMin = this.__getYLimits(idx).min;
+		var calcMax = this.__getYLimits(idx).max;
+		var computedMin, computedMax;	// variable to store final limits of
+										// calculated range
+		var difference;
+		var steps;						// Variable to store steps from
+										// min to max
+
+		var twoDigitMin, twoDigitMax;	// Variables to store leading 
+										// two digits of max and min 
+
+		var stepsDown = 0;				// A variable to store how 
+										// many divisions were made
+
+		twoDigitMax = calcMax;
+
+		while(twoDigitMax > 99){
+			twoDigitMax /= 10;
+			++stepsDown;
+		}	
+
+		twoDigitMin = Math.floor(calcMin / (Math.pow(10, stepsDown)));
+
+		difference = twoDigitMax - twoDigitMin;
+
+		if(difference <= 1){
+			steps = 0.2;
+		} else if(difference <= 3){
+			steps = 0.5;
+		} else if(difference <= 6){
+			steps = 1;
+		} else if(difference <= 12){
+			steps = 2;
+		} else if(difference <= 20){
+			steps = 4;
+		} else if(difference <= 30){
+			steps = 5;
+		} else if(difference <= 40){
+			steps = 7;
+		} else {
+			steps = 10;
+		}
+
+		computedMin = Math.floor(twoDigitMin / steps) * steps;
+		computedMax = Math.ceil(twoDigitMax / steps) * steps;
+
+		// Step up; Multiplying the value to min-max that was divided before
+
+		stepsDown *= Math.pow(10, stepsDown);
+		computedMin *= Math.pow(10, stepsDown);
+		computedMax *= Math.pow(10, stepsDown);
+
+		temp = computedMin;
+
+		while(temp <= computedMax){
+			rangeArray.push(temp);
+			temp += stepsDown;
+		}
+
+		return rangeArray;
+	} // End getYRange
 
 })();
