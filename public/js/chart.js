@@ -7,10 +7,10 @@
 	// Exposing public Api
 	global.RenderChart = function(data, selector){
 		var chart = new Chart(data);
-		console.log("Min", chart.getMinX(), chart.getMaxX());
+		/*console.log("Min", chart.getMinX(), chart.getMaxX());
 		console.log("Sale", chart.getMinY('sale'), chart.getMaxY('sale'));
 		console.log("Get X", chart.getX());
-		console.log("Get sale", chart.getY("sale"));
+		console.log("Get sale", chart.getY("sale"));*/
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -28,6 +28,16 @@
 			year : Math.floor(date / 12),
 			month : date % 12
 		};
+	}
+
+	var numberOfDigits = function(num){
+		num = num < 0 ? num * -1 : num;
+		var dig = 0;
+		while(num > 0){
+			++dig;
+			num = Math.floor(num / 10);
+		}
+		return dig;
 	}
 
 	function Chart(data){					// Contructor function to parse and validate data
@@ -111,8 +121,6 @@
 		}
 		// Sorting the date array
 		this.data.dateArray.sort(sortByTime);
-
-		console.log(this.data.category);
 	}	// End Chart Constructor Function
 
 	Chart.prototype.getMinX = function(){
@@ -158,5 +166,39 @@
 	Chart.prototype.getY = function(idx){
 		return this.data.category[idx];
 	} // end getY
+
+
+
+	function Engine(chart){		// An object to fetch data from 'Chart' and make  
+								// it more meaningful
+		this.chart = chart;		// saved chart so that it can be used by other functions
+	}
+
+	Engine.prototype.__getYLimits = function(idx){	// Calculate a more good looking limit :)
+
+		var minValue = this.chart.getMinY(idx);
+		var maxValue = this.chart.getMaxY(idx);
+
+		var difference = maxValue - minValue;
+
+		// Algorithm to get more good looking ranges
+
+		var numDig = numberOfDigits(difference);
+
+		var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
+
+		if(difference < (Math.pow(10, numDig - 1) + ( 0.1 * Math.pow(10, numDig - 1)) )){
+			beautyNumber = beautyNumber / 10;
+		}
+
+		minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
+		maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
+
+		return {
+			min : minValue,
+			max : maxValue
+		};
+
+	} // End getYLimits
 
 })();
