@@ -192,6 +192,9 @@
 		}
 
 		minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
+
+		beautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
+
 		maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
 
 		return {
