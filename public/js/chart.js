@@ -6,7 +6,7 @@
 	window.RenderChart = function(data, selector){
 		var chart = new Chart(data);
 		var engine = new Engine(chart);
-		engine.render();
+		engine.render(selector);
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -24,6 +24,31 @@
 			year : Math.floor(date / 12),
 			month : date % 12
 		};
+	}
+
+	var shortNumber = function(num){
+		var numDig = numberOfDigits(num);
+		var suffix = "";
+		var stepsDown;
+
+		if(numDig >= 13){
+			suffix = "t"
+			stepsDown = 13;
+		} else if(numDig >= 10){
+			suffix = "b"
+			stepsDown = 10;
+		} else if(numDig >= 7){
+			suffix = "m"
+			stepsDown = 7;
+		} else if(numDig >= 4){
+			suffix = "k"
+			stepsDown = 4;
+		} else{
+			suffix = ""
+			stepsDown = 0;
+		}
+
+		return (num / Math.pow(10, stepsDown)) + suffix;
 	}
 
 	var numberOfDigits = function(num){
@@ -51,7 +76,7 @@
 		this.data = {};					// Initialize Chart's data variable
 		this.data.dimensions = {		// Initializing dimension property with default value
 			width : 500,
-			height : 500
+			height : 600
 		};
 
 		this.data.ticks = {				// Initializing ticks property in Chart's data
@@ -162,6 +187,13 @@
 	Chart.prototype.getY = function(idx){
 		return this.data.category[idx];
 	} // end getY
+
+	Chart.prototype.getWidth = function(){
+		return this.data.dimensions.width;
+	} // end getWidth
+	Chart.prototype.getHeight = function(){
+		return this.data.dimensions.height;
+	} // end getHeight
 
 	Chart.prototype.getAllVariables = function(){
 		return Object.keys(this.data.category);
@@ -304,8 +336,20 @@
 		return yDateArray;
 
 	}
+	Engine.prototype.getYRangeOfVariable = function(idx){
+		var i, len, item;	// Loop variables
+		var dataArray = this.chart.getY(idx);
+		var yDataArray = [];
 
-	Engine.prototype.render = function(){
+		for(i = 0, len = dataArray.length; i < len; ++i){
+			item = dataArray[i];
+			yDataArray[i] = item.value;
+		}
+		return yDataArray;
+
+	}
+
+	Engine.prototype.render = function(selector){
 		
 		var i, len, key, dateItem, prevDateItem, valueItem, prevValueItem;	// Loop variables
 		
@@ -313,12 +357,16 @@
 
 		for(var idx in allVariables){
 			key = allVariables[idx];
-			var render = new RenderEngine('graph');
+			console.log(key);
+			console.log(this.getYRange(key).toString());
+			console.log(this.getXRangeOfVariable(key).toString());
+			console.log(this.getYRangeOfVariable(key).toString());
+			var render = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight());
 			render.drawYAxis(this.getYRange(key));
 			render.drawXAxis(this.getXRange());
 
 			var dateOfVariable = this.getXRangeOfVariable(key);
-			var valueOfVariable = this.getYRange(key);
+			var valueOfVariable = this.getYRangeOfVariable(key);
 
 			for(i = 1, len = dateOfVariable.length; i < len; ++i){
 				dateItem = dateOfVariable[i];
@@ -326,6 +374,11 @@
 				valueItem = valueOfVariable[i];
 				prevValueItem = valueOfVariable[i - 1];
 				render.plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
+			}
+			for(i = 0, len = dateOfVariable.length; i < len; ++i){
+				dateItem = dateOfVariable[i];
+				valueItem = valueOfVariable[i];
+				render.plotCircle(dateItem, valueItem);
 			}
 
 		}
@@ -356,27 +409,46 @@
 		return coor * this.shiftRatio + this.shiftOriginY;
 	} // End __shiftY
 
-	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, style, isAxis){	// Private function to 
+	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, style){	// Private function to 
 																					// draw lines
-		isAxis = isAxis ? isAxis : false;
 		var coord1 = this.convert(x1, y1);			// Getting converted axis
 		var coord2 = this.convert(x2, y2);			// according to canvas
-		var lineStyle = style ? style : "stroke:rgb(255,0,0);stroke-width:1";
+		var lineStyle = style ? style : "stroke:rgb(255,0,0);stroke-width:0.9";
 		var line = document.createElementNS("http://www.w3.org/2000/svg", "line");	// creating our 
 																					// element line.
-		if(!isAxis){
-			line.setAttribute("x1", this.__shiftX(coord1.x));	// setting line 
-			line.setAttribute("y1", this.__shiftX(coord1.y));	// coordinates
-			line.setAttribute("x2", this.__shiftX(coord2.x));	// and styles
-			line.setAttribute("y2", this.__shiftX(coord2.y));	// with shifting
-		} else {
-			line.setAttribute("x1", coord1.x);	// setting line 
-			line.setAttribute("y1", coord1.y);	// coordinates
-			line.setAttribute("x2", coord2.x);	// and styles
-			line.setAttribute("y2", coord2.y);	// with shifting
-		}
+
+		line.setAttribute("x1", coord1.x);	// setting line 
+		line.setAttribute("y1", coord1.y);	// coordinates
+		line.setAttribute("x2", coord2.x);	// and styles
+		line.setAttribute("y2", coord2.y);	// with shifting
+
 		line.setAttribute("style", lineStyle);
 		this.svg.appendChild(line);					// Drawing line to our canvas
+	} // end constructor function
+
+	
+	RenderEngine.prototype.__drawCircle = function(x, y, r, style, tooltip){	// Private function to 
+																					// draw circle
+		var coord = this.convert(x, y);			// according to canvas
+		var circleStyle = style ? style : "stroke:rgb(255,0,0);stroke-width:1;fill:blue";
+		var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");	// creating our 
+																					// element line.
+
+		circle.setAttribute("cx", coord.x);	// setting circle 
+		circle.setAttribute("cy", coord.y);	// coordinates
+		circle.setAttribute("r", r);			// and styles
+
+		circle.setAttribute("style", circleStyle);
+
+		// Tooltip logic
+		if(tooltip){
+			var textEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
+			textEl.innerHTML = tooltip;
+			circle.appendChild(textEl);
+		}
+
+
+		this.svg.appendChild(circle);					// Drawing line to our canvas
 	} // end constructor function
 
 	RenderEngine.prototype.convert = function (x, y){
@@ -389,7 +461,7 @@
 	RenderEngine.prototype.__xRangeEstimateGenerator = function(min, max){
 		var _this = this;
 		return function(num){
-			return this.__shiftY(((num - min) / (max - min)) * _this.width);
+			return this.__shiftX(((num - min) / (max - min)) * _this.width);
 		}
 	}	// End yRangeEstimator
 
@@ -407,7 +479,7 @@
 		var x2 = this.width;
 		var y1 = 0;
 		var y2 = 0;
- 		this.__drawLine(x1, y1, x2, y2, undefined, true);
+ 		this.__drawLine(x1, y1, x2, y2);
 
  		// Drawing the ticks
  		var firstItem = rangeArray[0]; 
@@ -421,7 +493,7 @@
 			x2 = this.xRangeEstimator(item);
 			y1 = -4;
 			y2 = 4;
-	 		this.__drawLine(x1, y1, x2, y2, undefined, true); 			
+	 		this.__drawLine(x1, y1, x2, y2); 			
  		}
 	} // end draw x axis
 
@@ -434,19 +506,30 @@
  		this.__drawLine(x1, y1, x2, y2, undefined, true);
  		// Drawing the ticks
  		var firstItem = rangeArray[0]; 
- 		var lastItem = rangeArray[rangeArray.length - 1]; 
+ 		var lastItem = rangeArray[rangeArray.length - 1];
 
  		this.yRangeEstimator = this.__yRangeEstimateGenerator(firstItem, lastItem);
 
  		for(i = 0, len = rangeArray.length; i < len; ++i){
+ 			console.log(rangeArray.toString())
  			item = rangeArray[i];
 			y1 = this.yRangeEstimator(item);
 			y2 = this.yRangeEstimator(item);
 			x1 = -4;
 			x2 = 4;
+			this.__placeText(x1, y1, shortNumber(rangeArray[len - i - 1]));
 	 		this.__drawLine(x1, y1, x2, y2, undefined, true); 			
  		}
 	} // end drawYAxis
+
+	RenderEngine.prototype.__placeText = function(x, y, text){
+		var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+		textElement.setAttribute("x", x + 5);
+		textElement.setAttribute("y", y);
+		textElement.setAttribute("style", "font-size: 13px; text-align : center")
+		textElement.innerHTML = text;
+		this.svg.appendChild(textElement);
+	} // End placetext
 
 	RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style){
 		x1 = this.xRangeEstimator(x1);
@@ -455,6 +538,15 @@
 		y2 = this.yRangeEstimator(y2);
 		style = style ? style : "stroke:rgb(0,0,230);stroke-width:1";
 		this.__drawLine(x1, y1, x2, y2, style);
+	}
+
+	RenderEngine.prototype.plotCircle = function(x, y, style){
+		var value = y;
+		x = this.xRangeEstimator(x);
+		y = this.yRangeEstimator(y);
+		style = style ? style : "stroke:rgb(0,0,230);stroke-width:1;fill: blue";
+
+		this.__drawCircle(x, y, 3, style, value);
 	}
 
 

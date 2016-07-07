@@ -1,40 +1,39 @@
 RenderChart({
 	"dimensions" : {						// Size of canvas
-		"width" : 400,		
-		"height" : 400,
-	},
-
-	"ticks" : {
-		"xaxis" : 5,						// Number of ticks to be shown on X and Y axis
-		"yaxis" : 5
+		"width" : 1300,		
+		"height" : 600,
 	},
 
 	"caption" : "Caption here",
 	"subcaption" : "Sub Caption here",
-	"xaxisname" : "Time",					// Label for X-axis
-	"variables" : ['sale', 'population'], 	// If not provided all unique   
-											// attributes will be mapped
-
-	"separator" : "|", 						// delimiter for data source; '|' default
 
 	"data" : [{
 			time : "05-05-2012",			// time in mm-dd-yyyy format
-			sale : 120
+			sale : 160000000
 		}, 
 		{
 			time : "06-06-2015",
-			hike : 1.5,
-			sale : 45
+			hike : 15,
+			sale : 40000000
 		},{
 			time : "01-09-2006",			// time in mm-dd-yyyy format
-			sale : 150,
-			hike : 1.2
+			sale : 160000000,
+			hike : 12
 		},{
 			time : "05-02-2011",			// time in mm-dd-yyyy format
-			sale : 103
+			sale : 103000000
 		},{
 			time : "04-11-2012",			// time in mm-dd-yyyy format
-			sale : 89,
-			hike : 1.3
-		},]			
-});
+			sale : 80000000,
+			hike : 13
+		},{
+			time : "01-01-2004",
+			sale : 0
+		},{
+			time : "11-01-2004",
+			sale : 200000000
+		},{
+			time : "04-01-2005",
+			sale : 40000000
+		}]			
+}, 'graph');
