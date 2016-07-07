@@ -163,6 +163,10 @@
 		return this.data.category[idx];
 	} // end getY
 
+	Chart.prototype.getAllVariables = function(){
+		return Object.keys(this.data.category);
+	}
+
 
 
 	function Engine(chart){		// An object to fetch data from 'Chart' and make  
@@ -281,15 +285,50 @@
 			rangeArray.push(minValue);
 			minValue += steps;
 		}
+		if(minValue !== maxValue){
+			rangeArray.push(minValue);
+		}
 		return rangeArray;
 
 	} // end getXrange
 
+	Engine.prototype.getXRangeOfVariable = function(idx){
+		var i, len, item;	// Loop variables
+		var dataArray = this.chart.getY(idx);
+		var yDateArray = [];
+
+		for(i = 0, len = dataArray.length; i < len; ++i){
+			item = dataArray[i];
+			yDateArray[i] = joinDate(item.year, item.month);
+		}
+		return yDateArray;
+
+	}
+
 	Engine.prototype.render = function(){
-		var render = new RenderEngine('graph');
-		render.drawYAxis(this.getYRange("sale"));
-		console.log(this.getYRange("sale"));
-		render.drawXAxis(this.getXRange());
+		
+		var i, len, key, dateItem, prevDateItem, valueItem, prevValueItem;	// Loop variables
+		
+		var allVariables = this.chart.getAllVariables();
+
+		for(var idx in allVariables){
+			key = allVariables[idx];
+			var render = new RenderEngine('graph');
+			render.drawYAxis(this.getYRange(key));
+			render.drawXAxis(this.getXRange());
+
+			var dateOfVariable = this.getXRangeOfVariable(key);
+			var valueOfVariable = this.getYRange(key);
+
+			for(i = 1, len = dateOfVariable.length; i < len; ++i){
+				dateItem = dateOfVariable[i];
+				prevDateItem = dateOfVariable[i - 1];
+				valueItem = valueOfVariable[i];
+				prevValueItem = valueOfVariable[i - 1];
+				render.plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
+			}
+
+		}
 	}
 
 	function RenderEngine(selector, width, height){
@@ -304,19 +343,38 @@
 		this.marginY = 25;						// and ticks
 		this.width = width;						// Storing height and width
 		this.height = height;					// for future uses
+		this.shiftRatio = 0.9;					// Shifting values for better
+		this.shiftOriginX = 0.03 * this.width;	// screen accomodation
+		this.shiftOriginY = 0.03 * this.height;
 	}
 
-	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, style){	// Private function to 
-																	// draw lines
+	RenderEngine.prototype.__shiftX = function(coor){
+		return coor * this.shiftRatio + this.shiftOriginX;
+	} // End __shiftX
+
+	RenderEngine.prototype.__shiftY = function(coor){
+		return coor * this.shiftRatio + this.shiftOriginY;
+	} // End __shiftY
+
+	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, style, isAxis){	// Private function to 
+																					// draw lines
+		isAxis = isAxis ? isAxis : false;
 		var coord1 = this.convert(x1, y1);			// Getting converted axis
 		var coord2 = this.convert(x2, y2);			// according to canvas
 		var lineStyle = style ? style : "stroke:rgb(255,0,0);stroke-width:1";
 		var line = document.createElementNS("http://www.w3.org/2000/svg", "line");	// creating our 
-																					// element line
-		line.setAttribute("x1", coord1.x);			// setting line coordinates
-		line.setAttribute("y1", coord1.y);			// and styles
-		line.setAttribute("x2", coord2.x);
-		line.setAttribute("y2", coord2.y);
+																					// element line.
+		if(!isAxis){
+			line.setAttribute("x1", this.__shiftX(coord1.x));	// setting line 
+			line.setAttribute("y1", this.__shiftX(coord1.y));	// coordinates
+			line.setAttribute("x2", this.__shiftX(coord2.x));	// and styles
+			line.setAttribute("y2", this.__shiftX(coord2.y));	// with shifting
+		} else {
+			line.setAttribute("x1", coord1.x);	// setting line 
+			line.setAttribute("y1", coord1.y);	// coordinates
+			line.setAttribute("x2", coord2.x);	// and styles
+			line.setAttribute("y2", coord2.y);	// with shifting
+		}
 		line.setAttribute("style", lineStyle);
 		this.svg.appendChild(line);					// Drawing line to our canvas
 	} // end constructor function
@@ -328,25 +386,42 @@
 		};
 	} // end convert
 
+	RenderEngine.prototype.__xRangeEstimateGenerator = function(min, max){
+		var _this = this;
+		return function(num){
+			return this.__shiftY(((num - min) / (max - min)) * _this.width);
+		}
+	}	// End yRangeEstimator
+
+	RenderEngine.prototype.__yRangeEstimateGenerator = function(min, max){
+		var _this = this;
+		return function(num){
+			return this.__shiftY(((num - min) / (max - min)) * _this.height);
+		}
+	}	// End yRangeEstimator
+
 	RenderEngine.prototype.drawXAxis = function(rangeArray){
-		var i, len, item;					// Loop iteration variables
+		var i, len, item;			// Loop iteration variables
 		// Drawing X axis 
 		var x1 = -1 * this.marginX;
 		var x2 = this.width;
 		var y1 = 0;
 		var y2 = 0;
- 		this.__drawLine(x1, y1, x2, y2);
+ 		this.__drawLine(x1, y1, x2, y2, undefined, true);
 
  		// Drawing the ticks
  		var firstItem = rangeArray[0]; 
  		var lastItem = rangeArray[rangeArray.length - 1]; 
+
+ 		this.xRangeEstimator = this.__xRangeEstimateGenerator(firstItem, lastItem);
+
  		for(i = 0, len = rangeArray.length; i < len; ++i){
  			item = rangeArray[i];
-			x1 = ((item - firstItem) / (lastItem - firstItem)) * this.width * 0.9;
-			x2 = ((item - firstItem) / (lastItem - firstItem)) * this.width * 0.91;
+			x1 = this.xRangeEstimator(item);
+			x2 = this.xRangeEstimator(item);
 			y1 = -4;
 			y2 = 4;
-	 		this.__drawLine(x1, y1, x2, y2); 			
+	 		this.__drawLine(x1, y1, x2, y2, undefined, true); 			
  		}
 	} // end draw x axis
 
@@ -356,19 +431,31 @@
 		var x2 = 0;
 		var y1 = -1 * this.marginX;
 		var y2 = this.height;
- 		this.__drawLine(x1, y1, x2, y2);
+ 		this.__drawLine(x1, y1, x2, y2, undefined, true);
  		// Drawing the ticks
  		var firstItem = rangeArray[0]; 
  		var lastItem = rangeArray[rangeArray.length - 1]; 
+
+ 		this.yRangeEstimator = this.__yRangeEstimateGenerator(firstItem, lastItem);
+
  		for(i = 0, len = rangeArray.length; i < len; ++i){
  			item = rangeArray[i];
-			y1 = ((item - firstItem) / (lastItem - firstItem)) * this.height * 0.9;
-			y2 = ((item - firstItem) / (lastItem - firstItem)) * this.height * 0.91;
+			y1 = this.yRangeEstimator(item);
+			y2 = this.yRangeEstimator(item);
 			x1 = -4;
 			x2 = 4;
-	 		this.__drawLine(x1, y1, x2, y2); 			
+	 		this.__drawLine(x1, y1, x2, y2, undefined, true); 			
  		}
 	} // end drawYAxis
+
+	RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style){
+		x1 = this.xRangeEstimator(x1);
+		x2 = this.xRangeEstimator(x2);
+		y1 = this.yRangeEstimator(y1);
+		y2 = this.yRangeEstimator(y2);
+		style = style ? style : "stroke:rgb(0,0,230);stroke-width:1";
+		this.__drawLine(x1, y1, x2, y2, style);
+	}
 
 
 })();
