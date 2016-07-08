@@ -572,7 +572,8 @@
 			y2 = this.yRangeEstimator(item);
 			x1 = -4;
 			x2 = 4;
-			this.__placeText(x1 + this.width * 0.015, y1, shortNumber(rangeArray[len - i - 1]), "axis-label yaxis-label");
+			var numText = shortNumber(rangeArray[len - i - 1]);
+			this.__placeText(x1 + this.width * 0.005 - (numText.lenth * 1), y1, numText , "axis-label yaxis-label");
 	 		this.__drawLine(x1, y1, x2, y2, "ticks", true); 			
  		}
  		for(i = 0, len = rangeArray.length; i < len; ++i){
