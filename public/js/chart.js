@@ -2,6 +2,8 @@
 ;(function(){
 	"use strict";
 
+
+
 	// Exposing public Api
 	window.RenderChart = function(data, selector){
 		var chart = new Chart(data);
@@ -16,6 +18,21 @@
 		return a.year > b.year;
 	}
 
+	var cumulativeOffset = function(element) {
+    	var top = 0, left = 0;
+    	do {
+    	    top += element.offsetTop  || 0;
+    	    left += element.offsetLeft || 0;
+    	    element = element.offsetParent;
+    	} while(element);
+
+    	return {
+        	top: top,
+        	left: left
+    	};
+	};
+
+
 	var joinDate = function(year, month){	// Helper function to combine year and 
 		return ((year * 12) + month);		// month
 	}
@@ -24,6 +41,17 @@
 			year : Math.floor(date / 12),
 			month : date % 12
 		};
+	}
+
+	var timeInWords = function (date){		// Conver  joined dates to 'Feb'06' format
+		var year = splitDate(date).year;
+		var month = splitDate(date).month;
+		var monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		year -= 100;
+		if(year < 10){
+			return monthName[month] + " '0" + year;	
+		}
+		return monthName[month] + " '" + year;
 	}
 
 	var shortNumber = function(num){
@@ -361,7 +389,7 @@
 			console.log(this.getYRange(key).toString());
 			console.log(this.getXRangeOfVariable(key).toString());
 			console.log(this.getYRangeOfVariable(key).toString());
-			var render = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight());
+			var render = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			render.drawYAxis(this.getYRange(key));
 			render.drawXAxis(this.getXRange());
 
@@ -384,7 +412,7 @@
 		}
 	}
 
-	function RenderEngine(selector, width, height){
+	function RenderEngine(selector, width, height, name){
 		width = width ? width : 600;
 		height = height ? height : 500;
 		this.rootElement = document.getElementById(selector);				 // getting parent element
@@ -392,13 +420,25 @@
 		this.svg.setAttribute("height", height);	
 		this.svg.setAttribute("width", width);
 		this.rootElement.appendChild(this.svg);	// adding our canvas to parent element
-		this.marginX = 25;						// Margin will be used for labels
-		this.marginY = 25;						// and ticks
 		this.width = width;						// Storing height and width
 		this.height = height;					// for future uses
+		this.marginX = 0.04 * this.width;		// Margin will be used for labels
+		this.marginY = 0.05 * this.height;						// and ticks
 		this.shiftRatio = 0.9;					// Shifting values for better
 		this.shiftOriginX = 0.03 * this.width;	// screen accomodation
 		this.shiftOriginY = 0.03 * this.height;
+
+		// Rendering name
+		var toolEl = document.createElement("div");
+		toolEl.innerHTML = name.toUpperCase();
+		var top = cumulativeOffset(this.svg).top + height * 0.1;
+		var left = width * 0.9;
+		var floor = Math.floor.bind(Math);
+		var style = "position:absolute;top:" + floor(top) + "px;left:" + floor(left) + "px;";
+		style += "font-size: 19px;padding: 5px;"
+		style += "background:black;color:white;"
+		toolEl.setAttribute("style" , style);
+		this.rootElement.appendChild(toolEl);
 	}
 
 	RenderEngine.prototype.__shiftX = function(coor){
@@ -440,15 +480,39 @@
 
 		circle.setAttribute("style", circleStyle);
 
+		this.svg.appendChild(circle);		
 		// Tooltip logic
 		if(tooltip){
-			var textEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
+			/*var textEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
 			textEl.innerHTML = tooltip;
-			circle.appendChild(textEl);
+			circle.appendChild(textEl);*/
+			var body = document.getElementsByTagName("body")[0];
+			var toolEl = document.createElement("div");
+			toolEl.innerHTML = tooltip;
+			body.appendChild(toolEl); 
+			var top = cumulativeOffset(this.svg).top + coord.y + 10;
+			var left = (cumulativeOffset(this.svg).left + coord.x) + 10;
+			var floor = Math.floor.bind(Math);
+			var style = "position:absolute;top:" + floor(top) + "px;left:" + floor(left) + "px;";
+			style += "background:black;color:white;"
+			var visibility = 'visibility:hidden;'
+			toolEl.setAttribute("style" , style + visibility);
+			this.rootElement.appendChild(toolEl);
+
+			circle.addEventListener("mouseover", function(){
+				setTimeout(function(){
+					toolEl.setAttribute("style" , style + "visibility:visible;");
+				}, 200);
+			});
+			circle.addEventListener("mouseout", function(){
+				setTimeout(function(){
+					toolEl.setAttribute("style" , style + "visibility:hidden;");
+				}, 200);
+			});
+			console.log(top, left, "TOPLEFT")
 		}
 
-
-		this.svg.appendChild(circle);					// Drawing line to our canvas
+			// Drawing line to our canvas
 	} // end constructor function
 
 	RenderEngine.prototype.convert = function (x, y){
@@ -493,6 +557,8 @@
 			x2 = this.xRangeEstimator(item);
 			y1 = -4;
 			y2 = 4;
+			this.__placeText(x1 + 0.03 * this.width - timeInWords(item).length, this.height * 0.99, timeInWords(item));
+			console.log("x1", x1);
 	 		this.__drawLine(x1, y1, x2, y2); 			
  		}
 	} // end draw x axis
@@ -517,14 +583,14 @@
 			y2 = this.yRangeEstimator(item);
 			x1 = -4;
 			x2 = 4;
-			this.__placeText(x1, y1, shortNumber(rangeArray[len - i - 1]));
+			this.__placeText(x1 + this.width * 0.015, y1, shortNumber(rangeArray[len - i - 1]));
 	 		this.__drawLine(x1, y1, x2, y2, undefined, true); 			
  		}
 	} // end drawYAxis
 
 	RenderEngine.prototype.__placeText = function(x, y, text){
 		var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
-		textElement.setAttribute("x", x + 5);
+		textElement.setAttribute("x", (text + "").length + x);
 		textElement.setAttribute("y", y);
 		textElement.setAttribute("style", "font-size: 13px; text-align : center")
 		textElement.innerHTML = text;

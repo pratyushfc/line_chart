@@ -1,13 +1,14 @@
 RenderChart({
 	"dimensions" : {						// Size of canvas
-		"width" : 1300,		
-		"height" : 600,
+		"width" : 1200,		
+		"height" : 400,
 	},
 
 	"caption" : "Caption here",
 	"subcaption" : "Sub Caption here",
 
-	"data" : [{
+	"data" : [
+		{
 			time : "05-05-2012",			// time in mm-dd-yyyy format
 			sale : 160000000
 		}, 
@@ -27,7 +28,7 @@ RenderChart({
 			sale : 80000000,
 			hike : 13
 		},{
-			time : "01-01-2004",
+			time : "01-01-2000",
 			sale : 0
 		},{
 			time : "11-01-2004",
@@ -35,5 +36,15 @@ RenderChart({
 		},{
 			time : "04-01-2005",
 			sale : 40000000
+		},{
+			time : "09-06-2017",
+			hike : 19
+		},{
+			time : "09-06-2019",
+			hike : 14
+		},{
+			time : "09-06-2020",
+			hike : 12
 		}]			
 }, 'graph');
+
