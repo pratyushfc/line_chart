@@ -247,10 +247,6 @@
 
 		var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
 
-		/*if(difference < (Math.pow(10, numDig - 1) + ( 0.1 * Math.pow(10, numDig - 1)) )){
-			beautyNumber = beautyNumber / 10;
-		}*/
-
 		minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
 
 		if((difference / maxValue) > 0.1){
@@ -435,9 +431,8 @@
 		var left = width * 0.9;
 		var floor = Math.floor.bind(Math);
 		var style = "position:absolute;top:" + floor(top) + "px;left:" + floor(left) + "px;";
-		style += "font-size: 19px;padding: 5px;"
-		style += "background:black;color:white;"
 		toolEl.setAttribute("style" , style);
+		toolEl.setAttribute("class" , "chartLabel");
 		this.rootElement.appendChild(toolEl);
 	}
 
@@ -449,11 +444,10 @@
 		return coor * this.shiftRatio + this.shiftOriginY;
 	} // End __shiftY
 
-	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, style){	// Private function to 
+	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, className){	// Private function to 
 																					// draw lines
 		var coord1 = this.convert(x1, y1);			// Getting converted axis
 		var coord2 = this.convert(x2, y2);			// according to canvas
-		var lineStyle = style ? style : "stroke:rgb(255,0,0);stroke-width:0.9";
 		var line = document.createElementNS("http://www.w3.org/2000/svg", "line");	// creating our 
 																					// element line.
 
@@ -462,23 +456,23 @@
 		line.setAttribute("x2", coord2.x);	// and styles
 		line.setAttribute("y2", coord2.y);	// with shifting
 
-		line.setAttribute("style", lineStyle);
+		if(className){
+			line.setAttribute("class", className);
+		}
 		this.svg.appendChild(line);					// Drawing line to our canvas
 	} // end constructor function
 
 	
-	RenderEngine.prototype.__drawCircle = function(x, y, r, style, tooltip){	// Private function to 
+	RenderEngine.prototype.__drawCircle = function(x, y, r, className, tooltip){	// Private function to 
 																					// draw circle
 		var coord = this.convert(x, y);			// according to canvas
-		var circleStyle = style ? style : "stroke:rgb(255,0,0);stroke-width:1;fill:blue";
 		var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");	// creating our 
 																					// element line.
 
 		circle.setAttribute("cx", coord.x);	// setting circle 
 		circle.setAttribute("cy", coord.y);	// coordinates
 		circle.setAttribute("r", r);			// and styles
-
-		circle.setAttribute("style", circleStyle);
+		circle.setAttribute("class", className);
 
 		this.svg.appendChild(circle);		
 		// Tooltip logic
@@ -494,9 +488,9 @@
 			var left = (cumulativeOffset(this.svg).left + coord.x) + 10;
 			var floor = Math.floor.bind(Math);
 			var style = "position:absolute;top:" + floor(top) + "px;left:" + floor(left) + "px;";
-			style += "background:black;color:white;"
 			var visibility = 'visibility:hidden;'
 			toolEl.setAttribute("style" , style + visibility);
+			toolEl.setAttribute("class" , "plotTooltip");
 			this.rootElement.appendChild(toolEl);
 
 			circle.addEventListener("mouseover", function(){
@@ -543,7 +537,7 @@
 		var x2 = this.width;
 		var y1 = 0;
 		var y2 = 0;
- 		this.__drawLine(x1, y1, x2, y2);
+ 		this.__drawLine(x1, y1, x2, y2, "axis xaxis");
 
  		// Drawing the ticks
  		var firstItem = rangeArray[0]; 
@@ -557,9 +551,9 @@
 			x2 = this.xRangeEstimator(item);
 			y1 = -4;
 			y2 = 4;
-			this.__placeText(x1 + 0.03 * this.width - timeInWords(item).length, this.height * 0.99, timeInWords(item));
+			this.__placeText(x1 + 0.03 * this.width - timeInWords(item).length, this.height * 0.99, timeInWords(item), "axis-label xaxis-label");
 			console.log("x1", x1);
-	 		this.__drawLine(x1, y1, x2, y2); 			
+	 		this.__drawLine(x1, y1, x2, y2, "ticks"); 			
  		}
 	} // end draw x axis
 
@@ -569,7 +563,7 @@
 		var x2 = 0;
 		var y1 = -1 * this.marginX;
 		var y2 = this.height;
- 		this.__drawLine(x1, y1, x2, y2, undefined, true);
+ 		this.__drawLine(x1, y1, x2, y2, "axis yaxis");
  		// Drawing the ticks
  		var firstItem = rangeArray[0]; 
  		var lastItem = rangeArray[rangeArray.length - 1];
@@ -583,16 +577,18 @@
 			y2 = this.yRangeEstimator(item);
 			x1 = -4;
 			x2 = 4;
-			this.__placeText(x1 + this.width * 0.015, y1, shortNumber(rangeArray[len - i - 1]));
-	 		this.__drawLine(x1, y1, x2, y2, undefined, true); 			
+			this.__placeText(x1 + this.width * 0.015, y1, shortNumber(rangeArray[len - i - 1]), "axis-label yaxis-label");
+	 		this.__drawLine(x1, y1, x2, y2, "ticks", true); 			
  		}
 	} // end drawYAxis
 
-	RenderEngine.prototype.__placeText = function(x, y, text){
+	RenderEngine.prototype.__placeText = function(x, y, text, className){
 		var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
 		textElement.setAttribute("x", (text + "").length + x);
 		textElement.setAttribute("y", y);
-		textElement.setAttribute("style", "font-size: 13px; text-align : center")
+		if(className){
+			textElement.setAttribute("class", className);
+		}
 		textElement.innerHTML = text;
 		this.svg.appendChild(textElement);
 	} // End placetext
@@ -602,17 +598,15 @@
 		x2 = this.xRangeEstimator(x2);
 		y1 = this.yRangeEstimator(y1);
 		y2 = this.yRangeEstimator(y2);
-		style = style ? style : "stroke:rgb(0,0,230);stroke-width:1";
-		this.__drawLine(x1, y1, x2, y2, style);
+		this.__drawLine(x1, y1, x2, y2, "chart-line");
 	}
 
-	RenderEngine.prototype.plotCircle = function(x, y, style){
+	RenderEngine.prototype.plotCircle = function(x, y){
 		var value = y;
 		x = this.xRangeEstimator(x);
 		y = this.yRangeEstimator(y);
-		style = style ? style : "stroke:rgb(0,0,230);stroke-width:1;fill: blue";
-
-		this.__drawCircle(x, y, 3, style, value);
+		var className = 'plot-circle';
+		this.__drawCircle(x, y, 3, className);
 	}
 
 

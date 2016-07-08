@@ -1,54 +1,53 @@
-body {
- font-family: 'Open Sans', sans-serif;
+.chartLabel{
+	font-size: 19px;
+	padding: 5px;
+	background: black;
+	color: white;
 }
 
-.graph .labels.x-labels {
- text-anchor: middle;
+.plotTooltip{
+	background: black;
+	color: white;
 }
 
-.graph .labels.y-labels {
- text-anchor: end;
+.axis-label{
+	font-size: 13px;
+	text-align : center
 }
 
-.graph .ticks {
-  stroke: blue;
-  stroke-width: 1;
-}
-.graph .division{
- stroke:blue;
- stroke-dasharray:5,5;
+.xaxis-label{
 
- stroke-width:0.5;
 }
 
-/* X Y axis */
-.graph .grid {  
- stroke: black;
- stroke-dasharray: 0;
- stroke-width: 1;
+.yaxis-label{
+
 }
 
-.labels {
- font-size: 13px;
+.plot-circle{
+	stroke: rgb(0,0,230);
+	stroke-width: 1;
+	fill: blue;
 }
 
-.label-title {
- font-weight: bold;
- text-transform: uppercase;
- font-size: 12px;
- fill: black;
+.axis{
+	stroke: rgb(255,0,0);
+	stroke-width: 0.9;
 }
 
-.data {
- fill: red;
- stroke-width: 1; 
+.chart-line{
+	stroke: rgb(0,0,230);
+	stroke-width: 1;
 }
 
-.chart {
- background: white;
- width: 500px;
- height: 100px;
- border-left: 1px dotted #555;
- border-bottom: 1px dotted #555;
- padding: 20px 20px 20px 0;
+.ticks{
+	stroke: red;
+	stroke-width: 1;
+}
+
+.xaxis{
+
+}
+
+.yaxis{
+
 }
