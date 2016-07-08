@@ -9,6 +9,7 @@ Multiple variables plot against time in multiple synchronised chart
 - cd directory
 - npm install[optional]
 - npm start
+- Open browser to localhost:3000
 ```
 
 # Json Structure
