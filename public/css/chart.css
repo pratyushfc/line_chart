@@ -1,0 +1,95 @@
+
+body{
+	margin: 0;
+	padding: 0;
+}
+.chartLabel{
+	font-size: 19px;
+	padding: 5px;
+	background: #F44336;
+	color: white;
+	opacity : 0.9;
+}
+.caption-box{
+	background: white;
+	color: #009688;
+	height: auto;
+	width: 100vw;
+	margin: 0;
+	left: 0;
+    text-align: center;
+}
+.caption-box .caption{
+
+}
+
+.caption-box .sub-caption{
+
+}
+
+.plotTooltip{
+	background: #F44336;
+	color: white;
+	padding: 5px;
+}
+.chart{
+	margin-bottom: 50px;
+}
+
+.chart .axis-label{
+	font-size: 13px;
+	text-align : center;
+}
+
+.chart .xaxis-label{
+
+}
+
+.chart .yaxis-label{
+
+}
+
+.chart .plot-circle{
+	stroke: #009688;
+	stroke-width: 1;
+	fill: white;
+	z-index : 99;
+}
+
+.chart .plot-circle:hover{
+	stroke: #F44336;
+}
+
+.chart .axis{
+	stroke-width: 0.chart .9;
+	stroke : #9E9E9E;
+}
+
+.chart .xaxis{
+
+}
+
+.chart .yaxis{
+	stroke: rgba(1,1,1,0);
+
+}
+.chart .chart-line{
+	stroke: #607D8B;
+	stroke-width: 1;
+}
+
+.chart .chart-line:hover{
+	stroke: #F44336;
+}
+
+.chart .ticks{
+	stroke: #232528;
+	stroke-width: 1;
+}
+
+.chart .div-lines{
+	stroke: #7E7E7E;
+	stroke-dasharray: 5, 15;
+	stroke-width: 0.5;
+}
+
