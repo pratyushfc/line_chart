@@ -4,8 +4,8 @@ RenderChart({
 		"height" : 400,
 	},
 
-	"caption" : "Caption here",
-	"subcaption" : "Sub Caption here",
+	"caption" : "Line Chart",
+	"subcaption" : "Plot variables against time",
 
 	"data" : [
 		{
@@ -15,7 +15,7 @@ RenderChart({
 		{
 			time : "06-06-2015",
 			hike : 15,
-			sale : 40000000
+			sale : -50000000
 		},{
 			time : "01-09-2006",			// time in mm-dd-yyyy format
 			sale : 160000000,
