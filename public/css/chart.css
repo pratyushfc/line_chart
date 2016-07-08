@@ -1,53 +1,61 @@
 .chartLabel{
 	font-size: 19px;
 	padding: 5px;
-	background: black;
+	background: #009688;
 	color: white;
 }
 
-.plotTooltip{
-	background: black;
+ .plotTooltip{
+	background: #00796B;
 	color: white;
+	padding: 5px;
 }
 
-.axis-label{
+.chart .axis-label{
 	font-size: 13px;
-	text-align : center
+	text-align : center;
 }
 
-.xaxis-label{
-
-}
-
-.yaxis-label{
+.chart .xaxis-label{
 
 }
 
-.plot-circle{
-	stroke: rgb(0,0,230);
+.chart .yaxis-label{
+
+}
+
+.chart .plot-circle{
+	stroke: #009688;
 	stroke-width: 1;
-	fill: blue;
+	fill: #009688;
 }
 
-.axis{
-	stroke: rgb(255,0,0);
-	stroke-width: 0.9;
+.chart .axis{
+	stroke-width: 0.chart .9;
+	stroke : #9E9E9E;
 }
 
-.chart-line{
-	stroke: rgb(0,0,230);
+.chart .xaxis{
+
+}
+
+.chart .yaxis{
+	stroke: rgba(1,1,1,0);
+
+}
+.chart .chart-line{
+	stroke: #607D8B;
 	stroke-width: 1;
 }
 
-.ticks{
-	stroke: red;
+.chart .ticks{
+	stroke: #232528;
 	stroke-width: 1;
 }
 
-.xaxis{
-
+.chart .div-lines{
+	stroke: #7E7E7E;
+	stroke-dasharray: 5, 15;
+	stroke-width: 0.5;
 }
 
-.yaxis{
-
-}

@@ -415,6 +415,7 @@
 		this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");	// creating canvas
 		this.svg.setAttribute("height", height);	
 		this.svg.setAttribute("width", width);
+		this.svg.setAttribute("class", "chart");
 		this.rootElement.appendChild(this.svg);	// adding our canvas to parent element
 		this.width = width;						// Storing height and width
 		this.height = height;					// for future uses
@@ -479,11 +480,10 @@
 		if(tooltip){
 			/*var textEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
 			textEl.innerHTML = tooltip;
-			circle.appendChild(textEl);*/
-			var body = document.getElementsByTagName("body")[0];
+			circle.appendChild(textEl);*/	
 			var toolEl = document.createElement("div");
 			toolEl.innerHTML = tooltip;
-			body.appendChild(toolEl); 
+			this.rootElement.appendChild(toolEl); 
 			var top = cumulativeOffset(this.svg).top + coord.y + 10;
 			var left = (cumulativeOffset(this.svg).left + coord.x) + 10;
 			var floor = Math.floor.bind(Math);
@@ -571,7 +571,6 @@
  		this.yRangeEstimator = this.__yRangeEstimateGenerator(firstItem, lastItem);
 
  		for(i = 0, len = rangeArray.length; i < len; ++i){
- 			console.log(rangeArray.toString())
  			item = rangeArray[i];
 			y1 = this.yRangeEstimator(item);
 			y2 = this.yRangeEstimator(item);
@@ -579,6 +578,14 @@
 			x2 = 4;
 			this.__placeText(x1 + this.width * 0.015, y1, shortNumber(rangeArray[len - i - 1]), "axis-label yaxis-label");
 	 		this.__drawLine(x1, y1, x2, y2, "ticks", true); 			
+ 		}
+ 		for(i = 0, len = rangeArray.length; i < len; ++i){
+ 			item = rangeArray[i];
+			y1 = this.yRangeEstimator(item);
+			y2 = this.yRangeEstimator(item);
+			x1 = 0;
+			x2 = this.width;
+			this.__drawLine(x1, y1, x2, y2, "div-lines", true); 			
  		}
 	} // end drawYAxis
 
@@ -606,7 +613,7 @@
 		x = this.xRangeEstimator(x);
 		y = this.yRangeEstimator(y);
 		var className = 'plot-circle';
-		this.__drawCircle(x, y, 3, className);
+		this.__drawCircle(x, y, 3, className, value);
 	}
 
 
