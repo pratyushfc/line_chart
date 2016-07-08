@@ -12,10 +12,9 @@
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
-		if(a.year === b.year){
-			return a.month > b.month;
-		}
-		return a.year > b.year;
+		a = joinDate(a.year, a.month);
+		b = joinDate(b.year, b.month);
+		return a - b;
 	}
 
 	var cumulativeOffset = function(element) {
@@ -47,7 +46,7 @@
 		var year = splitDate(date).year;
 		var month = splitDate(date).month;
 		var monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		year -= 100;
+		year %= 100;
 		if(year < 10){
 			return monthName[month] + " '0" + year;	
 		}
@@ -61,16 +60,16 @@
 
 		if(numDig >= 13){
 			suffix = "t"
-			stepsDown = 13;
+			stepsDown = 12;
 		} else if(numDig >= 10){
 			suffix = "b"
-			stepsDown = 10;
+			stepsDown = 9;
 		} else if(numDig >= 7){
 			suffix = "m"
-			stepsDown = 7;
+			stepsDown = 6;
 		} else if(numDig >= 4){
 			suffix = "k"
-			stepsDown = 4;
+			stepsDown = 3;
 		} else{
 			suffix = ""
 			stepsDown = 0;
@@ -334,16 +333,16 @@
 		var minValue = joinDate(this.chart.getMinX().year, this.chart.getMinX().month);
 		var maxValue = joinDate(this.chart.getMaxX().year, this.chart.getMaxX().month);
 
-		var steps = Math.floor((maxValue - minValue) / 5) ;
+		var steps = ((maxValue - minValue) / 5) ;
 		var rangeArray = [];
 
+
 		while(minValue <= maxValue){
-			rangeArray.push(minValue);
+			rangeArray.push(Math.floor(minValue));
 			minValue += steps;
 		}
-		if(minValue !== maxValue){
-			rangeArray.push(minValue);
-		}
+		rangeArray.push(Math.ceil(minValue));
+		
 		return rangeArray;
 
 	} // end getXrange
@@ -381,13 +380,12 @@
 
 		for(var idx in allVariables){
 			key = allVariables[idx];
-			console.log(key);
-			console.log(this.getYRange(key).toString());
-			console.log(this.getXRangeOfVariable(key).toString());
-			console.log(this.getYRangeOfVariable(key).toString());
 			var render = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			render.drawYAxis(this.getYRange(key));
 			render.drawXAxis(this.getXRange());
+			console.log(this.getXRange().toString())
+
+			for(i in this.getXRange())
 
 			var dateOfVariable = this.getXRangeOfVariable(key);
 			var valueOfVariable = this.getYRangeOfVariable(key);
@@ -428,7 +426,7 @@
 		// Rendering name
 		var toolEl = document.createElement("div");
 		toolEl.innerHTML = name.toUpperCase();
-		var top = cumulativeOffset(this.svg).top + height * 0.1;
+		var top = cumulativeOffset(this.svg).top + height * 0.01;
 		var left = width * 0.9;
 		var floor = Math.floor.bind(Math);
 		var style = "position:absolute;top:" + floor(top) + "px;left:" + floor(left) + "px;";
@@ -503,7 +501,6 @@
 					toolEl.setAttribute("style" , style + "visibility:hidden;");
 				}, 200);
 			});
-			console.log(top, left, "TOPLEFT")
 		}
 
 			// Drawing line to our canvas
@@ -552,7 +549,6 @@
 			y1 = -4;
 			y2 = 4;
 			this.__placeText(x1 + 0.03 * this.width - timeInWords(item).length, this.height * 0.99, timeInWords(item), "axis-label xaxis-label");
-			console.log("x1", x1);
 	 		this.__drawLine(x1, y1, x2, y2, "ticks"); 			
  		}
 	} // end draw x axis

@@ -1,14 +1,18 @@
 .chartLabel{
 	font-size: 19px;
 	padding: 5px;
-	background: #009688;
+	background: #00796B;
 	color: white;
+	opacity : 0.9;
 }
 
- .plotTooltip{
+.plotTooltip{
 	background: #00796B;
 	color: white;
 	padding: 5px;
+}
+.chart{
+	margin-bottom: 50px;
 }
 
 .chart .axis-label{
