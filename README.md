@@ -1,6 +1,16 @@
 # Line Chart
 Multiple variables plot against time in multiple synchronised chart
 
+# Steps to Run
+
+```
+- Clone the github repo
+- Install node and npm
+- cd directory
+- npm install[optional]
+- npm start
+```
+
 # Json Structure
 
 ```

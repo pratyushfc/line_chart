@@ -224,8 +224,15 @@
 
 	Chart.prototype.getAllVariables = function(){
 		return Object.keys(this.data.category);
-	}
+	} // End getAllVariables
 
+	Chart.prototype.getCaption = function(){
+		return this.data.caption;
+	}  // End getCaption()
+
+	Chart.prototype.getSubCaption = function(){
+		return this.data.subcaption;
+	}  // End getSubCaption()
 
 
 	function Engine(chart){		// An object to fetch data from 'Chart' and make  
@@ -333,6 +340,7 @@
 		var minValue = joinDate(this.chart.getMinX().year, this.chart.getMinX().month);
 		var maxValue = joinDate(this.chart.getMaxX().year, this.chart.getMaxX().month);
 
+		minValue -= 4;
 		var steps = ((maxValue - minValue) / 5) ;
 		var rangeArray = [];
 
@@ -375,11 +383,36 @@
 	Engine.prototype.render = function(selector){
 		
 		var i, len, key, dateItem, prevDateItem, valueItem, prevValueItem;	// Loop variables
+
+
+		var rootEl = document.getElementById(selector);
+		rootEl.setAttribute("class", "pallete");
+		var captionBox = document.createElement("div");
+		captionBox.setAttribute('class', 'caption-box');
+		var captionEl = document.createElement("h2");
+		captionEl.setAttribute('class', 'caption');
+		var subCaptionEl = document.createElement("h4");
+		subCaptionEl.setAttribute('class', 'sub-caption');
+		captionBox.appendChild(captionEl);
+		captionEl.innerHTML = this.chart.getCaption();
+		subCaptionEl.innerHTML = this.chart.getSubCaption();
+		rootEl.appendChild(captionBox);
 		
 		var allVariables = this.chart.getAllVariables();
 
 		for(var idx in allVariables){
 			key = allVariables[idx];
+
+
+
+			captionBox = document.createElement("div");
+			captionBox.setAttribute('class', 'caption-box');
+			subCaptionEl = document.createElement("h4");
+			subCaptionEl.setAttribute('class', 'sub-caption');
+			captionBox.appendChild(subCaptionEl);
+			subCaptionEl.innerHTML = key.toUpperCase() + ' - TIME';
+			rootEl.appendChild(captionBox);
+
 			var render = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			render.drawYAxis(this.getYRange(key));
 			render.drawXAxis(this.getXRange());
@@ -436,11 +469,11 @@
 	}
 
 	RenderEngine.prototype.__shiftX = function(coor){
-		return coor * this.shiftRatio + this.shiftOriginX;
+		return coor * this.shiftRatio //+ this.shiftOriginX;
 	} // End __shiftX
 
 	RenderEngine.prototype.__shiftY = function(coor){
-		return coor * this.shiftRatio + this.shiftOriginY;
+		return coor * this.shiftRatio //+ this.shiftOriginY;
 	} // End __shiftY
 
 	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, className){	// Private function to 
@@ -475,7 +508,7 @@
 
 		this.svg.appendChild(circle);		
 		// Tooltip logic
-		if(tooltip){
+		if(tooltip !== undefined){
 			/*var textEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
 			textEl.innerHTML = tooltip;
 			circle.appendChild(textEl);*/	
@@ -530,7 +563,7 @@
 	RenderEngine.prototype.drawXAxis = function(rangeArray){
 		var i, len, item;			// Loop iteration variables
 		// Drawing X axis 
-		var x1 = -1 * this.marginX;
+		var x1 = 0;
 		var x2 = this.width;
 		var y1 = 0;
 		var y2 = 0;
@@ -572,7 +605,7 @@
 			y2 = this.yRangeEstimator(item);
 			x1 = -4;
 			x2 = 4;
-			this.__placeText(x1 + this.width * 0.015, y1, shortNumber(rangeArray[len - i - 1]), "axis-label yaxis-label");
+			this.__placeText(x1 + this.width * 0.015, y1 + this.marginY + shortNumber(rangeArray[len - i - 1]).length , shortNumber(rangeArray[len - i - 1]), "axis-label yaxis-label");
 	 		this.__drawLine(x1, y1, x2, y2, "ticks", true); 			
  		}
  		for(i = 0, len = rangeArray.length; i < len; ++i){
@@ -587,7 +620,8 @@
 
 	RenderEngine.prototype.__placeText = function(x, y, text, className){
 		var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
-		textElement.setAttribute("x", (text + "").length + x);
+		x -= text.length / 2;
+		textElement.setAttribute("x", x );
 		textElement.setAttribute("y", y);
 		if(className){
 			textElement.setAttribute("class", className);
