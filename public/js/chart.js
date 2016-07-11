@@ -381,6 +381,7 @@
 
 	}
 
+
 	Engine.prototype.render = function(selector){
 
 		var i, len, key, dateItem, prevDateItem, valueItem, prevValueItem;	// Loop variables
@@ -449,14 +450,18 @@
 
 	Engine.prototype.listenEvent = function(){
 		var _this = this;
+		// Making a tooltip object
+		this.tooltip = new Tooltip();
 
 		for(var key in this.svgArray){
 			this.svgArray[key].addEventListener("mousemove", function(e){
 				_this.eventHandler(e);
+				_this.tooltip.show(e.clientY + 10, e.clientX + 10);
 			});
 
 			this.svgArray[key].addEventListener("mouseout", function(e){
 				_this.destructionHandler(e);
+				_this.tooltip.hide();
 			});
 		}
 	} // end listen function
@@ -472,6 +477,29 @@
 			this.renderEngineObject[key].destroyVerticalLine(event.offsetX);
 		}
 	} // End destructionHandler
+
+
+	// A construction function for tooltip
+	function Tooltip(){
+		this.toolEl = document.createElement("div");
+		document.getElementsByTagName("body")[0].appendChild(this.toolEl);
+		this.toolEl.setAttribute("class" , "plotTooltip");
+		this.toolEl.setAttribute("style" ,  "visibility:hidden");
+	}	// end tooltip constructor
+
+	Tooltip.prototype.show = function(top, left, value){
+		this.style = "position:fixed;top:" + top + "px;left:" + left + "px;visibility:";
+		var visibility = 'visible';
+		this.toolEl.innerHTML = "Hey!";
+		this.toolEl.setAttribute("style" , this.style + visibility);
+	}
+
+	Tooltip.prototype.hide = function(){
+		var visibility = 'hidden';
+		this.toolEl.setAttribute("style" , this.style + visibility);
+	}
+
+
 
 	function RenderEngine(selector, svg, width, height, name){
 		this.key = name;
@@ -494,6 +522,8 @@
 
 		this.__crosshair();
 	}
+
+
 
 
 	RenderEngine.prototype.convert = function (x, y){
@@ -539,7 +569,7 @@
 	} // end constructor function
 
 
-	RenderEngine.prototype.__drawCircle = function(x, y, r, className, tooltip){	// Private function to
+	RenderEngine.prototype.__drawCircle = function(x, y, r, className){	// Private function to
 																					// draw circle
 		var coord = this.convert(x, y);			// according to canvas
 		var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");	// creating our
@@ -551,36 +581,7 @@
 		circle.setAttribute("class", className);
 
 		this.svg.appendChild(circle);
-		// Tooltip logic
-		if(tooltip !== undefined){
-			/*var textEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
-			textEl.innerHTML = tooltip;
-			circle.appendChild(textEl);*/
-			var toolEl = document.createElement("div");
-			toolEl.innerHTML = tooltip;
-			this.rootElement.appendChild(toolEl);
-			var top = cumulativeOffset(this.svg).top + coord.y + 75;
-			var left = (cumulativeOffset(this.svg).left + coord.x) + 10;
-			var floor = Math.floor.bind(Math);
-			var style = "position:absolute;top:" + floor(top) + "px;left:" + floor(left) + "px;";
-			var visibility = 'visibility:hidden;'
-			toolEl.setAttribute("style" , style + visibility);
-			toolEl.setAttribute("class" , "plotTooltip");
-			this.rootElement.appendChild(toolEl);
-
-			circle.addEventListener("mouseover", function(){
-				setTimeout(function(){
-					toolEl.setAttribute("style" , style + "visibility:visible;");
-				}, 200);
-			});
-			circle.addEventListener("mouseout", function(){
-				setTimeout(function(){
-					toolEl.setAttribute("style" , style + "visibility:hidden;");
-				}, 200);
-			});
-		}
-
-			// Drawing line to our canvas
+		// Drawing line to our canvas
 	} // end constructor function
 
 
@@ -731,7 +732,7 @@
 		x = this.xRangeEstimator(x);
 		y = this.yRangeEstimator(y);
 		var className = 'plot-circle';
-		this.__drawCircle(x, y, 3, className, value);
+		this.__drawCircle(x, y, 3, className);
 	}
 
 
