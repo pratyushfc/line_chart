@@ -1,7 +1,7 @@
 RenderChart({
 	"dimensions" : {						// Size of canvas
-		"width" : 1000,		
-		"height" : 400,
+		"width" : 700,		
+		"height" : 350,
 	},
 
 	"caption" : "Line Chart",

@@ -9,6 +9,7 @@
 		var chart = new Chart(data);
 		var engine = new Engine(chart);
 		engine.render(selector);
+		engine.listenEvent();
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -400,25 +401,32 @@
 
 		var allVariables = this.chart.getAllVariables();
 
+		var count = 0;
+		var isLast;
+
+		this.svgArray = {};				// Creating object to store all svg
+		this.renderEngineObject = {};
+
 		for(var idx in allVariables){
 			key = allVariables[idx];
 
+			// Only last chart will show time labels
+			isLast = count === Object.keys(allVariables).length - 1;
 
-
-			captionBox = document.createElement("div");
+			/* Chart title -- captionBox = document.createElement("div");
 			captionBox.setAttribute('class', 'caption-box');
 			subCaptionEl = document.createElement("h4");
 			subCaptionEl.setAttribute('class', 'sub-caption');
 			captionBox.appendChild(subCaptionEl);
 			subCaptionEl.innerHTML = key.toUpperCase() + ' - TIME';
-			rootEl.appendChild(captionBox);
+			rootEl.appendChild(captionBox);*/
 
-			var render = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight(), key);
-			render.drawYAxis(this.getYRange(key));
-			render.drawXAxis(this.getXRange());
-			console.log(this.getXRange().toString())
+			this.svgArray[key] = document.createElementNS("http://www.w3.org/2000/svg", "svg");	// creating canvas
 
-			for(i in this.getXRange())
+			this.renderEngineObject[key] = new RenderEngine(selector, this.svgArray[key], this.chart.getWidth(), this.chart.getHeight(), key);
+			this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
+			this.renderEngineObject[key].drawXAxis(this.getXRange(), isLast);
+			
 
 			var dateOfVariable = this.getXRangeOfVariable(key);
 			var valueOfVariable = this.getYRangeOfVariable(key);
@@ -428,45 +436,73 @@
 				prevDateItem = dateOfVariable[i - 1];
 				valueItem = valueOfVariable[i];
 				prevValueItem = valueOfVariable[i - 1];
-				render.plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
+				this.renderEngineObject[key].plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
 			}
 			for(i = 0, len = dateOfVariable.length; i < len; ++i){
 				dateItem = dateOfVariable[i];
 				valueItem = valueOfVariable[i];
-				render.plotCircle(dateItem, valueItem);
+				this.renderEngineObject[key].plotCircle(dateItem, valueItem);
 			}
-
+			++count;
 		}
 	}
 
-	function RenderEngine(selector, width, height, name){
+	Engine.prototype.listenEvent = function(){
+		var _this = this;
+
+		for(var key in this.svgArray){
+			this.svgArray[key].addEventListener("mousemove", function(e){
+				_this.eventHandler(e);
+			});
+
+			this.svgArray[key].addEventListener("mouseout", function(e){
+				_this.destructionHandler(e);
+			});
+		}
+	} // end listen function
+
+	Engine.prototype.eventHandler = function(event){
+		for(var key in this.svgArray){
+			this.renderEngineObject[key].syncVerticalLine(event.offsetX);
+		}
+	} // End eventHandler
+
+	Engine.prototype.destructionHandler = function(event){
+		for(var key in this.svgArray){
+			this.renderEngineObject[key].destroyVerticalLine(event.offsetX);
+		}
+	} // End destructionHandler
+
+	function RenderEngine(selector, svg, width, height, name){
+		this.key = name;
 		width = width ? width : 600;
 		height = height ? height : 500;
 		this.rootElement = document.getElementById(selector);				 // getting parent element
-		this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");	// creating canvas
+		this.svg = svg;							// getting the canvas that was created
 		this.svg.setAttribute("height", height);
 		this.svg.setAttribute("width", width);
 		this.svg.setAttribute("class", "chart");
 		this.rootElement.appendChild(this.svg);	// adding our canvas to parent element
 		this.width = width;						// Storing height and width
 		this.height = height;					// for future uses
-		this.marginX = 0.04 * this.width;		// Margin will be used for labels
-		this.marginY = 0.05 * this.height;						// and ticks
-		this.shiftRatio = 0.9;					// Shifting values for better
-		this.shiftOriginX = 0.03 * this.width;	// screen accomodation
-		this.shiftOriginY = 0.03 * this.height;
+		this.marginX = 0.07 * this.width;		// Margin will be used for labels
+		this.marginY = 0.08 * this.height;						// and ticks
+		this.shiftRatio = 0.85;					// Shifting values for better
+		this.shiftOriginX = 0;	// screen accomodation
+		this.shiftOriginY = 0;
 
-		// Rendering name
-		var toolEl = document.createElement("div");
-		toolEl.innerHTML = name.toUpperCase();
-		var top = cumulativeOffset(this.svg).top + height * 0.01;
-		var left = width * 0.9;
-		var floor = Math.floor.bind(Math);
-		var style = "position:absolute;top:" + floor(top) + "px;left:" + floor(left) + "px;";
-		toolEl.setAttribute("style" , style);
-		toolEl.setAttribute("class" , "chartLabel");
-		this.rootElement.appendChild(toolEl);
+
+		this.__crosshair();
 	}
+
+
+	RenderEngine.prototype.convert = function (x, y){
+		return {
+			x : x + this.marginX,
+			y : this.height - (y + this.marginY)
+		};
+	} // end convert
+
 
 	RenderEngine.prototype.__shiftX = function(coor){
 		return coor * this.shiftRatio //+ this.shiftOriginX;
@@ -475,6 +511,14 @@
 	RenderEngine.prototype.__shiftY = function(coor){
 		return coor * this.shiftRatio //+ this.shiftOriginY;
 	} // End __shiftY
+
+
+
+
+	RenderEngine.prototype.__crosshair = function(){
+	} // end __crosshair
+
+
 
 	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, className){	// Private function to
 																					// draw lines
@@ -539,12 +583,30 @@
 			// Drawing line to our canvas
 	} // end constructor function
 
-	RenderEngine.prototype.convert = function (x, y){
-		return {
-			x : x + this.marginX,
-			y : this.height - (y + this.marginY)
-		};
-	} // end convert
+
+	RenderEngine.prototype.destroyVerticalLine = function(x) {
+
+		this.svg.removeChild(this.verticalLine);
+		this.verticalLine = undefined;		
+	}	// end crosshair
+
+	RenderEngine.prototype.syncVerticalLine = function(x) {
+
+		// Vertical line; create if already not created
+
+		if(!this.verticalLine){
+			this.verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+			this.svg.appendChild(this.verticalLine);
+		}
+
+		this.verticalLine.setAttribute("x1", x);	// setting line
+		this.verticalLine.setAttribute("y1", this.height);	// coordinates
+		this.verticalLine.setAttribute("x2", x);	// and styles
+		this.verticalLine.setAttribute("y2", 0);	// with shifting
+
+		this.verticalLine.setAttribute("class", "vertical-line");				
+	}	// end syncverticalline
+
 
 	RenderEngine.prototype.__xRangeEstimateGenerator = function(min, max){
 		var _this = this;
@@ -560,7 +622,7 @@
 		}
 	}	// End yRangeEstimator
 
-	RenderEngine.prototype.drawXAxis = function(rangeArray){
+	RenderEngine.prototype.drawXAxis = function(rangeArray, placeLabel){
 		var i, len, item;			// Loop iteration variables
 		// Drawing X axis
 		var x1 = 0;
@@ -581,12 +643,14 @@
 			x2 = this.xRangeEstimator(item);
 			y1 = -4;
 			y2 = 4;
-			this.__placeText(x1 + 0.03 * this.width - timeInWords(item).length, this.height * 0.99, timeInWords(item), "axis-label xaxis-label");
-	 		this.__drawLine(x1, y1, x2, y2, "ticks");
+			if(placeLabel){
+				this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - (this.marginY * 0.7) + (this.height * 0.016) , timeInWords(item), "axis-label xaxis-label");
+			}
+			this.__drawLine(x1, y1, x2, y2, "ticks");
  		}
 	} // end draw x axis
 
-	RenderEngine.prototype.drawYAxis = function(rangeArray){
+	RenderEngine.prototype.drawYAxis = function(rangeArray, key){
 		var i, len, item;
 		var x1 = 0;
 		var x2 = 0;
@@ -605,8 +669,12 @@
 			y2 = this.yRangeEstimator(item);
 			x1 = -4;
 			x2 = 4;
-
-			this.__placeText(x1 + this.width * 0.015, y1 + this.marginY + shortNumber(rangeArray[len - i - 1]).length , shortNumber(rangeArray[len - i - 1]), "axis-label yaxis-label");
+			var text = "" + shortNumber(rangeArray[len - i - 1]);
+			text = text.trim();
+			// Adjustments to X position
+			var tx1 = x1 - 0.025 * this.width;
+			tx1 -= (text.length / 4) * 10;
+			this.__placeText(tx1, y1 - 3 , text, "axis-label yaxis-label");
 
 	 		this.__drawLine(x1, y1, x2, y2, "ticks", true);
  		}
@@ -618,15 +686,33 @@
 			x2 = this.width;
 			this.__drawLine(x1, y1, x2, y2, "div-lines", true);
  		}
+
+ 		// Placing the yaxis name
+ 		key = key[0].toUpperCase() + key.substr(1);
+ 		var chartYLabelX = 0 - (this.marginX * 2 / 3);
+ 		var chartYLabelY = (this.height - this.marginY) / 2 - key.length * 2;
+ 		this.__placeText(chartYLabelX, chartYLabelY, key, "chartLabel", 270);
+
 	} // end drawYAxis
 
-	RenderEngine.prototype.__placeText = function(x, y, text, className){
+	RenderEngine.prototype.__placeText = function(x, y, text, className, rotate){
 		var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
 		x -= text.length / 2;
+
+		x = this.convert(x, y).x;
+		y = this.convert(x, y).y;
 		textElement.setAttribute("x", x );
 		textElement.setAttribute("y", y);
 		if(className){
 			textElement.setAttribute("class", className);
+		}
+		if(rotate){
+			var transform = "rotate(";
+			transform += rotate;
+			transform += " ";
+			transform += x + "," + y;
+			transform += ")";
+			textElement.setAttribute("transform", transform);
 		}
 		textElement.innerHTML = text;
 		this.svg.appendChild(textElement);
