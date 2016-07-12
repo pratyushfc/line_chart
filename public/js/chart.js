@@ -92,19 +92,32 @@
 	var binarySearchDate = function(low, high, date, array){
 		if(high - low === 1){
 			if(array[low].date === date){
-				return array[low].value;
+				return {
+						value : array[low].value
+					};
 			}
 			if(array[high].date === date){
-				return array[high].value;
+				return {
+						value : array[high].value
+					};
 			}
 
 			var ratio = (array[high].value - array[low].value) / (array[high].date - array[low].date);
 			var extra = array[low].value - (array[low].date * ratio);
-			return date * ratio + extra;
+
+			//var value = value : date * ratio + extra;
+			//var isNear = 
+
+			return {
+						value : date * ratio + extra,
+						interpolated : true
+					};
 		}
 		var mid = Math.floor((low + high) / 2);
 		if(array[mid].date === date){
-			return array[mid].value;
+			return {
+						value : array[mid].value
+					};
 		}
 
 		if(date > array[mid].date){
@@ -327,6 +340,7 @@
 		twoDigitMin = Math.floor(calcMin / (Math.pow(10, stepsDown)));
 
 		difference = twoDigitMax - twoDigitMin;
+		difference = difference >= 0 ? difference : -1 * difference;
 
 		if(difference <= 1){
 			steps = 0.2;
@@ -411,7 +425,6 @@
 	Engine.prototype.__getValueAtPosition = function(xValue, key){
 		if(!xValue){
 			return;
-			console.log("returning")
 		}
 
 		var yArray = this.chart.getY(key);
@@ -420,9 +433,7 @@
 		if(xValue < yArray[0].date || xValue > yArray[yArray.length - 1].date){
 			return;
 		}
-
-		return Math.round(binarySearchDate(0, yArray.length - 1, xValue, yArray));
-
+		return binarySearchDate(0, yArray.length - 1, xValue, yArray);
 	}
 
 
@@ -440,6 +451,7 @@
 		var subCaptionEl = document.createElement("h4");
 		subCaptionEl.setAttribute('class', 'sub-caption');
 		captionBox.appendChild(captionEl);
+		captionBox.appendChild(subCaptionEl);
 		captionEl.innerHTML = this.chart.getCaption();
 		subCaptionEl.innerHTML = this.chart.getSubCaption();
 		rootEl.appendChild(captionBox);
@@ -501,8 +513,10 @@
 				var verticalLineXPoint = _this.renderEngineObject[key].getRatio(e.clientX);
 				var yValue = _this.__getValueAtPosition(verticalLineXPoint, key);
 				if(yValue){
-					var toolString = yValue + " <br> " + timeInWords(verticalLineXPoint);
-					_this.tooltip.show(e.clientY + 10, e.clientX + 10, toolString);
+					var toolString = Math.round(yValue.value) + " <br> " + timeInWords(verticalLineXPoint);
+					_this.tooltip.show(e.clientY + 10, e.clientX + 10, toolString, yValue.interpolated);
+				}else{
+					_this.tooltip.hide();
 				}
 			});
 
@@ -540,15 +554,20 @@
 		this.toolEl.setAttribute("style" , this.style + visibility);
 	}	// end tooltip constructor
 
-	Tooltip.prototype.show = function(top, left, value){
+	Tooltip.prototype.show = function(top, left, value, interpolated){
 		this.style = "position:fixed;top:" + top + "px;left:" + left + "px;visibility:";
-		var visibility = 'visible';
+		this.style += 'visible';
+
+		if(interpolated){
+			this.style += ";opacity : 1"
+		}
+
 		this.toolEl.innerHTML = value;
-		this.toolEl.setAttribute("style" , this.style + visibility);
+		this.toolEl.setAttribute("style" , this.style);
 	}
 
 	Tooltip.prototype.hide = function(){
-		var visibility = 'hidden';
+		var visibility = ';visibility: hidden';
 		this.toolEl.setAttribute("style" , this.style + visibility);
 	}
 
@@ -619,7 +638,25 @@
 			line.setAttribute("class", className);
 		}
 		this.svg.appendChild(line);					// Drawing line to our canvas
-	} // end constructor function
+	} // end drawLine function
+
+		RenderEngine.prototype.__drawRect = function(x1, y1, w, h, className){	// Private function to
+																					// draw lines
+		var coord1 = this.convert(x1, y1);			// Getting converted axis
+													// according to canvas
+		var line = document.createElementNS("http://www.w3.org/2000/svg", "rect");	// creating our
+																					// element line.
+
+		line.setAttribute("x", coord1.x);	// setting line
+		line.setAttribute("y", coord1.y);	// coordinates
+		line.setAttribute("width", w);	// and styles
+		line.setAttribute("height", h);	// with shifting
+
+		if(className){
+			line.setAttribute("class", className);
+		}
+		this.svg.appendChild(line);					// Drawing line to our canvas
+	} // end drawRect function
 
 
 	RenderEngine.prototype.__drawCircle = function(x, y, r, className){	// Private function to
@@ -654,9 +691,9 @@
 		}
 
 		this.verticalLine.setAttribute("x1", x);	// setting line
-		this.verticalLine.setAttribute("y1", this.height);	// coordinates
+		this.verticalLine.setAttribute("y1", 0);	// coordinates
 		this.verticalLine.setAttribute("x2", x);	// and styles
-		this.verticalLine.setAttribute("y2", 0);	// with shifting
+		this.verticalLine.setAttribute("y2", this.height);	// with shifting
 
 		this.verticalLine.setAttribute("class", "vertical-line");				
 	}	// end syncverticalline
@@ -695,8 +732,8 @@
  			item = rangeArray[i];
 			x1 = this.xRangeEstimator(item);
 			x2 = this.xRangeEstimator(item);
-			y1 = -4;
-			y2 = 4;
+			y1 = -6;
+			y2 = 0;
 			if(placeLabel){
 				this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - (this.marginY * 0.7) + (this.height * 0.016) , timeInWords(item), "axis-label xaxis-label");
 			}
@@ -723,6 +760,8 @@
 		var x2 = 0;
 		var y1 = -1 * this.marginX;
 		var y2 = this.height;
+
+		var divBoxHeight;
  		this.__drawLine(x1, y1, x2, y2, "axis yaxis");
  		// Drawing the ticks
  		var firstItem = rangeArray[0];
@@ -734,16 +773,21 @@
  			item = rangeArray[i];
 			y1 = this.yRangeEstimator(item);
 			y2 = this.yRangeEstimator(item);
-			x1 = -8;
-			x2 = -4;
+			x1 = -6;
+			x2 = 0;
 			var text = "" + shortNumber(rangeArray[i]);
 			text = text.trim();
 			// Adjustments to X position
 			var tx1 = x1 - 0.025 * this.width;
 			tx1 -= (text.length / 4) * 10;
-			this.__placeText(tx1, y1 - 3 , text, "axis-label yaxis-label");
+			this.__placeText(tx1 - 3, y1 - 3 , text, "axis-label yaxis-label");
 
 	 		this.__drawLine(x1, y1, x2, y2, "ticks", true);
+
+	 		if(i !== 0 && !divBoxHeight){
+	 			divBoxHeight = y1 - this.yRangeEstimator(rangeArray[0]);
+	 		}
+
  		}
  		for(i = 0, len = rangeArray.length; i < len; ++i){
  			item = rangeArray[i];
@@ -751,7 +795,9 @@
 			y2 = this.yRangeEstimator(item);
 			x1 = 0;
 			x2 = this.width;
-			this.__drawLine(x1, y1, x2, y2, "div-lines", true);
+			if(i){
+				this.__drawRect(x1, y1, this.width, divBoxHeight, "div-lines", true);
+			}
  		}
 
  		// Placing the yaxis name
@@ -816,7 +862,7 @@
 		x = this.xRangeEstimator(x);
 		y = this.yRangeEstimator(y);
 		var className = 'plot-circle';
-		this.__drawCircle(x, y, 3, className);
+		this.__drawCircle(x, y, 5, className);
 	}
 
 
