@@ -9,6 +9,18 @@ RenderChart({
 
 	"data" : [
 		{
+			time : "01-05-2002",			// time in mm-dd-yyyy format
+			terrorism : 100
+		},
+		{
+			time : "01-05-2013",			// time in mm-dd-yyyy format
+			terrorism : 300
+		},
+		{
+			time : "01-05-2023",			// time in mm-dd-yyyy format
+			terrorism : 100
+		},
+		{
 			time : "05-05-2012",			// time in mm-dd-yyyy format
 			sale : 160000000
 		},

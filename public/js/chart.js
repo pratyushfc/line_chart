@@ -89,6 +89,31 @@
 		return dig;
 	}
 
+	var binarySearchDate = function(low, high, date, array){
+		if(high - low === 1){
+			if(array[low].date === date){
+				return array[low].value;
+			}
+			if(array[high].date === date){
+				return array[high].value;
+			}
+
+			var ratio = (array[high].value - array[low].value) / (array[high].date - array[low].date);
+			var extra = array[low].value - (array[low].date * ratio);
+			return date * ratio + extra;
+		}
+		var mid = Math.floor((low + high) / 2);
+		if(array[mid].date === date){
+			return array[mid].value;
+		}
+
+		if(date > array[mid].date){
+			return binarySearchDate(mid, high, date, array);
+		} else{
+			return binarySearchDate(low, mid, date, array)
+		}
+	}
+
 	function Chart(data){					// Contructor function to parse and validate data
 
 		var i, len, key,					// Varibles for loop iteration
@@ -147,10 +172,13 @@
 
 					this.data.category[key] = this.data.category[key] || [];
 
+					var joinedDate = joinDate(date.getYear(), date.getMonth());
+					
 					this.data.category[key].push({
 						year : date.getYear(),
 						month : date.getMonth(),
-						value : Number(item[key])
+						value : Number(item[key]),
+						date : joinedDate
 					});
 
 				}
@@ -341,16 +369,15 @@
 		var minValue = joinDate(this.chart.getMinX().year, this.chart.getMinX().month);
 		var maxValue = joinDate(this.chart.getMaxX().year, this.chart.getMaxX().month);
 
-		minValue -= 4;
 		var steps = ((maxValue - minValue) / 5) ;
 		var rangeArray = [];
 
 
 		while(minValue <= maxValue){
-			rangeArray.push(Math.floor(minValue));
+			rangeArray.push(Math.round(minValue));
 			minValue += steps;
 		}
-		rangeArray.push(Math.ceil(minValue));
+		rangeArray.push(Math.round(minValue));
 
 		return rangeArray;
 
@@ -378,6 +405,23 @@
 			yDataArray[i] = item.value;
 		}
 		return yDataArray;
+
+	}
+
+	Engine.prototype.__getValueAtPosition = function(xValue, key){
+		if(!xValue){
+			return;
+			console.log("returning")
+		}
+
+		var yArray = this.chart.getY(key);
+		var date = splitDate(xValue);
+
+		if(xValue < yArray[0].date || xValue > yArray[yArray.length - 1].date){
+			return;
+		}
+
+		return Math.round(binarySearchDate(0, yArray.length - 1, xValue, yArray));
 
 	}
 
@@ -445,23 +489,33 @@
 		}
 	}
 
-	Engine.prototype.listenEvent = function(){
+	Engine.prototype.listenEvent = function () {
 		var _this = this;
 		// Making a tooltip object
 		this.tooltip = new Tooltip();
 
-		for(var key in this.renderEngineObject){
-			this.renderEngineObject[key].getSvg().addEventListener("mousemove", function(e){
+		var _loop = function _loop(key) {
+
+			_this.renderEngineObject[key].getSvg().addEventListener("mousemove", function (e) {
 				_this.eventHandler(e);
-				_this.tooltip.show(e.clientY + 10, e.clientX + 10);
+				var verticalLineXPoint = _this.renderEngineObject[key].getRatio(e.clientX);
+				var yValue = _this.__getValueAtPosition(verticalLineXPoint, key);
+				if(yValue){
+					var toolString = yValue + " <br> " + timeInWords(verticalLineXPoint);
+					_this.tooltip.show(e.clientY + 10, e.clientX + 10, toolString);
+				}
 			});
 
-			this.renderEngineObject[key].getSvg().addEventListener("mouseout", function(e){
+			_this.renderEngineObject[key].getSvg().addEventListener("mouseout", function (e) {
 				_this.destructionHandler(e);
 				_this.tooltip.hide();
 			});
+		};
+
+		for (var key in this.renderEngineObject) {
+			_loop(key);
 		}
-	} // end listen function
+	}; // end listen function
 
 	Engine.prototype.eventHandler = function(event){
 		for(var key in this.renderEngineObject){
@@ -481,13 +535,15 @@
 		this.toolEl = document.createElement("div");
 		document.getElementsByTagName("body")[0].appendChild(this.toolEl);
 		this.toolEl.setAttribute("class" , "plotTooltip");
-		this.toolEl.setAttribute("style" ,  "visibility:hidden");
+		this.style = "position:fixed;top:" + -100 + "px;left:" + -100 + "px;visibility:";
+		var visibility = 'hidden';
+		this.toolEl.setAttribute("style" , this.style + visibility);
 	}	// end tooltip constructor
 
 	Tooltip.prototype.show = function(top, left, value){
 		this.style = "position:fixed;top:" + top + "px;left:" + left + "px;visibility:";
 		var visibility = 'visible';
-		this.toolEl.innerHTML = "Hey!";
+		this.toolEl.innerHTML = value;
 		this.toolEl.setAttribute("style" , this.style + visibility);
 	}
 
@@ -502,22 +558,26 @@
 		this.key = name;
 		width = width ? width : 600;
 		height = height ? height : 500;
+		
 		this.rootElement = document.getElementById(selector);				 		// getting parent element
+		
 		this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");	// creating canvas				// getting the canvas that was created
 		this.svg.setAttribute("height", height);
 		this.svg.setAttribute("width", width);
 		this.svg.setAttribute("class", "chart");
+		
 		this.rootElement.appendChild(this.svg);	// adding our canvas to parent element
+		
 		this.width = width;						// Storing height and width
 		this.height = height;					// for future uses
-		this.marginX = 0.07 * this.width;		// Margin will be used for labels
+		this.marginX = 0.09 * this.width;		// Margin will be used for labels
 		this.marginY = 0.08 * this.height;						// and ticks
 		this.shiftRatio = 0.85;					// Shifting values for better
 		this.shiftOriginX = 0;	// screen accomodation
 		this.shiftOriginY = 0;
 
-
-		this.__crosshair();
+		// Saving X coordinate to retrieve position value later by Vertical line
+		this.xCoords = {};
 	}
 
 	RenderEngine.prototype.getSvg = function(){
@@ -541,13 +601,6 @@
 	RenderEngine.prototype.__shiftY = function(coor){
 		return coor * this.shiftRatio //+ this.shiftOriginY;
 	} // End __shiftY
-
-
-
-
-	RenderEngine.prototype.__crosshair = function(){
-	} // end __crosshair
-
 
 
 	RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, className){	// Private function to
@@ -588,7 +641,7 @@
 	RenderEngine.prototype.destroyVerticalLine = function(x) {
 
 		this.svg.removeChild(this.verticalLine);
-		this.verticalLine = undefined;		
+		this.verticalLine = undefined;
 	}	// end crosshair
 
 	RenderEngine.prototype.syncVerticalLine = function(x) {
@@ -648,6 +701,19 @@
 				this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - (this.marginY * 0.7) + (this.height * 0.016) , timeInWords(item), "axis-label xaxis-label");
 			}
 			this.__drawLine(x1, y1, x2, y2, "ticks");
+
+			// Saving first and last coordinate and value 
+
+			if(i === 0){
+				this.xCoords.start = {};
+				this.xCoords.start.value = item;
+				this.xCoords.start.position = x1 + this.marginX;	
+			}
+			if(i === len - 1){
+				this.xCoords.end = {};
+				this.xCoords.end.value = item;
+				this.xCoords.end.position = x1 + this.marginX;	
+			}
  		}
 	} // end draw x axis
 
@@ -668,9 +734,9 @@
  			item = rangeArray[i];
 			y1 = this.yRangeEstimator(item);
 			y2 = this.yRangeEstimator(item);
-			x1 = -4;
-			x2 = 4;
-			var text = "" + shortNumber(rangeArray[len - i - 1]);
+			x1 = -8;
+			x2 = -4;
+			var text = "" + shortNumber(rangeArray[i]);
 			text = text.trim();
 			// Adjustments to X position
 			var tx1 = x1 - 0.025 * this.width;
@@ -695,6 +761,24 @@
  		this.__placeText(chartYLabelX, chartYLabelY, key, "chartLabel", 270);
 
 	} // end drawYAxis
+
+	RenderEngine.prototype.getRatio = function(x){
+
+		var difference = this.xCoords.end.position - this.xCoords.start.position;
+		var position = x - this.xCoords.start.position;
+		var ratio =  position / difference;
+		var valueDifference = this.xCoords.end.value - this.xCoords.start.value;
+
+		var value;
+
+		if(ratio >= 0 && ratio <= 1){
+			value = (ratio * valueDifference) + this.xCoords.start.value;
+		} 
+
+		return Math.round(value);
+
+	}	// end getRatio
+
 
 	RenderEngine.prototype.__placeText = function(x, y, text, className, rotate){
 		var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
