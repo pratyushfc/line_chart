@@ -405,7 +405,6 @@
 		var count = 0;
 		var isLast;
 
-		this.svgArray = {};				// Creating object to store all svg
 		this.renderEngineObject = {};
 
 		for(var idx in allVariables){
@@ -422,9 +421,7 @@
 			subCaptionEl.innerHTML = key.toUpperCase() + ' - TIME';
 			rootEl.appendChild(captionBox);*/
 
-			this.svgArray[key] = document.createElementNS("http://www.w3.org/2000/svg", "svg");	// creating canvas
-
-			this.renderEngineObject[key] = new RenderEngine(selector, this.svgArray[key], this.chart.getWidth(), this.chart.getHeight(), key);
+			this.renderEngineObject[key] = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
 			this.renderEngineObject[key].drawXAxis(this.getXRange(), isLast);
 			
@@ -453,13 +450,13 @@
 		// Making a tooltip object
 		this.tooltip = new Tooltip();
 
-		for(var key in this.svgArray){
-			this.svgArray[key].addEventListener("mousemove", function(e){
+		for(var key in this.renderEngineObject){
+			this.renderEngineObject[key].getSvg().addEventListener("mousemove", function(e){
 				_this.eventHandler(e);
 				_this.tooltip.show(e.clientY + 10, e.clientX + 10);
 			});
 
-			this.svgArray[key].addEventListener("mouseout", function(e){
+			this.renderEngineObject[key].getSvg().addEventListener("mouseout", function(e){
 				_this.destructionHandler(e);
 				_this.tooltip.hide();
 			});
@@ -467,13 +464,13 @@
 	} // end listen function
 
 	Engine.prototype.eventHandler = function(event){
-		for(var key in this.svgArray){
+		for(var key in this.renderEngineObject){
 			this.renderEngineObject[key].syncVerticalLine(event.offsetX);
 		}
 	} // End eventHandler
 
 	Engine.prototype.destructionHandler = function(event){
-		for(var key in this.svgArray){
+		for(var key in this.renderEngineObject){
 			this.renderEngineObject[key].destroyVerticalLine(event.offsetX);
 		}
 	} // End destructionHandler
@@ -501,12 +498,12 @@
 
 
 
-	function RenderEngine(selector, svg, width, height, name){
+	function RenderEngine(selector, width, height, name){
 		this.key = name;
 		width = width ? width : 600;
 		height = height ? height : 500;
-		this.rootElement = document.getElementById(selector);				 // getting parent element
-		this.svg = svg;							// getting the canvas that was created
+		this.rootElement = document.getElementById(selector);				 		// getting parent element
+		this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");	// creating canvas				// getting the canvas that was created
 		this.svg.setAttribute("height", height);
 		this.svg.setAttribute("width", width);
 		this.svg.setAttribute("class", "chart");
@@ -523,6 +520,9 @@
 		this.__crosshair();
 	}
 
+	RenderEngine.prototype.getSvg = function(){
+		return this.svg;
+	}	// End getSvg
 
 
 
