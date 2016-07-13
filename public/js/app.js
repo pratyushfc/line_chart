@@ -6,8 +6,25 @@ RenderChart({
 
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
+	"interpolation" : false,					// Default true
 
 	"data" : [
+		{
+			time : "5-02-1993",
+			percentage : -0.1
+		},
+		{
+			time : "5-02-1994",
+			percentage : -1000000000
+		},
+		{
+			time : "5-02-1995",
+			percentage : -0.1
+		},
+		{
+			time : "5-02-1996",
+			percentage : -0.1
+		},
 		{
 			time : "11-10-1990",
 			sale : 396725445054
@@ -57,7 +74,7 @@ RenderChart({
 		}
 		,{
 			time : "7-10-1991",
-			population : 2007149006
+			population : 1997149006
 		}
 		,{
 			time : "10-10-1991",

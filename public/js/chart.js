@@ -2,13 +2,16 @@
 ;(function(){
 	"use strict";
 
+	var interpolation = true;
 
 
 	// Exposing public Api
 	window.RenderChart = function(data, selector){
+		var t = performance.now();
 		var chart = new Chart(data);
 		var engine = new Engine(chart);
 		engine.render(selector);
+		console.log(performance.now() - t)
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -113,24 +116,31 @@
 	}
 
 	var binarySearchDate = function(low, high, date, array){
+		var result;
 		if(high - low === 1){
 			if(array[low].date === date){
-				return {
-						value : array[low].value
-					};
+				result = array[low].value;
 			}
 			if(array[high].date === date){
-				return {
-						value : array[high].value
-					};
+				result = array[high].value;
 			}
 
-			var ratio = (array[high].value - array[low].value) / (array[high].date - array[low].date);
-			var extra = array[low].value - (array[low].date * ratio);
+			if(interpolation){
+				
+				var ratio = (array[high].value - array[low].value) / (array[high].date - array[low].date);
+				var extra = array[low].value - (array[low].date * ratio);
+				result = date * ratio + extra;
+			} else {
+
+				if(date - array[low].date > array[high].date - date){
+					result = array[high].value;
+				} else {
+					result = array[low].value;
+				}
+			}
 
 			return {
-						value : date * ratio + extra,
-						interpolated : true
+						value : result
 					};
 		}
 		var mid = Math.floor((low + high) / 2);
@@ -180,6 +190,10 @@
 		this.data.category = {};						// An object to store array of data
 														// on basis of their yaxis variable names
 		this.data.dateArray = [];						// Array to store all dates
+
+		if(data.interpolation === false){				// Turning off interpolation if required by user
+			interpolation = false;
+		}
 
 		if(data.dimensions){							// If parameter data has dimensions, copy them over to
 														// Chart's data
@@ -244,9 +258,8 @@
 	Chart.prototype.getMinY = function(idx){
 		var i, len;									// Loop iteration variables
 		var arr = this.data.category[idx];			// Fetching the required array
-		var min;
-		for(i = 0, len = arr.length; i < len; ++i){
-			min = min !== undefined ? min : arr[i].value;			// Setting first index value of array to min
+		var min = arr[0].value;
+		for(i = 0, len = arr.length; i < len; ++i){			// Setting first index value of array to min
 
 			if(min > arr[i].value){
 				min = arr[i].value;
@@ -258,9 +271,8 @@
 	Chart.prototype.getMaxY = function(idx){
 		var i, len;									// Loop iteration variables
 		var arr = this.data.category[idx];			// Fetching the required array
-		var max;
-		for(i = 0, len = arr.length; i < len; ++i){
-			max = max !== undefined ? max : arr[i].value;			// Setting first index value of array to max
+		var max = arr[0].value;
+		for(i = 0, len = arr.length; i < len; ++i){			// Setting first index value of array to max
 
 			if(max < arr[i].value){
 				max = arr[i].value;
@@ -351,7 +363,7 @@
 		var calcMax = this.__getYLimits(idx).max;
 
 		if(calcMin === calcMax){
-			return [0, calcMin, calcMin * 2];
+			return [calcMin * 2, calcMin, 0];
 		}
 
 		var computedMin, computedMax;	// variable to store final limits of
@@ -556,13 +568,13 @@
 		this.toolEl.setAttribute("style" , this.style + visibility);
 	}	// end tooltip constructor
 
-	Tooltip.prototype.show = function(top, left, value, interpolated){
+	Tooltip.prototype.show = function(top, left, value){
 		this.style = "position:absolute;top:" + top + "px;left:" + left + "px;visibility:";
 		this.style += 'visible';
 
-		if(interpolated){
-			this.style += ";opacity : 1"
-		}
+		//if(interpolated){
+		//	this.style += ";opacity : 1"
+		//}
 
 		this.toolEl.innerHTML = value;
 		this.toolEl.setAttribute("style" , this.style);
@@ -751,14 +763,11 @@
 			toolString += " <br> " + timeInWords(verticalLineXPoint);
 			this.tooltip.show(svgTop + (this.height / 2), x + 10, toolString);
 		}
-		
-
-		console.log("lines")
 
 		this.verticalLine.setAttribute("x1", x - svgLeft);	// setting line
-		this.verticalLine.setAttribute("y1", 0);	// coordinates
+		this.verticalLine.setAttribute("y1", this.height * 0.07);	// coordinates
 		this.verticalLine.setAttribute("x2", x - svgLeft);	// and styles
-		this.verticalLine.setAttribute("y2", this.height);	// with shifting
+		this.verticalLine.setAttribute("y2", this.height - this.marginY);	// with shifting
 
 		this.verticalLine.setAttribute("class", "vertical-line");				
 	}	// end syncverticalline
