@@ -9,7 +9,6 @@
 		var chart = new Chart(data);
 		var engine = new Engine(chart);
 		engine.render(selector);
-		engine.listenEvent();
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -77,6 +76,30 @@
 		}
 
 		return (num / Math.pow(10, stepsDown)) + suffix;
+	}
+	var shortNumberExpanded = function(num){
+		var numDig = numberOfDigits(num);
+		var suffix = "";
+		var stepsDown;
+
+		if(numDig >= 13){
+			suffix = " trillion"
+			stepsDown = 12;
+		} else if(numDig >= 10){
+			suffix = " billion"
+			stepsDown = 9;
+		} else if(numDig >= 7){
+			suffix = " million"
+			stepsDown = 6;
+		} else if(numDig >= 4){
+			suffix = " thousand"
+			stepsDown = 3;
+		} else{
+			suffix = ""
+			stepsDown = 0;
+		}
+		var result = (num / Math.pow(10, stepsDown));
+		return Math.round(result * 100) / 100 + suffix;
 	}
 
 	var numberOfDigits = function(num){
@@ -280,7 +303,6 @@
 	}
 
 	Engine.prototype.__getYLimits = function(idx){	// Calculate a more good looking limit :)
-		console.log("yrangelim")
 		var minValue = this.chart.getMinY(idx);
 		var maxValue = this.chart.getMaxY(idx);
 
@@ -499,7 +521,7 @@
 			subCaptionEl.innerHTML = key.toUpperCase() + ' - TIME';
 			rootEl.appendChild(captionBox);*/
 
-			this.renderEngineObject[key] = new RenderEngine(selector, this.chart.getWidth(), this.chart.getHeight(), key);
+			this.renderEngineObject[key] = new RenderEngine(this, selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
 			this.renderEngineObject[key].drawXAxis(this.getXRange(), isLast);
 			
@@ -523,61 +545,19 @@
 		}
 	}
 
-	Engine.prototype.listenEvent = function () {
-		var _this = this;
-		// Making a tooltip object
-		this.tooltip = new Tooltip();
-
-		var _loop = function _loop(key) {
-
-			_this.renderEngineObject[key].getSvg().addEventListener("mousemove", function (e) {
-				_this.eventHandler(e);
-				var verticalLineXPoint = _this.renderEngineObject[key].getRatio(e.clientX);
-				var yValue = _this.__getValueAtPosition(verticalLineXPoint, key);
-				if(yValue){
-					var toolString = (Math.round(yValue.value * 100) / 100) + " <br> " + timeInWords(verticalLineXPoint);
-					_this.tooltip.show(e.clientY + 10, e.clientX + 10, toolString, yValue.interpolated);
-				}else{
-					_this.tooltip.hide();
-				}
-			});
-
-			_this.renderEngineObject[key].getSvg().addEventListener("mouseout", function (e) {
-				_this.destructionHandler(e);
-				_this.tooltip.hide();
-			});
-		};
-
-		for (var key in this.renderEngineObject) {
-			_loop(key);
-		}
-	}; // end listen function
-
-	Engine.prototype.eventHandler = function(event){
-		for(var key in this.renderEngineObject){
-			this.renderEngineObject[key].syncVerticalLine(event.offsetX);
-		}
-	} // End eventHandler
-
-	Engine.prototype.destructionHandler = function(event){
-		for(var key in this.renderEngineObject){
-			this.renderEngineObject[key].destroyVerticalLine(event.offsetX);
-		}
-	} // End destructionHandler
-
 
 	// A construction function for tooltip
 	function Tooltip(){
 		this.toolEl = document.createElement("div");
 		document.getElementsByTagName("body")[0].appendChild(this.toolEl);
 		this.toolEl.setAttribute("class" , "plotTooltip");
-		this.style = "position:fixed;top:" + -100 + "px;left:" + -100 + "px;visibility:";
+		this.style = "position:absolute;top:" + -100 + "px;left:" + -100 + "px;visibility:";
 		var visibility = 'hidden';
 		this.toolEl.setAttribute("style" , this.style + visibility);
 	}	// end tooltip constructor
 
 	Tooltip.prototype.show = function(top, left, value, interpolated){
-		this.style = "position:fixed;top:" + top + "px;left:" + left + "px;visibility:";
+		this.style = "position:absolute;top:" + top + "px;left:" + left + "px;visibility:";
 		this.style += 'visible';
 
 		if(interpolated){
@@ -595,7 +575,8 @@
 
 
 
-	function RenderEngine(selector, width, height, name){
+	function RenderEngine(engine, selector, width, height, name){
+		this.engine = engine;
 		this.key = name;
 		width = width ? width : 600;
 		height = height ? height : 500;
@@ -619,6 +600,52 @@
 
 		// Saving X coordinate to retrieve position value later by Vertical line
 		this.xCoords = {};
+
+		// A tooltip for every chart
+		this.tooltip = new Tooltip();
+		this.listener();
+	}
+
+	RenderEngine.prototype.listener = function(){
+		var _this = this;
+		var event;
+		
+		this.svg.addEventListener("mousemove", function(e){
+			event = new CustomEvent(
+				"verticalLineHover", 
+				{
+					detail: {
+						position: e.clientX
+					},
+					bubbles: false,
+					cancelable: false
+				}
+			);
+			document.dispatchEvent(event);
+		});
+
+		this.svg.addEventListener("mouseout", function(e){
+			event = new CustomEvent(
+				"verticalLineHover", 
+				{
+					detail: {
+						position: -1
+					},
+					bubbles: false,
+					cancelable: false
+				}
+			);
+			document.dispatchEvent(event);
+		});
+
+		document.addEventListener("verticalLineHover", function(e){
+			if(e.detail.position === -1){
+				_this.__destroyVerticalLine();
+			} else {
+				_this.__syncVerticalLine(e.detail.position);
+			}
+		});
+
 	}
 
 	RenderEngine.prototype.getSvg = function(){
@@ -697,24 +724,40 @@
 	} // end constructor function
 
 
-	RenderEngine.prototype.destroyVerticalLine = function(x) {
+	RenderEngine.prototype.__destroyVerticalLine = function() {
 
-		this.svg.removeChild(this.verticalLine);
-		this.verticalLine = undefined;
+		if(this.verticalLine){
+			this.svg.removeChild(this.verticalLine);
+			this.verticalLine = undefined;
+			this.tooltip.hide();
+		}
 	}	// end crosshair
 
-	RenderEngine.prototype.syncVerticalLine = function(x) {
+	RenderEngine.prototype.__syncVerticalLine = function(x) {
 
 		// Vertical line; create if already not created
-
+		var svgLeft = cumulativeOffset(this.svg).left;
 		if(!this.verticalLine){
 			this.verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
 			this.svg.appendChild(this.verticalLine);
 		}
+		// Tooltip position and value
+		var svgTop = cumulativeOffset(this.svg).top;
+		var svgLeft = cumulativeOffset(this.svg).left;
+		var verticalLineXPoint = this.getRatio(x - svgLeft);
+		var yValue = this.engine.__getValueAtPosition(verticalLineXPoint, this.key);			
+		if(yValue){
+			var toolString = shortNumberExpanded(yValue.value);
+			toolString += " <br> " + timeInWords(verticalLineXPoint);
+			this.tooltip.show(svgTop + (this.height / 2), x + 10, toolString);
+		}
+		
 
-		this.verticalLine.setAttribute("x1", x);	// setting line
+		console.log("lines")
+
+		this.verticalLine.setAttribute("x1", x - svgLeft);	// setting line
 		this.verticalLine.setAttribute("y1", 0);	// coordinates
-		this.verticalLine.setAttribute("x2", x);	// and styles
+		this.verticalLine.setAttribute("x2", x - svgLeft);	// and styles
 		this.verticalLine.setAttribute("y2", this.height);	// with shifting
 
 		this.verticalLine.setAttribute("class", "vertical-line");				
