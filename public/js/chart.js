@@ -280,9 +280,16 @@
 	}
 
 	Engine.prototype.__getYLimits = function(idx){	// Calculate a more good looking limit :)
-
+		console.log("yrangelim")
 		var minValue = this.chart.getMinY(idx);
 		var maxValue = this.chart.getMaxY(idx);
+
+		if(minValue === maxValue){
+			return{
+				min : minValue,
+				max : maxValue
+			}
+		}
 
 		var difference = maxValue - minValue;
 		var difference2 = maxValue - minValue;
@@ -305,7 +312,6 @@
 		}
 
 		maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
-		
 		return {
 			min : minValue,
 			max : maxValue
@@ -314,12 +320,18 @@
 	} // End getYLimits
 
 	Engine.prototype.getYRange = function(idx){
+
 		var i, j, temp;
 
 		var rangeArray = [];			// final range array that the
 										// function will return
 		var calcMin = this.__getYLimits(idx).min;
 		var calcMax = this.__getYLimits(idx).max;
+
+		if(calcMin === calcMax){
+			return [0, calcMin, calcMin * 2];
+		}
+
 		var computedMin, computedMax;	// variable to store final limits of
 										// calculated range
 		var difference;
@@ -386,7 +398,6 @@
 			rangeArray.push(temp);
 			temp += steps;
 		}
-
 		return rangeArray;
 	} // End getYRange
 
@@ -600,7 +611,7 @@
 		
 		this.width = width;						// Storing height and width
 		this.height = height;					// for future uses
-		this.marginX = 0.09 * this.width;		// Margin will be used for labels
+		this.marginX = 0.13 * this.width;		// Margin will be used for labels
 		this.marginY = 0.08 * this.height;						// and ticks
 		this.shiftRatio = 0.85;					// Shifting values for better
 		this.shiftOriginX = 0;	// screen accomodation
@@ -769,7 +780,7 @@
 		var i, len, item;
 		var x1 = 0;
 		var x2 = 0;
-		var y1 = -1 * this.marginX;
+		var y1 = 0;
 		var y2 = this.height;
 
 		var divBoxHeight;
