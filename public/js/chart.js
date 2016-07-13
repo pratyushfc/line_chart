@@ -105,9 +105,6 @@
 			var ratio = (array[high].value - array[low].value) / (array[high].date - array[low].date);
 			var extra = array[low].value - (array[low].date * ratio);
 
-			//var value = value : date * ratio + extra;
-			//var isNear = 
-
 			return {
 						value : date * ratio + extra,
 						interpolated : true
@@ -226,7 +223,7 @@
 		var arr = this.data.category[idx];			// Fetching the required array
 		var min;
 		for(i = 0, len = arr.length; i < len; ++i){
-			min = min ? min : arr[i].value;			// Setting first index value of array to min
+			min = min !== undefined ? min : arr[i].value;			// Setting first index value of array to min
 
 			if(min > arr[i].value){
 				min = arr[i].value;
@@ -240,7 +237,7 @@
 		var arr = this.data.category[idx];			// Fetching the required array
 		var max;
 		for(i = 0, len = arr.length; i < len; ++i){
-			max = max ? max : arr[i].value;			// Setting first index value of array to max
+			max = max !== undefined ? max : arr[i].value;			// Setting first index value of array to max
 
 			if(max < arr[i].value){
 				max = arr[i].value;
@@ -288,10 +285,15 @@
 		var maxValue = this.chart.getMaxY(idx);
 
 		var difference = maxValue - minValue;
-
+		var difference2 = maxValue - minValue;
 		// Algorithm to get more good looking ranges
 
 		var numDig = numberOfDigits(difference);
+
+		while(difference2 < 1){
+			numDig -= 1;
+			difference2 *= 10;
+		}
 
 		var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
 
@@ -303,7 +305,7 @@
 		}
 
 		maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
-
+		
 		return {
 			min : minValue,
 			max : maxValue
@@ -330,19 +332,27 @@
 		var stepsDown = 0;				// A variable to store how
 										// many divisions were made
 
+		
 		twoDigitMax = calcMax;
 
-		while(twoDigitMax > 99){
+		while(twoDigitMax > 99 || twoDigitMax < -99){
 			twoDigitMax /= 10;
 			++stepsDown;
 		}
 
-		twoDigitMin = Math.floor(calcMin / (Math.pow(10, stepsDown)));
+		twoDigitMin = Math.floor((calcMin * 100) / (Math.pow(10, stepsDown))) / 100;
+
+		while(twoDigitMin > 99 || twoDigitMin < -99){
+			twoDigitMin /= 10;
+			twoDigitMax /= 10;
+			++stepsDown;
+		}
 
 		difference = twoDigitMax - twoDigitMin;
-		difference = difference >= 0 ? difference : -1 * difference;
 
-		if(difference <= 1){
+		if(difference <= 0.3){
+			steps = 0.05;
+		} else if(difference <= 1){
 			steps = 0.2;
 		} else if(difference <= 3){
 			steps = 0.5;
@@ -372,6 +382,7 @@
 		temp = computedMin;
 
 		while(temp <= computedMax){
+			temp = Math.round(temp * 100) / 100;
 			rangeArray.push(temp);
 			temp += steps;
 		}
@@ -513,7 +524,7 @@
 				var verticalLineXPoint = _this.renderEngineObject[key].getRatio(e.clientX);
 				var yValue = _this.__getValueAtPosition(verticalLineXPoint, key);
 				if(yValue){
-					var toolString = Math.round(yValue.value) + " <br> " + timeInWords(verticalLineXPoint);
+					var toolString = (Math.round(yValue.value * 100) / 100) + " <br> " + timeInWords(verticalLineXPoint);
 					_this.tooltip.show(e.clientY + 10, e.clientX + 10, toolString, yValue.interpolated);
 				}else{
 					_this.tooltip.hide();

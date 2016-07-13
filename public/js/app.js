@@ -10,6 +10,16 @@ RenderChart({
 	"data" : [
 		{
 			time : "01-05-1990",			// time in mm-dd-yyyy format
+			horror2 : 0.1
+		},{
+			time : "01-05-2001",			// time in mm-dd-yyyy format
+			horror2 : 0.11
+		},{
+			time : "01-05-2011",			// time in mm-dd-yyyy format
+			horror2 : 0.16
+		},
+		{
+			time : "01-05-1990",			// time in mm-dd-yyyy format
 			horror : -300
 		},{
 			time : "01-05-1991",			// time in mm-dd-yyyy format
