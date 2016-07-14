@@ -6,7 +6,7 @@ RenderChart({
 
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
-	"interpolation" : false,					// Default true
+	"interpolation" : true,					// Default true
 
 	"data" : [		
 		{

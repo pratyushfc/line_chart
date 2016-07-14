@@ -447,7 +447,7 @@
 			rangeArray.push(Math.round(minValue));
 			minValue += steps;
 		}
-		rangeArray.push(Math.round(minValue));
+		//rangeArray.push(Math.round(minValue));
 
 		return rangeArray;
 
@@ -610,9 +610,13 @@
 		this.shiftOriginX = 0;	// screen accomodation
 		this.shiftOriginY = 0;
 
+		this.plotCircleRadius = 5;
+
 		// Saving X coordinate to retrieve position value later by Vertical line
 		this.xCoords = {};
 
+		// An object to store all plotCircles
+		this.plotCirclesObject = {};
 		// A tooltip for every chart
 		this.tooltip = new Tooltip();
 		this.listener();
@@ -722,6 +726,8 @@
 
 	RenderEngine.prototype.__drawCircle = function(x, y, r, className){	// Private function to
 																					// draw circle
+
+
 		var coord = this.convert(x, y);			// according to canvas
 		var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");	// creating our
 																					// element line.
@@ -731,6 +737,7 @@
 		circle.setAttribute("r", r);			// and styles
 		circle.setAttribute("class", className);
 
+		this.plotCirclesObject[Math.floor(coord.x)] = circle;		// Storing the current circle with its x value
 		this.svg.appendChild(circle);
 		// Drawing line to our canvas
 	} // end constructor function
@@ -744,6 +751,37 @@
 			this.tooltip.hide();
 		}
 	}	// end crosshair
+
+	RenderEngine.prototype.__tooltipHeightCalulator = function(value, key) {
+
+		var estimatedHeight = this.yRangeEstimator(value);
+		var fl = Math.floor.bind(Math);
+		var top = this.height - estimatedHeight;
+
+		top -= this.height * 0.05;
+		if(top / this.height > 0.75){
+			top -= this.height * 0.25;
+		}
+
+		return top;
+	}	// end __tooltipHeightCalculator
+
+	RenderEngine.prototype.__findCircleAtPoint = function(x) {
+
+		var i;
+
+		if(this.key === "population"){
+			console.log(x, this.plotCirclesObject)
+		}
+
+		for(i = x - this.plotCircleRadius; i <= x + this.plotCircleRadius; ++i){
+			if(this.plotCirclesObject[i]){
+				console.log("Circle found")
+				return this.plotCirclesObject[i];
+			}
+		}
+
+	}	// __findCircleAtPoint
 
 	RenderEngine.prototype.__syncVerticalLine = function(x) {
 
@@ -761,15 +799,23 @@
 		if(yValue){
 			var toolString = shortNumberExpanded(yValue.value);
 			toolString += " <br> " + timeInWords(verticalLineXPoint);
-			this.tooltip.show(svgTop + (this.height / 2), x + 10, toolString);
+			var tooltipTop = this.__tooltipHeightCalulator(yValue.value, this.key);
+			this.tooltip.show(svgTop + tooltipTop, x + (this.plotCircleRadius * 2), toolString);
+			var circle = this.__findCircleAtPoint(x - svgLeft);
+			if(circle){
+				circle.setAttribute("style", "stroke: #F44336; stroke-width : 3");	
+			}
+			for(var keyx in this.plotCirclesObject){
+				if(this.plotCirclesObject[keyx] !== circle){
+					this.plotCirclesObject[keyx].setAttribute("style", "");
+				}
+			}
 		}
-
 		this.verticalLine.setAttribute("x1", x - svgLeft);	// setting line
 		this.verticalLine.setAttribute("y1", this.height * 0.07);	// coordinates
 		this.verticalLine.setAttribute("x2", x - svgLeft);	// and styles
 		this.verticalLine.setAttribute("y2", this.height - this.marginY);	// with shifting
-
-		this.verticalLine.setAttribute("class", "vertical-line");				
+		this.verticalLine.setAttribute("class", "vertical-line");		
 	}	// end syncverticalline
 
 
@@ -936,7 +982,7 @@
 		x = this.xRangeEstimator(x);
 		y = this.yRangeEstimator(y);
 		var className = 'plot-circle';
-		this.__drawCircle(x, y, 5, className);
+		this.__drawCircle(x, y, this.plotCircleRadius, className);
 	}
 
 
