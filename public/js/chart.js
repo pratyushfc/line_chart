@@ -750,6 +750,9 @@
 			this.verticalLine = undefined;
 			this.tooltip.hide();
 		}
+		for(var keyx in this.plotCirclesObject){
+			this.plotCirclesObject[keyx].setAttribute("style", "");
+		}
 	}	// end crosshair
 
 	RenderEngine.prototype.__tooltipHeightCalulator = function(value, key) {
