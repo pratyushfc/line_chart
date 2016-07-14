@@ -751,7 +751,7 @@
 			this.tooltip.hide();
 		}
 		for(var keyx in this.plotCirclesObject){
-			this.plotCirclesObject[keyx].setAttribute("style", "");
+			this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
 		}
 	}	// end crosshair
 
@@ -773,13 +773,9 @@
 
 		var i;
 
-		if(this.key === "population"){
-			console.log(x, this.plotCirclesObject)
-		}
 
 		for(i = x - this.plotCircleRadius; i <= x + this.plotCircleRadius; ++i){
 			if(this.plotCirclesObject[i]){
-				console.log("Circle found")
 				return this.plotCirclesObject[i];
 			}
 		}
@@ -801,16 +797,16 @@
 		var yValue = this.engine.__getValueAtPosition(verticalLineXPoint, this.key);			
 		if(yValue){
 			var toolString = shortNumberExpanded(yValue.value);
-			toolString += " <br> " + timeInWords(verticalLineXPoint);
+			toolString += " \n " + timeInWords(verticalLineXPoint);
 			var tooltipTop = this.__tooltipHeightCalulator(yValue.value, this.key);
 			this.tooltip.show(svgTop + tooltipTop, x + (this.plotCircleRadius * 2), toolString);
 			var circle = this.__findCircleAtPoint(x - svgLeft);
 			if(circle){
-				circle.setAttribute("style", "stroke: #F44336; stroke-width : 3");	
+				circle.setAttribute("class", "plot-circle plot-circle-hover");	
 			}
 			for(var keyx in this.plotCirclesObject){
 				if(this.plotCirclesObject[keyx] !== circle){
-					this.plotCirclesObject[keyx].setAttribute("style", "");
+					this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
 				}
 			}
 		}
@@ -858,7 +854,10 @@
 			y1 = -6;
 			y2 = 0;
 			if(placeLabel){
-				this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - (this.marginY * 0.7) + (this.height * 0.016) , timeInWords(item), "axis-label xaxis-label");
+				var stringTime = timeInWords(item);
+				stringTime = stringTime.split(" ")
+				stringTime = stringTime[0] + "\n" + stringTime[1];
+				this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - (this.marginY * 0.7) + (this.height * 0.016) , stringTime, "axis-label xaxis-label");
 			}
 			this.__drawLine(x1, y1, x2, y2, "ticks");
 

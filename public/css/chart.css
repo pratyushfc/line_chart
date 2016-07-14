@@ -59,12 +59,12 @@ body{
 	stroke-width: 1.4;
 	fill: white;
 	z-index : 99;
-	-webkit-transition: all 0.7s;
-	-ms-transition: all 0.7s;
-	transition: all 0.7s;
+	-webkit-transition: all 0.5s;
+	-ms-transition: all 0.5s;
+	transition: all 0.5s;
 }
 
-.chart .plot-circle:hover{
+.chart .plot-circle-hover{
 	stroke: #F44336;
 	stroke-width: 3;
 }
