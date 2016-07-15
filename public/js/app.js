@@ -11,64 +11,44 @@ RenderChart({
 	"data" : [		
 		{
 			time : "4-10-2010",
-			population : 91316436
+			population : 91316436,
+			hike : 1.4,
 		}		,{
 			time : "8-10-2010",
-			population : 331605199
+			population : 331605199,
+			hike : 1.5,
 		}		,{
 			time : "12-10-2011",
-			population : 425761772
+			population : 425761772,
+			hike : 1.8,
 		}		,{
 			time : "3-10-2012",
-			population : 58812767
+			population : 58812767,
+			hike : 0.6,
 		}		,{
 			time : "7-10-2012",
-			population : 31225234
+			population : 31225234,
+			hike : 0.9,
 		}		,{
 			time : "11-10-2012",
-			population : 463259068
+			population : 463259068,
+			hike : 1.2,
 		}		,{
 			time : "2-10-2013",
-			population : 585623953
+			population : 585623953,
+			hike : 1.7,
 		}		,{
 			time : "6-10-2013",
-			population : 501885836
+			population : 501885836,
+			hike : 1.2,
 		}		,{
 			time : "10-10-2013",
-			population : 105319361
+			population : 105319361,
+			hike : 1.4,
 		}		,{
 			time : "1-10-2014",
-			population : 130472829
-		}		,{
-			time : "4-10-2010",
-			hike : 12
-		}		,{
-			time : "8-10-2010",
-			hike : 14
-		}		,{
-			time : "12-10-2011",
-			hike : 3
-		}		,{
-			time : "3-10-2012",
-			hike : 18
-		}		,{
-			time : "7-10-2012",
-			hike : 8
-		}		,{
-			time : "11-10-2012",
-			hike : 17
-		}		,{
-			time : "2-10-2013",
-			hike : 8
-		}		,{
-			time : "6-10-2013",
-			hike : 7
-		}		,{
-			time : "10-10-2013",
-			hike : 4
-		}		,{
-			time : "1-10-2014",
-			hike : 15
+			population : 130472829,
+			hike : 1.35,
 		}		,{
 			time : "4-10-2010",
 			terrorism : 272
