@@ -21,18 +21,31 @@
 	}
 
 	var cumulativeOffset = function(element) {
-    	var top = 0, left = 0;
-    	do {
+		var el = element;
+		var top = 0, left = 0;
+		do {
     	    top += element.offsetTop  || 0;
     	    left += element.offsetLeft || 0;
     	    element = element.offsetParent;
     	} while(element);
 
-    	return {
-        	top: top,
-        	left: left
-    	};
+    	if(top === 0 || left === 0 ) {
+    		return getOffset(el);
+    	} else {
+    		return {
+        		top: top,
+        		left: left
+    		};
+    	}
 	};
+
+	function getOffset(el) {
+	  el = el.getBoundingClientRect();
+	  return {
+	    left: el.left + window.scrollX,
+	    top: el.top + window.scrollY
+	  }
+	}
 
 
 	var joinDate = function(year, month){	// Helper function to combine year and
@@ -588,6 +601,7 @@
 
 
 	function RenderEngine(engine, selector, width, height, name){
+
 		this.engine = engine;
 		this.key = name;
 		width = width ? width : 600;
@@ -598,7 +612,7 @@
 		this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");	// creating canvas				// getting the canvas that was created
 		this.svg.setAttribute("height", height);
 		this.svg.setAttribute("width", width);
-		this.svg.setAttribute("class", "chart");
+		this.svg.setAttribute("class", "chart");	
 		
 		this.rootElement.appendChild(this.svg);	// adding our canvas to parent element
 		
@@ -771,6 +785,7 @@
 
 	RenderEngine.prototype.__findCircleAtPoint = function(x) {
 
+		x = Math.floor(x);
 		var i;
 
 
@@ -785,7 +800,6 @@
 	RenderEngine.prototype.__syncVerticalLine = function(x) {
 
 		// Vertical line; create if already not created
-		var svgLeft = cumulativeOffset(this.svg).left;
 		if(!this.verticalLine){
 			this.verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
 			this.svg.appendChild(this.verticalLine);
