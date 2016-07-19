@@ -1,12 +1,13 @@
 RenderChart({
 	"dimensions" : {						// Size of canvas
 		"width" : 500,		
-		"height" : 300,
+		"height" : 200,
 	},
 
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
+	"type" : "column",						// default line
 
 	"data" : [		
 		{

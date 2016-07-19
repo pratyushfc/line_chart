@@ -1,7 +1,14 @@
-
+*{
+	margin : 0;
+	padding : 0;
+}
 body{
 	margin: 0;
 	padding: 0;
+}
+svg{
+	float : left;
+	display : block;
 }
 #graph{
     margin-left: auto;
@@ -65,7 +72,7 @@ body{
 }
 
 .chart .plot-circle-hover{
-	stroke: #F44336;
+	stroke: #BC4445;
 	stroke-width: 3;
 }
 
@@ -114,4 +121,13 @@ body{
 
 .chart .chartLabel{	
 	stroke: #CDCDCD;
+}
+
+.chart .data-column{
+	fill : #1E7ACD;
+	stroke : #86B6E1;
+	stroke-width : 0.8;
+}
+.chart .data-column-hover{
+	fill : #BC4445;
 }

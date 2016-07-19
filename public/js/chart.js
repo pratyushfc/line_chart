@@ -10,8 +10,8 @@
 		var t = performance.now();
 		var chart = new Chart(data);
 		var engine = new Engine(chart);
-		engine.render(selector);
-		console.log(performance.now() - t)
+		engine.render(selector, chart.getType());
+		console.log("time taken to process", performance.now() - t)
 	};
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -193,6 +193,7 @@
 			yaxis : 5
 		}
 
+		this.type = data.type || "line";				// Fetching type of chart; default line
 		this.data.caption = data.caption || "";			// Fetching values for caption and
 		this.data.subcaption = data.subcaption || "";	// subcaption; default "" string
 		this.data.xaxisname = data.xaxisname || "Time";	// Default name for x-axis
@@ -259,6 +260,22 @@
 		// Sorting the date array
 		this.data.dateArray.sort(sortByTime);
 	}	// End Chart Constructor Function
+
+	Chart.prototype.getMaxPointsOfAllChart = function(){
+		var max = 0;
+
+		for(var key in this.data.category){
+			if(this.data.category[key].length > max){
+				max = this.data.category[key].length;
+			}
+		}
+		return max;
+
+	}
+
+	Chart.prototype.getType = function(){
+		return this.type;
+	} // end getType
 
 	Chart.prototype.getMinX = function(){
 		return this.data.dateArray[0];
@@ -505,10 +522,19 @@
 		return binarySearchDate(0, yArray.length - 1, xValue, yArray);
 	}
 
+	Engine.prototype.getColumnWidth = function(){
+		var chartWidth = this.chart.getWidth();
+		var chartHeight = this.chart.getHeight();
 
-	Engine.prototype.render = function(selector){
+		var maxPoints = this.chart.getMaxPointsOfAllChart();
+		var maxGaps = maxPoints + 1;
 
-		var i, len, key, dateItem, prevDateItem, valueItem, prevValueItem;	// Loop variables
+		return Math.floor((chartWidth) / (maxPoints + maxGaps));
+	}
+
+	Engine.prototype.render = function(selector, type){
+
+		var i, len, key, item;	// Loop variables
 
 
 		var rootEl = document.getElementById(selector);
@@ -530,6 +556,9 @@
 		var count = 0;
 		var isLast;
 
+		var colWidth = colWidth ? colWidth : this.getColumnWidth();
+		console.log(colWidth, "in engine")
+
 		this.renderEngineObject = {};
 
 		for(var idx in allVariables){
@@ -537,35 +566,18 @@
 
 			// Only last chart will show time labels
 			isLast = count === Object.keys(allVariables).length - 1;
-
-			/* Chart title -- captionBox = document.createElement("div");
-			captionBox.setAttribute('class', 'caption-box');
-			subCaptionEl = document.createElement("h4");
-			subCaptionEl.setAttribute('class', 'sub-caption');
-			captionBox.appendChild(subCaptionEl);
-			subCaptionEl.innerHTML = key.toUpperCase() + ' - TIME';
-			rootEl.appendChild(captionBox);*/
-
 			this.renderEngineObject[key] = new RenderEngine(this, selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
 			this.renderEngineObject[key].drawXAxis(this.getXRange(), isLast);
-			
-
-			var dateOfVariable = this.getXRangeOfVariable(key);
-			var valueOfVariable = this.getYRangeOfVariable(key);
-
-			for(i = 1, len = dateOfVariable.length; i < len; ++i){
-				dateItem = dateOfVariable[i];
-				prevDateItem = dateOfVariable[i - 1];
-				valueItem = valueOfVariable[i];
-				prevValueItem = valueOfVariable[i - 1];
-				this.renderEngineObject[key].plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
+			if(type.toLowerCase() === "column"){
+				this.renderEngineObject[key].attachChart(new ColumnChart(this.renderEngineObject[key], colWidth));
+			} else{
+				this.renderEngineObject[key].attachChart(new LineChart(this.renderEngineObject[key], colWidth));
 			}
-			for(i = 0, len = dateOfVariable.length; i < len; ++i){
-				dateItem = dateOfVariable[i];
-				valueItem = valueOfVariable[i];
-				this.renderEngineObject[key].plotCircle(dateItem, valueItem);
-			}
+			this.renderEngineObject[key].listener();
+
+			this.renderEngineObject[key].renderChart(this.getXRangeOfVariable(key), this.getYRangeOfVariable(key))					
+
 			++count;
 		}
 	}
@@ -628,61 +640,29 @@
 
 		// Saving X coordinate to retrieve position value later by Vertical line
 		this.xCoords = {};
+	}
 
-		// An object to store all plotCircles
-		this.plotCirclesObject = {};
-		// A tooltip for every chart
-		this.tooltip = new Tooltip();
-		this.listener();
+
+	RenderEngine.prototype.attachChart = function(chart){	// Function to attach desired chart type
+		this.attachedChart = chart;
+	}
+
+	RenderEngine.prototype.renderChart = function(xArr, yArr){
+		this.attachedChart.renderData(xArr, yArr);
 	}
 
 	RenderEngine.prototype.listener = function(){
+
 		var _this = this;
-		var event;
-		
-		this.svg.addEventListener("mousemove", function(e){
-			event = new CustomEvent(
-				"verticalLineHover", 
-				{
-					detail: {
-						position: e.clientX
-					},
-					bubbles: false,
-					cancelable: false
-				}
-			);
-			document.dispatchEvent(event);
+		document.addEventListener("mousexmovement", function(e){
+			_this.attachedChart.behave(e.detail.positionx);
 		});
 
-		this.svg.addEventListener("mouseout", function(e){
-			event = new CustomEvent(
-				"verticalLineHover", 
-				{
-					detail: {
-						position: -1
-					},
-					bubbles: false,
-					cancelable: false
-				}
-			);
-			document.dispatchEvent(event);
-		});
-
-		document.addEventListener("verticalLineHover", function(e){
-			if(e.detail.position === -1){
-				_this.__destroyVerticalLine();
-			} else {
-				_this.__syncVerticalLine(e.detail.position);
-			}
+		document.addEventListener("columnover", function(e){
+			_this.attachedChart.behaveColumnOver(e.detail.positionx, e.detail.positiony);
 		});
 
 	}
-
-	RenderEngine.prototype.getSvg = function(){
-		return this.svg;
-	}	// End getSvg
-
-
 
 	RenderEngine.prototype.convert = function (x, y){
 		return {
@@ -719,22 +699,28 @@
 		this.svg.appendChild(line);					// Drawing line to our canvas
 	} // end drawLine function
 
-		RenderEngine.prototype.__drawRect = function(x1, y1, w, h, className){	// Private function to
+	RenderEngine.prototype.drawRect = function(x1, y1, w, h, className){	// Private function to
 																					// draw lines
 		var coord1 = this.convert(x1, y1);			// Getting converted axis
 													// according to canvas
-		var line = document.createElementNS("http://www.w3.org/2000/svg", "rect");	// creating our
+		if(coord1.x < this.marginX){
+			coord1.x = this.marginX;
+		}
+							
+
+		var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");	// creating our
 																					// element line.
 
-		line.setAttribute("x", coord1.x);	// setting line
-		line.setAttribute("y", coord1.y);	// coordinates
-		line.setAttribute("width", w);	// and styles
-		line.setAttribute("height", h);	// with shifting
+		rect.setAttribute("x", coord1.x);	// setting line
+		rect.setAttribute("y", coord1.y);	// coordinates
+		rect.setAttribute("width", w);	// and styles
+		rect.setAttribute("height", h);	// with shifting
 
 		if(className){
-			line.setAttribute("class", className);
+			rect.setAttribute("class", className);
 		}
-		this.svg.appendChild(line);					// Drawing line to our canvas
+		this.svg.appendChild(rect);					// Drawing line to our canvas
+		return rect;
 	} // end drawRect function
 
 
@@ -750,91 +736,11 @@
 		circle.setAttribute("cy", coord.y);	// coordinates
 		circle.setAttribute("r", r);			// and styles
 		circle.setAttribute("class", className);
-
-		this.plotCirclesObject[Math.floor(coord.x)] = circle;		// Storing the current circle with its x value
 		this.svg.appendChild(circle);
+
+		return circle;
 		// Drawing line to our canvas
 	} // end constructor function
-
-
-	RenderEngine.prototype.__destroyVerticalLine = function() {
-
-		if(this.verticalLine){
-			this.svg.removeChild(this.verticalLine);
-			this.verticalLine = undefined;
-			this.tooltip.hide();
-		}
-		for(var keyx in this.plotCirclesObject){
-			this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
-		}
-	}	// end crosshair
-
-	RenderEngine.prototype.__tooltipHeightCalulator = function(value, key) {
-
-		var estimatedHeight = this.yRangeEstimator(value);
-		var fl = Math.floor.bind(Math);
-		var top = this.height - estimatedHeight;
-
-		top -= this.height * 0.05;
-		if(top / this.height > 0.75){
-			top -= this.height * 0.25;
-		}
-
-		return top;
-	}	// end __tooltipHeightCalculator
-
-	RenderEngine.prototype.__findCircleAtPoint = function(x) {
-
-		x = Math.floor(x);
-		var i;
-
-
-		for(i = x - this.plotCircleRadius; i <= x + this.plotCircleRadius; ++i){
-			if(this.plotCirclesObject[i]){
-				return this.plotCirclesObject[i];
-			}
-		}
-
-	}	// __findCircleAtPoint
-
-	RenderEngine.prototype.__syncVerticalLine = function(x) {
-
-		var svgTop = cumulativeOffset(this.svg).top;
-		var svgLeft = cumulativeOffset(this.svg).left;
-
-		if(x - svgLeft < this.marginX){
-			return
-		}
-
-		// Vertical line; create if already not created
-		if(!this.verticalLine){
-			this.verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-			this.svg.appendChild(this.verticalLine);
-		}
-		// Tooltip position and value
-		var verticalLineXPoint = this.getRatio(x - svgLeft);
-		var yValue = this.engine.__getValueAtPosition(verticalLineXPoint, this.key);			
-		if(yValue){
-			var toolString = shortNumberExpanded(yValue.value);
-			toolString += " \n " + timeInWords(verticalLineXPoint);
-			var tooltipTop = this.__tooltipHeightCalulator(yValue.value, this.key);
-			this.tooltip.show(svgTop + tooltipTop, x + (this.plotCircleRadius * 2), toolString);
-			var circle = this.__findCircleAtPoint(x - svgLeft);
-			if(circle){
-				circle.setAttribute("class", "plot-circle plot-circle-hover");	
-			}
-			for(var keyx in this.plotCirclesObject){
-				if(this.plotCirclesObject[keyx] !== circle){
-					this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
-				}
-			}
-		}
-		this.verticalLine.setAttribute("x1", x - svgLeft);	// setting line
-		this.verticalLine.setAttribute("y1", this.height * 0.07);	// coordinates
-		this.verticalLine.setAttribute("x2", x - svgLeft);	// and styles
-		this.verticalLine.setAttribute("y2", this.height - this.marginY);	// with shifting
-		this.verticalLine.setAttribute("class", "vertical-line");		
-	}	// end syncverticalline
 
 
 	RenderEngine.prototype.__xRangeEstimateGenerator = function(min, max){
@@ -937,7 +843,7 @@
 			x1 = 0;
 			x2 = this.width;
 			if(i){
-				this.__drawRect(x1, y1, this.width, divBoxHeight, "div-lines", true);
+				this.drawRect(x1, y1, this.width, divBoxHeight, "div-lines", true);
 			}
  		}
 
@@ -1003,8 +909,298 @@
 		x = this.xRangeEstimator(x);
 		y = this.yRangeEstimator(y);
 		var className = 'plot-circle';
-		this.__drawCircle(x, y, this.plotCircleRadius, className);
+		return this.__drawCircle(x, y, this.plotCircleRadius, className);
 	}
 
 
+	// A constructor function to render chart of type line
+	function LineChart(renderEngine){
+		this.renderEngine = renderEngine;		// storing the renderEngine instance
+		this.plotCirclesObject = {};
+		// A tooltip for every chart
+		this.tooltip = new Tooltip();
+		// Storing chart Radius
+		this.plotCircleRadius = this.renderEngine.plotCircleRadius;
+
+		// Setting up the listenser
+		var _this = this;
+		var event;
+		
+		this.renderEngine.svg.addEventListener("mousemove", function(e){
+			event = new CustomEvent(
+				"mousexmovement", 
+				{
+					detail: {
+						positionx: e.clientX - cumulativeOffset(_this.renderEngine.svg).left
+					}
+				}
+			);
+			document.dispatchEvent(event);
+		});
+
+		this.renderEngine.svg.addEventListener("mouseout", function(e){
+			event = new CustomEvent(
+				"mousexmovement", 
+				{
+					detail: {
+						positionx: -1
+					}
+				}
+			);
+			document.dispatchEvent(event);
+		});
+
+	}
+	// Public apis availaible for use
+	LineChart.prototype.renderData = function(dateOfVariable, valueOfVariable){	// Function to render points
+
+		var i, len, dateItem, prevDateItem, valueItem, prevValueItem;
+
+		for(i = 1, len = dateOfVariable.length; i < len; ++i){
+			dateItem = dateOfVariable[i];
+			prevDateItem = dateOfVariable[i - 1];
+			valueItem = valueOfVariable[i];
+			prevValueItem = valueOfVariable[i - 1];
+			this.renderEngine.plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
+		}
+		for(i = 0, len = dateOfVariable.length; i < len; ++i){
+			dateItem = dateOfVariable[i];
+			valueItem = valueOfVariable[i];
+			var circle = this.renderEngine.plotCircle(dateItem, valueItem);
+			this.plotCirclesObject[Math.floor(circle.getAttribute("cx"))] = circle;		// Storing the current circle with its x value
+		}
+	}
+
+	LineChart.prototype.behave = function(pos){
+		if(pos === -1){
+			this.__destroyVerticalLine();
+
+		} else {
+			this.__syncVerticalLine__(pos);
+		}
+	}
+
+	// private functions for inner usage
+	LineChart.prototype.__syncVerticalLine__ = function(x) {
+
+		var svgTop = cumulativeOffset(this.renderEngine.svg).top;
+		var svgLeft = cumulativeOffset(this.renderEngine.svg).left;
+
+		if(x < this.renderEngine.marginX){
+			return
+		}
+
+		// Vertical line; create if already not created
+		if(!this.verticalLine){
+			this.verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+			this.renderEngine.svg.appendChild(this.verticalLine);
+		}
+		// Tooltip position and value
+		var verticalLineXPoint = this.renderEngine.getRatio(x);
+		var yValue = this.renderEngine.engine.__getValueAtPosition(verticalLineXPoint, this.renderEngine.key);			
+		if(yValue){
+			var toolString = shortNumberExpanded(yValue.value);
+			toolString += " \n " + timeInWords(verticalLineXPoint);
+			var tooltipTop = this.__tooltipHeightCalulator(yValue.value, this.renderEngine.key);
+			this.tooltip.show(svgTop + tooltipTop, x + (this.renderEngine.plotCircleRadius * 2) + svgLeft, toolString);
+			var circle = this.__findCircleAtPoint(x);
+			if(circle){
+				circle.setAttribute("class", "plot-circle plot-circle-hover");	
+			}else{
+			}
+			for(var keyx in this.plotCirclesObject){
+				if(this.plotCirclesObject[keyx] !== circle){
+					this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
+				}
+			}
+		}
+		this.verticalLine.setAttribute("x1", x);	// setting line
+		this.verticalLine.setAttribute("y1", this.renderEngine.height * 0.07);	// coordinates
+		this.verticalLine.setAttribute("x2", x);	// and styles
+		this.verticalLine.setAttribute("y2", this.renderEngine.height - this.renderEngine.marginY);	// with shifting
+		this.verticalLine.setAttribute("class", "vertical-line");		
+	}	// end syncverticalline
+	
+	LineChart.prototype.__destroyVerticalLine = function() {
+
+		if(this.verticalLine){
+			this.renderEngine.svg.removeChild(this.verticalLine);
+			this.verticalLine = undefined;
+			this.tooltip.hide();
+		}
+		for(var keyx in this.plotCirclesObject){
+			this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
+		}
+	}	// end crosshair
+
+	LineChart.prototype.__findCircleAtPoint = function(x) {
+
+		x = Math.floor(x);
+		var i;
+
+
+		for(i = x - this.plotCircleRadius; i <= x + this.plotCircleRadius; ++i){
+			if(this.plotCirclesObject[i]){
+				return this.plotCirclesObject[i];
+			}
+		}
+
+	}	// __findCircleAtPoint
+
+	LineChart.prototype.__tooltipHeightCalulator = function(value, key) {
+
+		var estimatedHeight = this.renderEngine.yRangeEstimator(value);
+		var fl = Math.floor.bind(Math);
+		var top = this.renderEngine.height - estimatedHeight;
+
+		top -= this.renderEngine.height * 0.05;
+		if(top / this.renderEngine.height > 0.75){
+			top -= this.renderEngine.height * 0.25;
+		}
+
+		return top;
+	}	// end __tooltipHeightCalculator
+
+
+
+	// A constructor function to render chart of type line
+	function ColumnChart(renderEngine, columnWidth){
+		this.renderEngine = renderEngine;		// storing the renderEngine instance
+		// A tooltip for every chart
+		this.tooltip = new Tooltip();
+		this.columnWidth = columnWidth;
+
+		this.columnsObject = []; // object to store all columns
+	}
+	// Public apis availaible for use
+	ColumnChart.prototype.renderData = function(dateOfVariable, valueOfVariable){	// Function to render points
+
+		var i, len, dateItem, valueItem;
+
+		for(i = 0, len = dateOfVariable.length; i < len; ++i){
+			dateItem = dateOfVariable[i];
+			valueItem = valueOfVariable[i];
+			var x = this.renderEngine.xRangeEstimator(dateItem) - (this.columnWidth / 2);
+			var y = this.renderEngine.yRangeEstimator(valueItem);
+			var rect = this.renderEngine.drawRect(x, y, this.columnWidth, y, "data-column");
+
+			this.columnsObject.push({
+				x1 : Math.floor(rect.getAttribute("x")),
+				x2 : Math.floor(Number(rect.getAttribute("x")) + this.columnWidth),
+				y : Math.floor(rect.getAttribute("y")),
+				value : valueItem,
+				element : rect
+			});
+
+			// Setting up the listeners
+			var event;
+			var _this = this;
+			rect.addEventListener("mousemove", function(e){
+				event = new CustomEvent(
+						"columnover", 
+						{
+							detail: {
+								positionx: e.clientX - cumulativeOffset(_this.renderEngine.svg).left, 
+								positiony: e.clientY - cumulativeOffset(_this.renderEngine.svg).top
+							}
+						}
+					);
+				document.dispatchEvent(event);			
+			});
+
+			rect.addEventListener("mouseout", function(e){
+				event = new CustomEvent(
+						"columnover", 
+						{
+							detail: {
+								positionx: -1,
+								positiony: -1
+							}
+						}
+					);
+				document.dispatchEvent(event);			
+			});
+
+		}
+	}
+
+	ColumnChart.prototype.behave = function(pos){
+
+	}
+
+	ColumnChart.prototype.behaveColumnOver = function(pos, y){
+		if(pos === -1){
+			this.__loseFocus__();
+
+		} else {
+			this.__focus__(pos, y);
+		}
+	}	// end behaveColumnOver
+
+	// private functions for inner usage
+	ColumnChart.prototype.__focus__ = function(x, y) {
+
+		var svgTop = cumulativeOffset(this.renderEngine.svg).top;
+		var svgLeft = cumulativeOffset(this.renderEngine.svg).left;
+
+		if(x < this.renderEngine.marginX){
+			return
+		}
+
+
+			var rect = this.__findRectAtPoint(x);
+			if(rect){
+				rect.element.setAttribute("class", "data-column data-column-hover");
+
+				var toolString = shortNumberExpanded(rect.value);
+				// toolString += " \n " + timeInWords(verticalLineXPoint);
+				this.tooltip.show(y + svgTop + 10, x + svgLeft, toolString);
+
+
+			}else{
+			}
+			for(var keyx in this.columnsObject){
+				if(this.columnsObject[keyx] !== rect){
+					this.columnsObject[keyx].element.setAttribute("class", "data-column");
+				}
+			}
+		
+	}	// end syncverticalline
+	
+	ColumnChart.prototype.__loseFocus__ = function() {
+
+
+		this.tooltip.hide();
+		for(var keyx in this.columnsObject){
+			this.columnsObject[keyx].element.setAttribute("class", "data-column");
+		}
+	}	// end crosshair
+	ColumnChart.prototype.__findRectAtPoint = function(x) {
+
+		x = Math.floor(x);
+		var i;
+
+
+		for(i in this.columnsObject){
+			var item = this.columnsObject[i];
+			if(x >= item.x1 && x <= item.x2){
+				return item
+			}
+		}
+
+	}	// __findCircleAtPoint
+
+	ColumnChart.prototype.__tooltipHeightCalulator = function(value, key) {
+
+		var estimatedHeight = this.renderEngine.yRangeEstimator(value);
+		var fl = Math.floor.bind(Math);
+		var top = this.renderEngine.height - estimatedHeight;
+
+		top -= this.renderEngine.height * 0.05;
+		if(top / this.renderEngine.height > 0.75){
+			top -= this.renderEngine.height * 0.25;
+		}
+
+		return top;
+	}	// end __tooltipHeightCalculator
 })();
