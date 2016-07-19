@@ -998,7 +998,6 @@
 		x = this.xRangeEstimator(x);
 		y = this.yRangeEstimator(y);
 		var className = 'plot-circle';
-		console.log(x)
 		this.__drawCircle(x, y, this.plotCircleRadius, className);
 	}
 
