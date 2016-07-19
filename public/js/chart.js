@@ -799,14 +799,19 @@
 
 	RenderEngine.prototype.__syncVerticalLine = function(x) {
 
+		var svgTop = cumulativeOffset(this.svg).top;
+		var svgLeft = cumulativeOffset(this.svg).left;
+
+		if(x - svgLeft < this.marginX){
+			return
+		}
+
 		// Vertical line; create if already not created
 		if(!this.verticalLine){
 			this.verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
 			this.svg.appendChild(this.verticalLine);
 		}
 		// Tooltip position and value
-		var svgTop = cumulativeOffset(this.svg).top;
-		var svgLeft = cumulativeOffset(this.svg).left;
 		var verticalLineXPoint = this.getRatio(x - svgLeft);
 		var yValue = this.engine.__getValueAtPosition(verticalLineXPoint, this.key);			
 		if(yValue){
