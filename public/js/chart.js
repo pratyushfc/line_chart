@@ -6,13 +6,40 @@
 
 
 	// Exposing public Api
-	window.RenderChart = function(data, selector){
+	window.MultiVariantChart = function(data, selector){
 		var t = performance.now();
 		var chart = new Chart(data);
-		var engine = new Engine(chart);
-		engine.render(selector, chart.getType());
-		console.log("time taken to process", performance.now() - t)
+		this.engine = new Engine(chart);
+		this.engine.render(selector, chart.getType());
+		console.log("rendered in ", performance.now() - t, " seconds")
 	};
+
+	MultiVariantChart.prototype.rearrange = function(fn){
+		console.log("in proto")
+		this.engine.rearrange(fn);
+	}
+
+	MultiVariantChart.prototype.reverse = function(fn){
+		this.engine.reverse();
+	}	// end reverse
+
+	// Data function; helper for sorting
+	MultiVariantChart.prototype.avgFunc = function(arr){
+		var sum = 0, i;
+		for(i = arr.length; --i;){
+			sum += arr[i].value;
+		}
+		return sum / arr.length;
+	}
+	MultiVariantChart.prototype.minFunc = function(arr){
+		var min = arr[0].value, i;
+		for(i = arr.length; --i;){
+			if(min > arr[i].value){
+				min = arr[i].value;
+			}
+		}
+		return min;
+	}
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
 		a = joinDate(a.year, a.month);
@@ -169,6 +196,7 @@
 			return binarySearchDate(low, mid, date, array)
 		}
 	}
+
 
 	function Chart(data){					// Contructor function to parse and validate data
 
@@ -535,11 +563,10 @@
 	Engine.prototype.render = function(selector, type){
 
 		var i, len, key, item;	// Loop variables
-		var numChartsRow;			// Count number of charts possible in one row
 
-		var rootEl = document.getElementById(selector);
-		rootEl.innerHTML = "";
-		rootEl.setAttribute("class", "pallete");
+		this.rootEl = document.getElementById(selector);
+		this.rootEl.innerHTML = "";
+		this.rootEl.setAttribute("class", "pallete");
 		var captionBox = document.createElement("div");
 		captionBox.setAttribute('class', 'caption-box');
 		var captionEl = document.createElement("h2");
@@ -550,33 +577,34 @@
 		captionBox.appendChild(subCaptionEl);
 		captionEl.innerHTML = this.chart.getCaption();
 		subCaptionEl.innerHTML = this.chart.getSubCaption();
-		rootEl.appendChild(captionBox);
+		this.rootEl.appendChild(captionBox);
 
-		numChartsRow = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; //getting width first
-		numChartsRow = Math.floor( numChartsRow / (this.chart.getWidth() + numChartsRow * 0.03))
-
-
-		alert(numChartsRow)
-
+		// Count number of charts possible in one row
+		this.numChartsRow = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; //getting width first
+		this.numChartsRow = Math.floor( this.numChartsRow / (this.chart.getWidth() + this.numChartsRow * 0.03))
 		var allVariables = this.chart.getAllVariables();
 
 		var count = 0;
-		var isLast;
 
 		var colWidth = colWidth ? colWidth : this.getColumnWidth();
+
+		// A variable to determine if chart label is to be drawn on top or not
+		this.isChartLabelTop = (allVariables.length) % this.numChartsRow !== 0;
 
 		this.renderEngineObject = {};
 
 		for(var idx in allVariables){
 			key = allVariables[idx];
 
-			// Only last chart will show time labels
-			isLast = count >= Object.keys(allVariables).length - numChartsRow;
 
 
 			this.renderEngineObject[key] = new RenderEngine(this, selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
-			this.renderEngineObject[key].drawXAxis(this.getXRange(), isLast);
+			this.renderEngineObject[key].drawXAxis(this.getXRange());
+
+			//this.renderEngineObject[key].drawXAxisLabels(this.getXRange(), this.isChartLabelTop);
+
+
 			if(type.toLowerCase() === "column"){
 				this.renderEngineObject[key].attachChart(new ColumnChart(this.renderEngineObject[key], colWidth));
 			} else{
@@ -587,8 +615,111 @@
 
 			++count;
 		}
+
+		this.__prepareArrange__();
+		this.__showLabels__();
 	}
 
+
+	Engine.prototype.__prepareArrange__ = function(){
+		var key, item, i, iv, len;
+		var _this = this;
+		var style;
+
+		if(!this.storeSvgArray){
+			this.storeSvgArray = [];
+			this.storeSvgDimensionArray = [];
+
+			for(key in this.renderEngineObject){
+				this.storeSvgArray.push({
+					svg : this.renderEngineObject[key].svg,
+					key : key,
+					data : this.chart.getY(key),
+					object : this.renderEngineObject[key]
+				});
+				this.storeSvgDimensionArray.push(cumulativeOffset(this.renderEngineObject[key].svg))
+			}
+
+		}
+
+		for(i = 0, len = this.storeSvgArray.length; i < len; ++i){
+			style = "position : absolute; top : " + _this.storeSvgDimensionArray[i].top + "px;";
+			style += "left : " + _this.storeSvgDimensionArray[i].left + "px;"
+			style += "margin-left : 0px"
+			_this.storeSvgArray[i].svg.setAttribute("style", style)
+		}
+	}
+
+	Engine.prototype.reverse = function(func) {
+
+		var key, item, i, iv, len;
+		var _this = this;
+		var style;
+
+		var customFunction = func;
+
+		this.storeSvgArray.reverse();
+
+		
+		this.__hideLabels__();
+
+		for(i = 0, len = _this.storeSvgArray.length; i < len; ++i){
+			style = "position : absolute; top : " + _this.storeSvgDimensionArray[i].top + "px;";
+			style += "left : " + _this.storeSvgDimensionArray[i].left + "px;"
+			style += "margin-left : 0px"
+			_this.storeSvgArray[i].svg.setAttribute("style", style)
+		}
+
+		this.__showLabels__();
+	} // end reverse function
+
+	Engine.prototype.rearrange = function(func) {
+
+		var key, item, i, iv, len;
+		var _this = this;
+		var style;
+
+		var customFunction = func;
+
+		this.storeSvgArray.sort(function(a, b){
+			return customFunction(a.data) - customFunction(b.data);
+		});
+
+
+		this.__hideLabels__();
+
+		for(i = 0, len = _this.storeSvgArray.length; i < len; ++i){
+			style = "position : absolute; top : " + _this.storeSvgDimensionArray[i].top + "px;";
+			style += "left : " + _this.storeSvgDimensionArray[i].left + "px;"
+			style += "margin-left : 0px"
+			_this.storeSvgArray[i].svg.setAttribute("style", style)
+		}
+
+		this.__showLabels__();
+	} // end rearrange function
+
+
+	Engine.prototype.__showLabels__ = function(){
+		var _this = this;
+		var i, len;
+		if(this.isChartLabelTop){
+			for(i = 0, len = _this.storeSvgArray.length; i < this.numChartsRow && i < len; ++i){
+				_this.storeSvgArray[i].object.drawXAxisLabels(this.getXRange(), this.isChartLabelTop)
+			}
+		}else{
+			for(len = _this.storeSvgArray.length, i = len - this.numChartsRow; i < len; ++i){
+				_this.storeSvgArray[i].object.drawXAxisLabels(this.getXRange(), this.isChartLabelTop)
+			}
+		}
+	}// end showLabel
+
+	Engine.prototype.__hideLabels__ = function(){
+		var _this = this;
+		var i, len;
+		for(i = 0, len = _this.storeSvgArray.length; i < len; ++i){
+			_this.storeSvgArray[i].object.removeXAxisLabels(this.getXRange());
+		}
+	}// end hideLabel
 
 	// A construction function for tooltip
 	function Tooltip(){
@@ -639,7 +770,7 @@
 		this.height = height;					// for future uses
 		this.marginX = 0.13 * this.width;		// Margin will be used for labels
 		this.marginY = 0.08 * this.height;						// and ticks
-		this.shiftRatio = 0.85;					// Shifting values for better
+		this.shiftRatio = 0.8;					// Shifting values for better
 		this.shiftOriginX = 0;	// screen accomodation
 		this.shiftOriginY = 0;
 
@@ -751,7 +882,50 @@
 		}
 	}	// End yRangeEstimator
 
-	RenderEngine.prototype.drawXAxis = function(rangeArray, placeLabel){
+
+	RenderEngine.prototype.drawXAxisLabels = function(rangeArray, isTop){
+
+		var i, len, x1, x2, y1, y2, stringTime, item;
+
+
+		if(!this.xAxisLabelsArray){
+			this.xAxisLabelsArray = [];
+		}
+
+		for(i = 0, len = rangeArray.length; i < len; ++i){
+ 			item = rangeArray[i];
+			x1 = this.xRangeEstimator(item);
+			x2 = this.xRangeEstimator(item);
+			y1 = -6;
+			y2 = 0;
+			stringTime = timeInWords(item);
+			stringTime = stringTime.split(" ")
+			stringTime = stringTime[0] + "\n" + stringTime[1];
+			if(isTop){
+				this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), this.height * (this.shiftRatio + 0.035), stringTime, "axis-label xaxis-label");
+			} else {
+				this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - 4 - (this.marginY * 0.7) + (this.height * 0.016) , stringTime, "axis-label xaxis-label");
+			}
+			
+		}
+	}
+
+	RenderEngine.prototype.removeXAxisLabels = function(rangeArray){
+
+		if(!this.xAxisLabelsArray){
+			return;
+		}
+
+		var i;
+		for(i = rangeArray.length; i--;){
+			if(this.xAxisLabelsArray[i]){
+				this.svg.removeChild(this.xAxisLabelsArray[i]);
+				delete this.xAxisLabelsArray[i];
+			}
+		}
+	}
+
+	RenderEngine.prototype.drawXAxis = function(rangeArray){
 		var i, len, item;			// Loop iteration variables
 		// Drawing X axis
 		var x1 = 0;
@@ -772,12 +946,6 @@
 			x2 = this.xRangeEstimator(item);
 			y1 = -6;
 			y2 = 0;
-			if(placeLabel){
-				var stringTime = timeInWords(item);
-				stringTime = stringTime.split(" ")
-				stringTime = stringTime[0] + "\n" + stringTime[1];
-				this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - (this.marginY * 0.7) + (this.height * 0.016) , stringTime, "axis-label xaxis-label");
-			}
 			this.__drawLine(x1, y1, x2, y2, "ticks");
 
 			// Saving first and last coordinate and value 
@@ -800,7 +968,7 @@
 		var x1 = 0;
 		var x2 = 0;
 		var y1 = 0;
-		var y2 = this.height;
+		var y2 = this.height * this.shiftRatio;
 
 		var divBoxHeight;
  		this.__drawLine(x1, y1, x2, y2, "axis yaxis");
@@ -821,7 +989,7 @@
 			// Adjustments to X position
 			var tx1 = x1 - 0.025 * this.width;
 			tx1 -= (text.length / 4) * 10;
-			this.__placeText(tx1 - 3, y1 - 3 , text, "axis-label yaxis-label");
+			this.__placeText(tx1 - 6, y1 - 3 , text, "axis-label yaxis-label");
 
 	 		this.__drawLine(x1, y1, x2, y2, "ticks", true);
 
@@ -888,6 +1056,7 @@
 		}
 		textElement.innerHTML = text;
 		this.svg.appendChild(textElement);
+		return textElement;
 	} // End placetext
 
 	RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style){
@@ -1154,8 +1323,8 @@
 			var toolString = shortNumberExpanded(rect.value);
 
 			var tooltipTop = y;
-			if(rect.element.getAttribute("y") > tooltipTop){
-				tooltipTop = Number(rect.element.getAttribute("y"));
+			if(rect.element.getAttribute("y") > tooltipTop + 5){
+				tooltipTop = Number(rect.element.getAttribute("y")) - 5;
 			}
 			// toolString += " \n " + timeInWords(verticalLineXPoint);
 			this.tooltip.show(tooltipTop + svgTop + 8, x + svgLeft, toolString);
@@ -1208,3 +1377,6 @@
 		return top;
 	}	// end __tooltipHeightCalculator
 })();
+
+//  for test; reload on resize
+window.onresize = function(){ location.reload(); }

@@ -1,4 +1,4 @@
-RenderChart({
+var chart = new MultiVariantChart({
 	"dimensions" : {						// Size of canvas
 		"width" : 370,		
 		"height" : 240,
@@ -113,3 +113,5 @@ RenderChart({
 		}
 	]
 }, 'graph');
+
+

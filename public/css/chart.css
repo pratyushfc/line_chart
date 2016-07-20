@@ -15,10 +15,12 @@ body{
 	float : left;
 	display : block;
 	margin-left: 3%;
+	-webkit-transition: top 0.7s, left 0.7s;
 }
 .chartLabel{
 	font-weight : 600;
 	font-size : 15px;
+	stroke : black;
 }
 .caption-box{
 	background: white;
