@@ -778,8 +778,47 @@
 
 		// Saving X coordinate to retrieve position value later by Vertical line
 		this.xCoords = {};
+		this.__dragListener__();
 	}
 
+
+	RenderEngine.prototype.__dragListener__ = function(){
+		var _this = this;
+		var start = {};
+		var end = {};
+		var dragOn = false;
+
+		this.svg.onmousedown = function(e){
+			start.x = e.clientX;
+			start.y = e.pageY;
+			dragOn = true;
+		}
+
+		this.svg.onmouseup = function(e){
+			console.log(dragOn, "up")
+
+			setTimeout(function(){
+				dragOn = false;
+				console.log("setting false");
+			}, 1000);
+			
+		}
+
+		this.svg.onmousemove = function(e){
+			if(dragOn){
+				end.x = e.clientX;
+				end.y = e.pageY;
+				console.log(start, end, dragOn)
+			}
+		}
+		document.onclick = function(e){
+			if(!dragOn){
+				console.log("deleted", dragOn)
+			}
+		}
+
+
+	}// end srag listener
 
 	RenderEngine.prototype.attachChart = function(chart){	// Function to attach desired chart type
 		this.attachedChart = chart;
