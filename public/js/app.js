@@ -1,7 +1,7 @@
 RenderChart({
 	"dimensions" : {						// Size of canvas
-		"width" : 500,		
-		"height" : 200,
+		"width" : 370,		
+		"height" : 240,
 	},
 
 	"caption" : "Caption",

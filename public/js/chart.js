@@ -535,9 +535,10 @@
 	Engine.prototype.render = function(selector, type){
 
 		var i, len, key, item;	// Loop variables
-
+		var numChartsRow;			// Count number of charts possible in one row
 
 		var rootEl = document.getElementById(selector);
+		rootEl.innerHTML = "";
 		rootEl.setAttribute("class", "pallete");
 		var captionBox = document.createElement("div");
 		captionBox.setAttribute('class', 'caption-box');
@@ -551,13 +552,18 @@
 		subCaptionEl.innerHTML = this.chart.getSubCaption();
 		rootEl.appendChild(captionBox);
 
+		numChartsRow = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; //getting width first
+		numChartsRow = Math.floor( numChartsRow / (this.chart.getWidth() + numChartsRow * 0.03))
+
+
+		alert(numChartsRow)
+
 		var allVariables = this.chart.getAllVariables();
 
 		var count = 0;
 		var isLast;
 
 		var colWidth = colWidth ? colWidth : this.getColumnWidth();
-		console.log(colWidth, "in engine")
 
 		this.renderEngineObject = {};
 
@@ -565,7 +571,9 @@
 			key = allVariables[idx];
 
 			// Only last chart will show time labels
-			isLast = count === Object.keys(allVariables).length - 1;
+			isLast = count >= Object.keys(allVariables).length - numChartsRow;
+
+
 			this.renderEngineObject[key] = new RenderEngine(this, selector, this.chart.getWidth(), this.chart.getHeight(), key);
 			this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
 			this.renderEngineObject[key].drawXAxis(this.getXRange(), isLast);
@@ -574,7 +582,6 @@
 			} else{
 				this.renderEngineObject[key].attachChart(new LineChart(this.renderEngineObject[key], colWidth));
 			}
-			this.renderEngineObject[key].listener();
 
 			this.renderEngineObject[key].renderChart(this.getXRangeOfVariable(key), this.getYRangeOfVariable(key))					
 
@@ -649,19 +656,6 @@
 
 	RenderEngine.prototype.renderChart = function(xArr, yArr){
 		this.attachedChart.renderData(xArr, yArr);
-	}
-
-	RenderEngine.prototype.listener = function(){
-
-		var _this = this;
-		document.addEventListener("mousexmovement", function(e){
-			_this.attachedChart.behave(e.detail.positionx);
-		});
-
-		document.addEventListener("columnover", function(e){
-			_this.attachedChart.behaveColumnOver(e.detail.positionx, e.detail.positiony);
-		});
-
 	}
 
 	RenderEngine.prototype.convert = function (x, y){
@@ -950,6 +944,11 @@
 			document.dispatchEvent(event);
 		});
 
+		var _this = this;
+		document.addEventListener("mousexmovement", function(e){
+			_this.behave(e.detail.positionx);
+		});
+
 	}
 	// Public apis availaible for use
 	LineChart.prototype.renderData = function(dateOfVariable, valueOfVariable){	// Function to render points
@@ -1101,7 +1100,7 @@
 						{
 							detail: {
 								positionx: e.clientX - cumulativeOffset(_this.renderEngine.svg).left, 
-								positiony: e.clientY - cumulativeOffset(_this.renderEngine.svg).top
+								positiony: e.pageY - cumulativeOffset(_this.renderEngine.svg).top
 							}
 						}
 					);
@@ -1121,11 +1120,11 @@
 				document.dispatchEvent(event);			
 			});
 
+			document.addEventListener("columnover", function(e){
+				_this.behaveColumnOver(e.detail.positionx, e.detail.positiony);
+			});
+
 		}
-	}
-
-	ColumnChart.prototype.behave = function(pos){
-
 	}
 
 	ColumnChart.prototype.behaveColumnOver = function(pos, y){
@@ -1148,22 +1147,27 @@
 		}
 
 
-			var rect = this.__findRectAtPoint(x);
-			if(rect){
-				rect.element.setAttribute("class", "data-column data-column-hover");
+		var rect = this.__findRectAtPoint(x);
+		if(rect){
+			rect.element.setAttribute("class", "data-column data-column-hover");
 
-				var toolString = shortNumberExpanded(rect.value);
-				// toolString += " \n " + timeInWords(verticalLineXPoint);
-				this.tooltip.show(y + svgTop + 10, x + svgLeft, toolString);
+			var toolString = shortNumberExpanded(rect.value);
 
-
-			}else{
+			var tooltipTop = y;
+			if(rect.element.getAttribute("y") > tooltipTop){
+				tooltipTop = Number(rect.element.getAttribute("y"));
 			}
-			for(var keyx in this.columnsObject){
-				if(this.columnsObject[keyx] !== rect){
-					this.columnsObject[keyx].element.setAttribute("class", "data-column");
-				}
+			// toolString += " \n " + timeInWords(verticalLineXPoint);
+			this.tooltip.show(tooltipTop + svgTop + 8, x + svgLeft, toolString);
+
+
+		}else{
+		}
+		for(var keyx in this.columnsObject){
+			if(this.columnsObject[keyx] !== rect){
+				this.columnsObject[keyx].element.setAttribute("class", "data-column");
 			}
+		}
 		
 	}	// end syncverticalline
 	

@@ -6,13 +6,15 @@ body{
 	margin: 0;
 	padding: 0;
 }
-svg{
-	float : left;
-	display : block;
-}
 #graph{
     margin-left: auto;
     margin-right: auto;
+}
+
+#graph svg{
+	float : left;
+	display : block;
+	margin-left: 3%;
 }
 .chartLabel{
 	font-weight : 600;
@@ -39,6 +41,7 @@ svg{
 	border-style: solid;
 	color: #8D695E;
 	border-color: #E9C2B4;
+	-webkit-transition: all 0s;
 }
 .chart{
 	margin-bottom: 50px;
@@ -127,6 +130,7 @@ svg{
 	fill : #1E7ACD;
 	stroke : #86B6E1;
 	stroke-width : 0.8;
+	-webkit-transition: all 0.2s;
 }
 .chart .data-column-hover{
 	fill : #BC4445;
