@@ -15,7 +15,6 @@
 	};
 
 	MultiVariantChart.prototype.rearrange = function(fn){
-		console.log("in proto")
 		this.engine.rearrange(fn);
 	}
 
@@ -786,39 +785,87 @@
 		var _this = this;
 		var start = {};
 		var end = {};
-		var dragOn = false;
+		/*
+			A variable to store dragging status
+			0 -- drag not started
+			1 -- drag started on svg
+			1 -- drag happening on the svg
+			2 -- drag ended on the svg
+		*/
+		var dragStatus = 0;		
 
 		this.svg.onmousedown = function(e){
-			start.x = e.clientX;
-			start.y = e.pageY;
-			dragOn = true;
+			if(dragStatus === 0){
+				start.x = e.clientX;
+				start.y = e.pageY;
+				dragStatus = 1;
+			}
+			if(dragStatus === 2){
+				dragStatus = 0;
+				_this.__boxDestroy__()
+			}
 		}
 
 		this.svg.onmouseup = function(e){
-			console.log(dragOn, "up")
-
-			setTimeout(function(){
-				dragOn = false;
-				console.log("setting false");
-			}, 1000);
-			
+			if(dragStatus === 1){
+				dragStatus = 2;
+				_this.__boxRemoveFocus__();
+			}
 		}
 
 		this.svg.onmousemove = function(e){
-			if(dragOn){
+			if(dragStatus === 1){
 				end.x = e.clientX;
 				end.y = e.pageY;
-				console.log(start, end, dragOn)
+				_this.__drawBox__(start, end);
 			}
 		}
-		document.onclick = function(e){
-			if(!dragOn){
-				console.log("deleted", dragOn)
-			}
-		}
-
-
 	}// end srag listener
+
+	RenderEngine.prototype.__boxDestroy__ = function(){
+		var _this = this;
+
+		if(_this.selectionBox){
+			_this.svg.removeChild(_this.selectionBox);
+			delete _this.selectionBox;
+		}
+		_this.attachedChart.highlight(-1, -1, -1, -1);
+
+	} // end __boxRemoveFocus
+
+	RenderEngine.prototype.__boxRemoveFocus__ = function(){
+		var _this = this;
+
+		if(_this.selectionBox){
+			_this.selectionBox.setAttribute("style", "opacity: 0");
+		}
+
+	} // end __boxRemoveFocus
+	RenderEngine.prototype.__drawBox__ = function(start, end){
+		var _this = this;
+		if(!_this.selectionBox){
+			_this.selectionBox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+			this.svg.appendChild(_this.selectionBox);
+		}													
+
+		var svgLeft = cumulativeOffset(this.svg).left;
+		var svgTop = cumulativeOffset(this.svg).top;
+
+		var x = Math.min(start.x, end.x) - svgLeft;
+		var y = Math.min(start.y, start.y) - svgTop;
+		var w = Math.abs(start.x - end.x);
+		var h = Math.abs(start.y - end.y);
+
+		_this.selectionBox.setAttribute("x", x);
+		_this.selectionBox.setAttribute("y", y);
+		_this.selectionBox.setAttribute("width", w);
+		_this.selectionBox.setAttribute("height", h);
+		_this.selectionBox.setAttribute("style", "opacity: 0.2");
+		_this.selectionBox.setAttribute("class", "selection-box");
+
+		// highlighting charts in the area
+		_this.attachedChart.highlight(x, y, x + w, y + h);
+	}
 
 	RenderEngine.prototype.attachChart = function(chart){	// Function to attach desired chart type
 		this.attachedChart = chart;
@@ -1174,7 +1221,10 @@
 			dateItem = dateOfVariable[i];
 			valueItem = valueOfVariable[i];
 			var circle = this.renderEngine.plotCircle(dateItem, valueItem);
-			this.plotCirclesObject[Math.floor(circle.getAttribute("cx"))] = circle;		// Storing the current circle with its x value
+			this.plotCirclesObject[Math.floor(circle.getAttribute("cx"))] = {
+				circle: circle,
+				y: circle.getAttribute("cy")
+			};		// Storing the current circle with its x value
 		}
 	}
 
@@ -1187,6 +1237,23 @@
 		}
 	}
 
+	LineChart.prototype.highlight = function(x1, y1, x2, y2) {
+
+		var keyx, item;
+
+
+		for(keyx in this.plotCirclesObject){
+			item = this.plotCirclesObject[keyx];
+			if(keyx >= x1 && keyx <= x2 && item.y <= y2 && item.y >= y1){
+				item.hoverProtected = true;
+				item.circle.setAttribute("class", "plot-circle plot-circle-hover");
+			} else{
+				delete item.hoverProtected;
+			}
+		}
+
+
+	} // end highlight
 	// private functions for inner usage
 	LineChart.prototype.__syncVerticalLine__ = function(x) {
 
@@ -1216,8 +1283,8 @@
 			}else{
 			}
 			for(var keyx in this.plotCirclesObject){
-				if(this.plotCirclesObject[keyx] !== circle){
-					this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
+				if(this.plotCirclesObject[keyx].circle !== circle && !this.plotCirclesObject[keyx].hoverProtected){
+					this.plotCirclesObject[keyx].circle.setAttribute("class", "plot-circle");
 				}
 			}
 		}
@@ -1236,7 +1303,9 @@
 			this.tooltip.hide();
 		}
 		for(var keyx in this.plotCirclesObject){
-			this.plotCirclesObject[keyx].setAttribute("class", "plot-circle");
+			if(!this.plotCirclesObject[keyx].hoverProtected){
+				this.plotCirclesObject[keyx].circle.setAttribute("class", "plot-circle");
+			}
 		}
 	}	// end crosshair
 
@@ -1248,7 +1317,7 @@
 
 		for(i = x - this.plotCircleRadius; i <= x + this.plotCircleRadius; ++i){
 			if(this.plotCirclesObject[i]){
-				return this.plotCirclesObject[i];
+				return this.plotCirclesObject[i].circle;
 			}
 		}
 
@@ -1335,6 +1404,37 @@
 		}
 	}
 
+	ColumnChart.prototype.highlight = function(x1, y1, x2, y2) {
+
+
+
+		var i, len, item;
+
+		var isLeftInRange, isRightInRange, isTopInRange;
+
+		for(i = this.columnsObject.length; i--;){
+			item = this.columnsObject[i];
+
+			isLeftInRange = item.x1 >= x1 && item.x1 <= x2;
+			isRightInRange = item.x2 >= x1 && item.x2 <= x2;
+			isTopInRange = item.y <= y2;
+
+					if(i === this.columnsObject.length - 1)
+					console.log(item.y <= y2)
+
+			if(isTopInRange && (isLeftInRange || isRightInRange)){
+				item.element.setAttribute("class", "data-column data-column-hover");
+				item.hoverProtected = true;
+			} else {
+				delete item.hoverProtected;
+				item.element.setAttribute("class", "data-column");
+			}
+
+		}
+
+
+	} // end highlight
+
 	ColumnChart.prototype.behaveColumnOver = function(pos, y){
 		if(pos === -1){
 			this.__loseFocus__();
@@ -1372,7 +1472,7 @@
 		}else{
 		}
 		for(var keyx in this.columnsObject){
-			if(this.columnsObject[keyx] !== rect){
+			if(this.columnsObject[keyx] !== rect && !this.columnsObject[keyx].hoverProtected){
 				this.columnsObject[keyx].element.setAttribute("class", "data-column");
 			}
 		}
@@ -1384,7 +1484,10 @@
 
 		this.tooltip.hide();
 		for(var keyx in this.columnsObject){
-			this.columnsObject[keyx].element.setAttribute("class", "data-column");
+			if(!this.columnsObject[keyx].hoverProtected){
+				this.columnsObject[keyx].element.setAttribute("class", "data-column");
+			}
+			
 		}
 	}	// end crosshair
 	ColumnChart.prototype.__findRectAtPoint = function(x) {

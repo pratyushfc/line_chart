@@ -128,11 +128,25 @@ body{
 	stroke: #CDCDCD;
 }
 
+.chart{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .chart .data-column{
 	fill : #1E7ACD;
 	stroke : #86B6E1;
 	stroke-width : 0.8;
 	-webkit-transition: all 0.2s;
+}
+.chart .selection-box{
+	fill: #ff6600;
+	stroke: #dd4400;
+	stroke-width: 2;
 }
 .chart .data-column-hover{
 	fill : #BC4445;
