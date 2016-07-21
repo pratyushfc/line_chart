@@ -1,7 +1,3 @@
-var random = function(arr){
-		return Math.random();
-}
-
 var chart = new MultiVariantChart({
 	"dimensions" : {						// Size of canvas
 		"width" : 370,		
@@ -11,79 +7,72 @@ var chart = new MultiVariantChart({
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "column",						// default line
+	"type" : "line",						// default line
 
 	"data" : [		
 		{
-			time : "4-10-2010",
-			population : 91316436,
-			hike : 1.4,
+			time : "2010-4-10",
+			population : 4412631857
 		}		,{
-			time : "8-10-2010",
-			population : 331605199,
-			hike : 1.5,
+			time : "2010-8-10",
+			population : 1775217418
 		}		,{
-			time : "12-10-2011",
-			population : 425761772,
-			hike : 1.8,
+			time : "2011-12-10",
+			population : 4451251998
 		}		,{
-			time : "3-10-2012",
-			population : 58812767,
-			hike : 0.6,
+			time : "2012-3-10",
+			population : 4980593131
 		}		,{
-			time : "7-10-2012",
-			population : 31225234,
-			hike : 0.9,
+			time : "2012-7-10",
+			population : 1329978264
 		}		,{
-			time : "11-10-2012",
-			population : 463259068,
-			hike : 1.2,
+			time : "2012-11-10",
+			population : 4428197078
 		}		,{
-			time : "2-10-2013",
-			population : 585623953,
-			hike : 1.7,
+			time : "2013-2-10",
+			population : 2925447687
 		}		,{
-			time : "6-10-2013",
-			population : 501885836,
-			hike : 1.2,
+			time : "2013-6-10",
+			population : 1745285271
 		}		,{
-			time : "10-10-2013",
-			population : 105319361,
-			hike : 1.4,
+			time : "2013-10-10",
+			population : 2427679956
 		}		,{
-			time : "1-10-2014",
-			population : 130472829,
-			hike : 1.35,
+			time : "2014-1-10",
+			population : 1618174413
 		}		,{
 			time : "4-10-2010",
-			terrorism : 272
+			alqaida : 272
 		}		,{
-			time : "8-10-2010",
-			terrorism : 1454
+			time : "2010-4-10",
+			alqaida : 475
 		}		,{
-			time : "12-10-2011",
-			terrorism : 1348
+			time : "2010-8-10",
+			alqaida : 1053
 		}		,{
-			time : "3-10-2012",
-			terrorism : 1718
+			time : "2011-12-10",
+			alqaida : 962
 		}		,{
-			time : "7-10-2012",
-			terrorism : 1927
+			time : "2012-3-10",
+			alqaida : 397
 		}		,{
-			time : "11-10-2012",
-			terrorism : 619
+			time : "2012-7-10",
+			alqaida : 649
 		}		,{
-			time : "2-10-2013",
-			terrorism : 661
+			time : "2012-11-10",
+			alqaida : 360
 		}		,{
-			time : "6-10-2013",
-			terrorism : 461
+			time : "2013-2-10",
+			alqaida : 556
 		}		,{
-			time : "10-10-2013",
-			terrorism : 981
+			time : "2013-6-10",
+			alqaida : 597
 		}		,{
-			time : "1-10-2014",
-			terrorism : 1863
+			time : "2013-10-10",
+			alqaida : 874
+		}		,{
+			time : "2014-1-10",
+			alqaida : 659
 		}		,{
 			time : "4-10-2010",
 			sale : 71194616728462
@@ -114,6 +103,96 @@ var chart = new MultiVariantChart({
 		}		,{
 			time : "1-10-2014",
 			sale : 34964014263823
+		}		,{
+			time : "2010-4-10",
+			population2 : 4876504266
+		}		,{
+			time : "2010-8-10",
+			population2 : 814259287
+		}		,{
+			time : "2011-12-10",
+			population2 : 4213886589
+		}		,{
+			time : "2012-3-10",
+			population2 : 2276604795
+		}		,{
+			time : "2012-7-10",
+			population2 : 5692727123
+		}		,{
+			time : "2012-11-10",
+			population2 : 5702793293
+		}		,{
+			time : "2013-2-10",
+			population2 : 4292842840
+		}		,{
+			time : "2013-6-10",
+			population2 : 3978584073
+		}		,{
+			time : "2013-10-10",
+			population2 : 1909567996
+		}		,{
+			time : "2014-1-10",
+			population2 : 4513126750
+		}		,{
+			time : "2010-4-10",
+			isis : 1655
+		}		,{
+			time : "2010-8-10",
+			isis : 1107
+		}		,{
+			time : "2011-12-10",
+			isis : 1387
+		}		,{
+			time : "2012-3-10",
+			isis : 1634
+		}		,{
+			time : "2012-7-10",
+			isis : 528
+		}		,{
+			time : "2012-11-10",
+			isis : 1361
+		}		,{
+			time : "2013-2-10",
+			isis : 1424
+		}		,{
+			time : "2013-6-10",
+			isis : 859
+		}		,{
+			time : "2013-10-10",
+			isis : 866
+		}		,{
+			time : "2014-1-10",
+			isis : 370
+		}		,{
+			time : "2010-4-10",
+			taliban : 520
+		}		,{
+			time : "2010-8-10",
+			taliban : 254
+		}		,{
+			time : "2011-12-10",
+			taliban : 1018
+		}		,{
+			time : "2012-3-10",
+			taliban : 1130
+		}		,{
+			time : "2012-7-10",
+			taliban : 331
+		}		,{
+			time : "2012-11-10",
+			taliban : 535
+		}		,{
+			time : "2013-2-10",
+			taliban : 1390
+		}		,{
+			time : "2013-6-10",
+			taliban : 1374
+		}		,{
+			time : "2013-10-10",
+			taliban : 533
+		}		,{
+			time : "2014-1-10",
+			taliban : 923
 		}
 	]
 }, 'graph');

@@ -14,30 +14,45 @@
 		console.log("rendered in ", performance.now() - t, " seconds")
 	};
 
-	MultiVariantChart.prototype.rearrange = function(fn){
+	MultiVariantChart.prototype.sort = function(fn){
 		this.engine.rearrange(fn);
 	}
-
+	
+	// Data function; helper for sorting
+	
 	MultiVariantChart.prototype.reverse = function(fn){
 		this.engine.reverse();
 	}	// end reverse
 
-	// Data function; helper for sorting
-	MultiVariantChart.prototype.avgFunc = function(arr){
-		var sum = 0, i;
-		for(i = arr.length; --i;){
-			sum += arr[i].value;
-		}
-		return sum / arr.length;
-	}
-	MultiVariantChart.prototype.minFunc = function(arr){
-		var min = arr[0].value, i;
-		for(i = arr.length; --i;){
-			if(min > arr[i].value){
-				min = arr[i].value;
+	window.Sort = {
+		average : function(arr){
+			var sum = 0, i;
+			for(i = arr.length; --i;){
+				sum += arr[i].value;
 			}
+			return sum / arr.length;
+		}, 
+		min : function(arr){
+			var min = arr[0].value, i;
+			for(i = arr.length; --i;){
+				if(min > arr[i].value){
+					min = arr[i].value;
+				}
+			}
+			return min;
+		},
+		max : function(arr){
+			var max = arr[0].value, i;
+			for(i = arr.length; --i;){
+				if(max < arr[i].value){
+					max = arr[i].value;
+				}
+			}
+			return min;
+		},
+		shuffle : function(arr){
+			return Math.random() - Math.random();
 		}
-		return min;
 	}
 
 	var sortByTime = function(a, b){		// Helper function to sort array by time
@@ -803,7 +818,7 @@
 		*/
 		var dragStatus = 0;		
 
-		this.svg.onmousedown = function(e){
+		this.svg.addEventListener("mousedown", function(e){
 			if(dragStatus === 0 && e.clientX >= svgLeft && e.clientY >= svgTop){
 				start.x = e.clientX;
 				start.y = e.pageY;
@@ -813,22 +828,23 @@
 				dragStatus = 0;
 				_this.__boxDestroy__()
 			}
-		}
+		});
 
-		this.svg.onmouseup = function(e){
-			if(dragStatus === 1){
-				dragStatus = 2;
-				_this.__boxRemoveFocus__();
-			}
-		}
+		this.svg.addEventListener("mouseup", function(e){
+				if(dragStatus === 1){
+					dragStatus = 2;
+					_this.__boxRemoveFocus__();
+				}
+		});
 
-		this.svg.onmousemove = function(e){
-			if(dragStatus === 1){
-				end.x = e.clientX;
-				end.y = e.pageY;
-				_this.__drawBox__(start, end);
-			}
-		}
+		this.svg.addEventListener("mousemove", function(e){
+				if(dragStatus === 1){
+					end.x = e.clientX;
+					end.y = e.pageY;
+					_this.__drawBox__(start, end);
+				}
+			
+		});
 	}// end srag listener
 
 	RenderEngine.prototype.__boxDestroy__ = function(){
@@ -1084,7 +1100,11 @@
 			// Adjustments to X position
 			var tx1 = x1 - 0.025 * this.width;
 			tx1 -= (text.length / 4) * 10;
-			this.__placeText(tx1 - 6, y1 - 3 , text, "axis-label yaxis-label");
+			var textEl = this.__placeText(tx1, y1 - 3 , text, "axis-label yaxis-label");
+
+	 		var textLeft = Number(textEl.getAttribute("x"));
+	 		var textWidth = Number(textEl.clientWidth);
+	 		textEl.setAttribute("x", textLeft - (textWidth / 4))
 
 	 		this.__drawLine(x1, y1, x2, y2, "ticks", true);
 
