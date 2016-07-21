@@ -15,12 +15,19 @@ body{
 	float : left;
 	display : block;
 	margin-left: 3%;
+	margin-top : 1%;
 	-webkit-transition: top 0.7s, left 0.7s;
 }
-.chartLabel{
-	font-weight : 600;
-	font-size : 15px;
-	stroke : black;
+.chart .chart-label{
+	stroke-width : 0.2;
+	stroke : #216AA8;
+	fill : #216AA8;
+	font-family: Tahoma, Geneva, sans-serif;
+}
+.chart .chart-label-back{
+	fill : #F5FAFE;
+	stroke : #E4F1FD;
+	stroke-width: 1;
 }
 .caption-box{
 	background: white;
@@ -122,12 +129,6 @@ body{
 .chart .div-lines:nth-child(odd){
 	fill: #F7F7F7;
 }
-
-
-.chart .chartLabel{	
-	stroke: #CDCDCD;
-}
-
 .chart{
     -webkit-touch-callout: none;
     -webkit-user-select: none;

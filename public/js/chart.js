@@ -597,9 +597,10 @@
 
 
 
-			this.renderEngineObject[key] = new RenderEngine(this, selector, this.chart.getWidth(), this.chart.getHeight(), key);
+			this.renderEngineObject[key] = new RenderEngine(this, selector, this.chart.getWidth(), this.chart.getHeight(), key, this.isChartLabelTop);
 			this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
 			this.renderEngineObject[key].drawXAxis(this.getXRange());
+			this.renderEngineObject[key].chartLabel();
 
 			//this.renderEngineObject[key].drawXAxisLabels(this.getXRange(), this.isChartLabelTop);
 
@@ -749,8 +750,9 @@
 
 
 
-	function RenderEngine(engine, selector, width, height, name){
+	function RenderEngine(engine, selector, width, height, name, isTop){
 
+		this.isLabelTop = isTop;
 		this.engine = engine;
 		this.key = name;
 		width = width ? width : 600;
@@ -767,11 +769,15 @@
 		
 		this.width = width;						// Storing height and width
 		this.height = height;					// for future uses
-		this.marginX = 0.13 * this.width;		// Margin will be used for labels
-		this.marginY = 0.08 * this.height;						// and ticks
-		this.shiftRatio = 0.8;					// Shifting values for better
-		this.shiftOriginX = 0;	// screen accomodation
-		this.shiftOriginY = 0;
+		this.marginX = 0.1 * this.width;		// Margin will be used for labels
+												// and ticks
+		if(!this.isLabelTop){
+			this.marginY = 0.1 * this.height;
+		} else {
+			this.marginY = 0.2 * this.height;
+		}
+		this.shiftRatioX = 0.8;		// Shifting values for better
+		this.shiftRatioY = 0.7;		// screen accomodation	
 
 		this.plotCircleRadius = 5;
 
@@ -785,6 +791,9 @@
 		var _this = this;
 		var start = {};
 		var end = {};
+
+		var svgLeft = cumulativeOffset(this.svg).left  + this.marginX;
+		var svgTop = cumulativeOffset(this.svg).top + this.marginY;
 		/*
 			A variable to store dragging status
 			0 -- drag not started
@@ -795,7 +804,7 @@
 		var dragStatus = 0;		
 
 		this.svg.onmousedown = function(e){
-			if(dragStatus === 0){
+			if(dragStatus === 0 && e.clientX >= svgLeft && e.clientY >= svgTop){
 				start.x = e.clientX;
 				start.y = e.pageY;
 				dragStatus = 1;
@@ -884,11 +893,11 @@
 
 
 	RenderEngine.prototype.__shiftX = function(coor){
-		return coor * this.shiftRatio //+ this.shiftOriginX;
+		return coor * this.shiftRatioX //+ this.shiftOriginX;
 	} // End __shiftX
 
 	RenderEngine.prototype.__shiftY = function(coor){
-		return coor * this.shiftRatio //+ this.shiftOriginY;
+		return coor * this.shiftRatioY //+ this.shiftOriginY;
 	} // End __shiftY
 
 
@@ -988,9 +997,9 @@
 			stringTime = stringTime.split(" ")
 			stringTime = stringTime[0] + "\n" + stringTime[1];
 			if(isTop){
-				this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), this.height * (this.shiftRatio + 0.035), stringTime, "axis-label xaxis-label");
+				this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), this.height * (this.shiftRatioY + 0.035), stringTime, "axis-label xaxis-label");
 			} else {
-				this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - 4 - (this.marginY * 0.7) + (this.height * 0.016) , stringTime, "axis-label xaxis-label");
+				this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - 7 - (this.marginY * 0.7) + (this.height * 0.016) , stringTime, "axis-label xaxis-label");
 			}
 			
 		}
@@ -1054,7 +1063,7 @@
 		var x1 = 0;
 		var x2 = 0;
 		var y1 = 0;
-		var y2 = this.height * this.shiftRatio;
+		var y2 = this.height * this.shiftRatioY;
 
 		var divBoxHeight;
  		this.__drawLine(x1, y1, x2, y2, "axis yaxis");
@@ -1099,9 +1108,36 @@
  		key = key[0].toUpperCase() + key.substr(1);
  		var chartYLabelX = 0 - (this.marginX * 2 / 3);
  		var chartYLabelY = (this.height - this.marginY) / 2 - key.length * 2;
- 		this.__placeText(chartYLabelX, chartYLabelY, key, "chartLabel", 270);
-
 	} // end drawYAxis
+
+	RenderEngine.prototype.chartLabel = function(){
+		var key = this.key;
+		var textEl;
+		var rectTop, rectLeft, rectHeight, rectWidth;
+
+		if(!this.isLabelTop){
+			rectTop = this.height - this.marginY - 1;
+			rectLeft = 0;
+			rectWidth = this.width * this.shiftRatioX + this.marginX - 1;
+			rectHeight = this.height * 0.1;
+		} else {
+			rectTop = -1 * this.marginY / 3;
+			rectLeft = 0;
+			rectWidth = this.width * this.shiftRatioX + this.marginX - 1;
+			rectHeight = this.height * 0.1;
+		}
+
+		this.drawRect(rectLeft, rectTop, rectWidth, rectHeight, "chart-label-back");
+ 		textEl = this.__placeText(rectWidth / 2, rectTop, key.toUpperCase(), "chart-label");
+
+ 		var textTop = Number(textEl.getAttribute("y"));
+ 		var textLeft = Number(textEl.getAttribute("x"));
+ 		var textHeight = Number(textEl.clientHeight);
+ 		var textWidth = Number(textEl.clientWidth);
+ 		textEl.setAttribute("y", textTop + textHeight)
+ 		textEl.setAttribute("x", textLeft - (textWidth / 2))
+
+	}
 
 	RenderEngine.prototype.getRatio = function(x){
 
@@ -1123,7 +1159,6 @@
 
 	RenderEngine.prototype.__placeText = function(x, y, text, className, rotate){
 		var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
-		x -= text.length / 2;
 
 		x = this.convert(x, y).x;
 		y = this.convert(x, y).y;
@@ -1288,8 +1323,9 @@
 				}
 			}
 		}
+		var verticalLineTop = this.renderEngine.height * (1 - this.renderEngine.shiftRatioY) - this.renderEngine.marginY;
 		this.verticalLine.setAttribute("x1", x);	// setting line
-		this.verticalLine.setAttribute("y1", this.renderEngine.height * 0.07);	// coordinates
+		this.verticalLine.setAttribute("y1", verticalLineTop);	// coordinates
 		this.verticalLine.setAttribute("x2", x);	// and styles
 		this.verticalLine.setAttribute("y2", this.renderEngine.height - this.renderEngine.marginY);	// with shifting
 		this.verticalLine.setAttribute("class", "vertical-line");		

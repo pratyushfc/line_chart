@@ -1,3 +1,7 @@
+var random = function(arr){
+		return Math.random();
+}
+
 var chart = new MultiVariantChart({
 	"dimensions" : {						// Size of canvas
 		"width" : 370,		
