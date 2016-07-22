@@ -900,7 +900,6 @@
                 if (dragStatus === 1 && e.detail.x >= _this.marginX && e.detail.y >= svgTop && e.detail.y <= svgBottom ) {
                     end.x = e.detail.x;
                     end.y = e.detail.y;
-                    console.log(end)
                     _this.__drawBox__(start, end);
                 }
 
