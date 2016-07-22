@@ -814,6 +814,7 @@
 
             var svgLeft = cumulativeOffset(this.svg).left + this.marginX;
             var svgTop = cumulativeOffset(this.svg).top + this.marginY;
+            var svgBottom;
             /*
             	A variable to store dragging status
             	0 -- drag not started
@@ -826,9 +827,10 @@
             this.svg.addEventListener("mousedown", function(e) {
 
                 svgLeft = cumulativeOffset(_this.svg).left + _this.marginX;
-                svgTop = cumulativeOffset(_this.svg).top + _this.marginY;
+                svgTop = cumulativeOffset(_this.svg).top + _this.height - _this.marginY - _this.height * _this.shiftRatioY;
+                svgBottom = cumulativeOffset(_this.svg).top + _this.height - _this.marginY;
                 _this.__sigMouseDown__();
-                if ((dragStatus === 0 || dragStatus === 2) && e.clientX >= svgLeft && e.pageY >= svgTop) {
+                if ((dragStatus === 0 || dragStatus === 2) && e.clientX >= svgLeft && e.pageY >= svgTop && e.pageY <= svgBottom) {
                     _this.__boxDestroy__();
                     start.x = e.clientX;
                     start.y = e.pageY;
@@ -850,7 +852,7 @@
             });
 
             this.svg.addEventListener("mousemove", function(e) {
-                if (dragStatus === 1) {
+                if (dragStatus === 1 && e.clientX >= svgLeft && e.pageY >= svgTop && e.pageY <= svgBottom ) {
                     end.x = e.clientX;
                     end.y = e.pageY;
                     _this.__drawBox__(start, end);
