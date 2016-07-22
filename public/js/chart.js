@@ -391,7 +391,7 @@
         this.chart = chart; // saved chart so that it can be used by other functions
     }
 
-    Engine.prototype.__getYLimits = function(idx) { // Calculate a more good looking limit :)
+    Engine.prototype.__getYLimits__ = function(idx) { // Calculate a more good looking limit :)
             var minValue = this.chart.getMinY(idx);
             var maxValue = this.chart.getMaxY(idx);
 
@@ -436,8 +436,8 @@
 
             var rangeArray = []; // final range array that the
             // function will return
-            var calcMin = this.__getYLimits(idx).min;
-            var calcMax = this.__getYLimits(idx).max;
+            var calcMin = this.__getYLimits__(idx).min;
+            var calcMax = this.__getYLimits__(idx).max;
 
             if (calcMin === calcMax) {
                 return [calcMin * 2, calcMin, 0];
@@ -812,8 +812,8 @@
             var start = {};
             var end = {};
 
-            var svgLeft = cumulativeOffset(this.svg).left + this.marginX;
-            var svgTop = cumulativeOffset(this.svg).top + this.marginY;
+            var svgLeft = cumulativeOffset(this.svg).left ;
+            var svgTop = cumulativeOffset(this.svg).top;
             var svgBottom;
             /*
             	A variable to store dragging status
@@ -824,16 +824,57 @@
             */
             var dragStatus = 0;
 
-            this.svg.addEventListener("mousedown", function(e) {
+            function refreshSvgCoordinate () {
+                svgLeft = cumulativeOffset(_this.svg).left;
+                svgTop = cumulativeOffset(_this.svg).top;
+            }
 
-                svgLeft = cumulativeOffset(_this.svg).left + _this.marginX;
-                svgTop = cumulativeOffset(_this.svg).top + _this.height - _this.marginY - _this.height * _this.shiftRatioY;
+            this.svg.addEventListener("mousedown", function(e) {
+            	refreshSvgCoordinate();
+	            var event = new CustomEvent(
+	                "selectionmousedown", {
+	                    detail: {
+	                    	x: e.clientX - svgLeft,
+	                    	y: e.pageY - svgTop
+	                    }
+	            });
+	            document.dispatchEvent(event);
+            });
+
+            this.svg.addEventListener("mouseup", function(e) {
+            	refreshSvgCoordinate();
+
+	            var event = new CustomEvent(
+	                "selectionmouseup", {
+	                    detail: {
+	                    	x: e.clientX - svgLeft,
+	                    	y: e.pageY - svgTop
+	                    }
+	                });
+	            document.dispatchEvent(event);
+            });
+
+            this.svg.addEventListener("mousemove", function(e) {
+            	refreshSvgCoordinate();
+	            var event = new CustomEvent(
+	                "selectionmousemove", {
+	                    detail: {
+	                    	x: e.clientX - svgLeft,
+	                    	y: e.pageY - svgTop
+	                    }
+	            });
+	            document.dispatchEvent(event);
+            });
+
+
+            document.addEventListener("selectionmousedown", function(e) {
                 svgBottom = cumulativeOffset(_this.svg).top + _this.height - _this.marginY;
+                svgTop = _this.height - _this.marginY - _this.height * _this.shiftRatioY;
                 _this.__sigMouseDown__();
-                if ((dragStatus === 0 || dragStatus === 2) && e.clientX >= svgLeft && e.pageY >= svgTop && e.pageY <= svgBottom) {
+                if ((dragStatus === 0 || dragStatus === 2) && e.detail.x >= _this.marginX && e.detail.y >= svgTop && e.detail.y <= svgBottom) {
                     _this.__boxDestroy__();
-                    start.x = e.clientX;
-                    start.y = e.pageY;
+                    start.x = e.detail.x;
+                    start.y = e.detail.y;
                     dragStatus = 1;
                 }
                 if (dragStatus === 2) {
@@ -843,7 +884,9 @@
 
             });
 
-            this.svg.addEventListener("mouseup", function(e) {
+
+            document.addEventListener("selectionmouseup", function(e) {
+                svgTop = _this.height - _this.marginY - _this.height * _this.shiftRatioY;
                 _this.__sigMouseUp__();
                 if (dragStatus === 1) {
                     dragStatus = 2;
@@ -851,14 +894,18 @@
                 }
             });
 
-            this.svg.addEventListener("mousemove", function(e) {
-                if (dragStatus === 1 && e.clientX >= svgLeft && e.pageY >= svgTop && e.pageY <= svgBottom ) {
-                    end.x = e.clientX;
-                    end.y = e.pageY;
+            document.addEventListener("selectionmousemove", function(e) {
+                svgBottom = cumulativeOffset(_this.svg).top + _this.height - _this.marginY;
+                svgTop = _this.height - _this.marginY - _this.height * _this.shiftRatioY;
+                if (dragStatus === 1 && e.detail.x >= _this.marginX && e.detail.y >= svgTop && e.detail.y <= svgBottom ) {
+                    end.x = e.detail.x;
+                    end.y = e.detail.y;
+                    console.log(end)
                     _this.__drawBox__(start, end);
                 }
 
             });
+
         } // end srag listener
 
     RenderEngine.prototype.__sigMouseDown__ = function() {
@@ -895,31 +942,31 @@
         var _this = this;
         if (!_this.selectionBox) {
             _this.selectionBox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            this.svg.appendChild(_this.selectionBox);
+            _this.svg.appendChild(_this.selectionBox);
         }
 
         var svgLeft = cumulativeOffset(this.svg).left;
         var svgTop = cumulativeOffset(this.svg).top;
 
-        var x = start.x - svgLeft;
-        var y = start.y - svgTop;
+        var x = start.x;
+        var y = start.y;
         var w = end.x - start.x;
         var h = end.y - start.y;
 
         if(w < 0 && h < 0){
-        	y = end.y - svgTop;
+        	y = end.y;
         	h *= -1;
-        	x = end.x - svgLeft;
+        	x = end.x;
         	w *= -1;
         }
 
         if(w < 0 && h >= 0){
-        	x = end.x - svgLeft;
+        	x = end.x;
         	w *= -1;
         }
 
         if(w >= 0 && h < 0){
-        	y = end.y - svgTop;
+        	y = end.y;
         	h *= -1;
         }
 
