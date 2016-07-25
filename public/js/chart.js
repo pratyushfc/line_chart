@@ -744,7 +744,7 @@
     // A construction function for tooltip
     function Tooltip() {
         this.toolEl = document.createElement("div");
-        document.getElementsByTagName("body")[0].appendChild(this.toolEl);
+        document.body.appendChild(this.toolEl);
         this.toolEl.setAttribute("class", "plotTooltip");
         this.style = "position:absolute;top:" + -100 + "px;left:" + -100 + "px;visibility:";
         var visibility = 'hidden';
@@ -895,7 +895,6 @@
             });
 
             document.addEventListener("selectionmousemove", function(e) {
-                svgBottom = cumulativeOffset(_this.svg).top + _this.height - _this.marginY;
                 svgTop = _this.height - _this.marginY - _this.height * _this.shiftRatioY;
                 if (dragStatus === 1 && e.detail.x >= _this.marginX && e.detail.y >= svgTop && e.detail.y <= svgBottom ) {
                     end.x = e.detail.x;
@@ -1005,7 +1004,7 @@
         } // End __shiftY
 
 
-    RenderEngine.prototype.__drawLine = function(x1, y1, x2, y2, className) { // Private function to
+    RenderEngine.prototype.__drawLine__ = function(x1, y1, x2, y2, className) { // Private function to
             // draw lines
             var coord1 = this.convert(x1, y1); // Getting converted axis
             var coord2 = this.convert(x2, y2); // according to canvas
@@ -1131,7 +1130,7 @@
             var x2 = this.width;
             var y1 = 0;
             var y2 = 0;
-            this.__drawLine(x1, y1, x2, y2, "axis xaxis");
+            this.__drawLine__(x1, y1, x2, y2, "axis xaxis");
 
             // Drawing the ticks
             var firstItem = rangeArray[0];
@@ -1145,7 +1144,7 @@
                 x2 = this.xRangeEstimator(item);
                 y1 = -6;
                 y2 = 0;
-                this.__drawLine(x1, y1, x2, y2, "ticks");
+                this.__drawLine__(x1, y1, x2, y2, "ticks");
 
                 // Saving first and last coordinate and value 
 
@@ -1170,7 +1169,7 @@
             var y2 = this.height * this.shiftRatioY;
 
             var divBoxHeight;
-            this.__drawLine(x1, y1, x2, y2, "axis yaxis");
+            this.__drawLine__(x1, y1, x2, y2, "axis yaxis");
             // Drawing the ticks
             var firstItem = rangeArray[0];
             var lastItem = rangeArray[rangeArray.length - 1];
@@ -1194,7 +1193,7 @@
                 var textWidth = Number(textEl.clientWidth);
                 textEl.setAttribute("x", textLeft - (textWidth / 4))
 
-                this.__drawLine(x1, y1, x2, y2, "ticks", true);
+                this.__drawLine__(x1, y1, x2, y2, "ticks", true);
 
                 if (i !== 0 && !divBoxHeight) {
                     divBoxHeight = y1 - this.yRangeEstimator(rangeArray[0]);
@@ -1293,7 +1292,7 @@
         x2 = this.xRangeEstimator(x2);
         y1 = this.yRangeEstimator(y1);
         y2 = this.yRangeEstimator(y2);
-        this.__drawLine(x1, y1, x2, y2, "chart-line");
+        this.__drawLine__(x1, y1, x2, y2, "chart-line");
     }
 
     RenderEngine.prototype.plotCircle = function(x, y) {
@@ -1385,7 +1384,7 @@
 
             for (keyx in this.plotCirclesObject) {
                 item = this.plotCirclesObject[keyx];
-                if (keyx >= x1 && keyx <= x2 && item.y <= y2 && item.y >= y1) {
+                if (keyx >= x1 - this.renderEngine.plotCircleRadius && keyx <= x2 + this.renderEngine.plotCircleRadius && item.y - this.renderEngine.plotCircleRadius <= y2 && item.y + this.renderEngine.plotCircleRadius  >= y1) {
                     item.hoverProtected = true;
                     item.circle.setAttribute("class", "plot-circle plot-circle-hover");
                 } else {
@@ -1394,8 +1393,9 @@
             }
 
 
-        } // end highlight
-        // private functions for inner usage
+    } // end highlight
+    
+
     LineChart.prototype.__syncVerticalLine__ = function(x) {
 
             var svgTop = cumulativeOffset(this.renderEngine.svg).top;
