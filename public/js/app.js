@@ -7,7 +7,7 @@ var chart = new MultiVariantChart({
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "column",						// default line
+	"type" : "line",						// default line
 
 	"data" : [		
 		{

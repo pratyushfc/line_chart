@@ -1,9 +1,7 @@
 // Semicolon; IIFE wont be parsed as function parameter
-;
-(function() {
+;(function() {
     "use strict";
 
-    var interpolation = true;
 
 
     // Exposing public Api
@@ -174,7 +172,7 @@
         return dig;
     }
 
-    var binarySearchDate = function(low, high, date, array) {
+    var binarySearchDate = function(low, high, date, array, interpolation) {
         var result;
         if (high - low === 1) {
             if (array[low].date === date) {
@@ -210,12 +208,11 @@
         }
 
         if (date > array[mid].date) {
-            return binarySearchDate(mid, high, date, array);
+            return binarySearchDate(mid, high, date, array, interpolation);
         } else {
-            return binarySearchDate(low, mid, date, array)
+            return binarySearchDate(low, mid, date, array, interpolation);
         }
     }
-
 
     function Chart(data) { // Contructor function to parse and validate data
 
@@ -240,6 +237,11 @@
             yaxis: 5
         }
 
+        this.interpolation = true;          // Default value of interpolation
+        if(data.interpolation === false){   // to false
+            this.interpolation = false;
+        }
+
         this.type = data.type || "line"; // Fetching type of chart; default line
         this.data.caption = data.caption || ""; // Fetching values for caption and
         this.data.subcaption = data.subcaption || ""; // subcaption; default "" string
@@ -253,7 +255,7 @@
         this.data.dateArray = []; // Array to store all dates
 
         if (data.interpolation === false) { // Turning off interpolation if required by user
-            interpolation = false;
+            this.interpolation = false;
         }
 
         if (data.dimensions) { // If parameter data has dimensions, copy them over to
@@ -386,12 +388,12 @@
         } // End getSubCaption()
 
 
-    function Engine(chart) { // An object to fetch data from 'Chart' and make
-        // it more meaningful
-        this.chart = chart; // saved chart so that it can be used by other functions
+    function Engine(chart) {    // An object to fetch data from 'Chart' and make
+                                // it more meaningful
+        this.chart = chart;     // saved chart so that it can be used by other functions
     }
 
-    Engine.prototype.__getYLimits__ = function(idx) { // Calculate a more good looking limit :)
+    Engine.prototype.__getYLimits__ = function(idx) { // Calculate a more good looking limit
             var minValue = this.chart.getMinY(idx);
             var maxValue = this.chart.getMaxY(idx);
 
@@ -566,7 +568,7 @@
         if (xValue < yArray[0].date || xValue > yArray[yArray.length - 1].date) {
             return;
         }
-        return binarySearchDate(0, yArray.length - 1, xValue, yArray);
+        return binarySearchDate(0, yArray.length - 1, xValue, yArray, this.chart.interpolation);
     }
 
     Engine.prototype.getColumnWidth = function() {
