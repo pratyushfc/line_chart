@@ -8,7 +8,7 @@ var process = function(){
 	gulp.src('./source/*.js')
         .pipe(concat('multivariant.js'))
         .pipe(iife())
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(gulp.dest('./public/js'));
     console.log("processing")
 }

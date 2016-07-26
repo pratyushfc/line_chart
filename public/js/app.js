@@ -7,9 +7,13 @@ var chart = new MultiVariantChart({
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "line",						// default line
+	"type" : "column",						// default line
 
 	"data" : [		
+		{
+			time : "2009-4-10",
+			population : 4412631857
+		},
 		{
 			time : "2010-4-10",
 			population : 4412631857

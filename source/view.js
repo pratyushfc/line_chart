@@ -24,7 +24,7 @@ function RenderEngine(engine, selector, width, height, name, isTop) {
     } else {
         this.marginY = 0.2 * this.height;
     }
-    this.shiftRatioX = 0.8; // Shifting values for better
+    this.shiftRatioX = 0.83; // Shifting values for better
     this.shiftRatioY = 0.7; // screen accomodation	
 
     this.plotCircleRadius = 5;
@@ -230,23 +230,24 @@ RenderEngine.prototype.__shiftY = function(coor) {
     } // End __shiftY
 
 
-RenderEngine.prototype.__drawLine__ = function(x1, y1, x2, y2, className) { // Private function to
-        // draw lines
-        var coord1 = this.convert(x1, y1); // Getting converted axis
-        var coord2 = this.convert(x2, y2); // according to canvas
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "line"); // creating our
-        // element line.
+RenderEngine.prototype.drawLine = function(x1, y1, x2, y2, className) { // Private function to
+    // draw lines
+    var coord1 = this.convert(x1, y1); // Getting converted axis
+    var coord2 = this.convert(x2, y2); // according to canvas
+    var line = document.createElementNS("http://www.w3.org/2000/svg", "line"); // creating our
+    // element line.
 
-        line.setAttribute("x1", coord1.x); // setting line
-        line.setAttribute("y1", coord1.y); // coordinates
-        line.setAttribute("x2", coord2.x); // and styles
-        line.setAttribute("y2", coord2.y); // with shifting
+    line.setAttribute("x1", coord1.x); // setting line
+    line.setAttribute("y1", coord1.y); // coordinates
+    line.setAttribute("x2", coord2.x); // and styles
+    line.setAttribute("y2", coord2.y); // with shifting
 
-        if (className) {
-            line.setAttribute("class", className);
-        }
-        this.svg.appendChild(line); // Drawing line to our canvas
-    } // end drawLine function
+    if (className) {
+        line.setAttribute("class", className);
+    }
+    this.svg.appendChild(line); // Drawing line to our canvas
+    return line;
+} // end drawLine function
 
 RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private function to
         // draw lines
@@ -356,7 +357,18 @@ RenderEngine.prototype.drawXAxis = function(rangeArray) {
         var x2 = this.width;
         var y1 = 0;
         var y2 = 0;
-        this.__drawLine__(x1, y1, x2, y2, "axis xaxis");
+        //this.drawLine(x1, y1, x2, y2, "axis xaxis");
+
+        var dim = {
+            height : this.height,
+            width : this.width
+        }
+        var rng = {
+            min : rangeArray[0],
+            max : rangeArray[rangeArray.length - 1]
+        }
+        var xax = new Axis(dim, this.shiftRatioX, rng);
+        xax.plotAxis(this)
 
         // Drawing the ticks
         var firstItem = rangeArray[0];
@@ -370,7 +382,7 @@ RenderEngine.prototype.drawXAxis = function(rangeArray) {
             x2 = this.xRangeEstimator(item);
             y1 = -6;
             y2 = 0;
-            this.__drawLine__(x1, y1, x2, y2, "ticks");
+            //this.drawLine(x1, y1, x2, y2, "ticks");
 
             // Saving first and last coordinate and value 
 
@@ -395,7 +407,7 @@ RenderEngine.prototype.drawYAxis = function(rangeArray, key) {
         var y2 = this.height * this.shiftRatioY;
 
         var divBoxHeight;
-        this.__drawLine__(x1, y1, x2, y2, "axis yaxis");
+        this.drawLine(x1, y1, x2, y2, "axis yaxis");
         // Drawing the ticks
         var firstItem = rangeArray[0];
         var lastItem = rangeArray[rangeArray.length - 1];
@@ -419,7 +431,7 @@ RenderEngine.prototype.drawYAxis = function(rangeArray, key) {
             var textWidth = Number(textEl.clientWidth);
             textEl.setAttribute("x", textLeft - (textWidth / 4))
 
-            this.__drawLine__(x1, y1, x2, y2, "ticks", true);
+            this.drawLine(x1, y1, x2, y2, "ticks", true);
 
             if (i !== 0 && !divBoxHeight) {
                 divBoxHeight = y1 - this.yRangeEstimator(rangeArray[0]);
@@ -518,7 +530,7 @@ RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style) {
     x2 = this.xRangeEstimator(x2);
     y1 = this.yRangeEstimator(y1);
     y2 = this.yRangeEstimator(y2);
-    this.__drawLine__(x1, y1, x2, y2, "chart-line");
+    this.drawLine(x1, y1, x2, y2, "chart-line");
 }
 
 RenderEngine.prototype.plotCircle = function(x, y) {
@@ -528,3 +540,32 @@ RenderEngine.prototype.plotCircle = function(x, y) {
     var className = 'plot-circle';
     return this.__drawCircle(x, y, this.plotCircleRadius, className);
 }
+
+
+
+
+/* Function to replace existing */
+RenderEngine.prototype.drawLine$ = function(x1, y1, x2, y2, className) { // Private function to
+    // draw lines
+
+    var line = document.createElementNS("http://www.w3.org/2000/svg", "line"); // creating our
+    // element line.
+
+    x1 += this.marginX;
+    x2 += this.marginX;
+    y1 += this.marginY;
+    y2 += this.marginY;
+
+    console.log(this.marginY / this.heig)
+
+    line.setAttribute("x1", x1); // setting line
+    line.setAttribute("y1", y1); // coordinates
+    line.setAttribute("x2", x2); // and styles
+    line.setAttribute("y2", y2); // with shifting
+
+    if (className) {
+        line.setAttribute("class", className);
+    }
+    this.svg.appendChild(line); // Drawing line to our canvas
+    return line;
+} // end drawLine function
