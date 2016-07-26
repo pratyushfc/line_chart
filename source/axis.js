@@ -27,7 +27,7 @@ Axis.prototype.plotAxis = function(canvas, isVertical, className){			// Public f
 	}
 
 	className = className || "axis";
-	canvas.drawLine(x1, y1, x2, y2, "test");
+	canvas.drawLine(x1, y1, x2, y2, "test"); 
 }
 
 Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get array of range with 

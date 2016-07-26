@@ -82,7 +82,7 @@ Axis.prototype.plotAxis = function(canvas, isVertical, className){			// Public f
 	}
 
 	className = className || "axis";
-	canvas.drawLine(x1, y1, x2, y2, "test");
+	canvas.drawLine(x1, y1, x2, y2, "test"); 
 }
 
 Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get array of range with 
@@ -1205,7 +1205,7 @@ function RenderEngine(engine, selector, width, height, name, isTop) {
     } else {
         this.marginY = 0.2 * this.height;
     }
-    this.shiftRatioX = 0.83; // Shifting values for better
+    this.shiftRatioX = 0.8; // Shifting values for better
     this.shiftRatioY = 0.7; // screen accomodation	
 
     this.plotCircleRadius = 5;

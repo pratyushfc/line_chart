@@ -24,7 +24,7 @@ function RenderEngine(engine, selector, width, height, name, isTop) {
     } else {
         this.marginY = 0.2 * this.height;
     }
-    this.shiftRatioX = 0.83; // Shifting values for better
+    this.shiftRatioX = 0.8; // Shifting values for better
     this.shiftRatioY = 0.7; // screen accomodation	
 
     this.plotCircleRadius = 5;
