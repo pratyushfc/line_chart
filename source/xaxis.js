@@ -37,3 +37,18 @@ XAxis.prototype.placeLabel = function(canvas, isLabelTop){
     }
 }
 
+XAxis.prototype.removeLabel = function(canvas){
+    var i = 0, len = 0, item;
+
+    if (!this.labelArray) {
+				return;
+    }
+
+    for (i = 0, len = this.labelArray.length; i < len; ++i) {
+				item = this.labelArray[i];
+				if(item){
+							canvas.removeElement(item);
+							this.labelArray[i] = undefined;
+				}
+		}
+} // end removeLabel

@@ -28,10 +28,10 @@ YAxis.prototype.__getRangeArray__ = function(){
             twoDigitMax = calcMax;
 
         // Algo started
-        
+
         if(this.rangeArray){
             return this.rangeArray;
-        }		
+        }
 
         if (calcMin === calcMax) {
             this.rangeArray = [calcMin * 2, calcMin, 0];
@@ -97,7 +97,7 @@ YAxis.prototype.__getRangeArray__ = function(){
         this.min = this.rangeArray[0];
         this.max = this.rangeArray[this.rangeArray.length - 1];
         return rangeArray;
-}	
+}
 
 YAxis.prototype.__beautifyLimits__ = function(){
 	var minValue = this.min;
@@ -157,7 +157,7 @@ YAxis.prototype.placeLabel = function(canvas){
         y = this.estimateRange(item);
         stringTime = shortNumber(item);
 
-        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment);
+        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label yaxis-label", null, alignment);
     }
 } // end placelabel
 
@@ -165,7 +165,7 @@ YAxis.prototype.placeDivBoxes = function(canvas){
     var i = 0, len = 0,
         x = canvas.xaxis.estimateRange(0),
         y = 5,
-        width = canvas.xaxis.estimateRange(canvas.xaxis.max),
+        width = (canvas.xaxis.max),
         height = this.estimateRange(this.rangeArray[1]) - this.estimateRange(this.rangeArray[0]),
         item,
         rangeArray = this.__getRangeArray__();

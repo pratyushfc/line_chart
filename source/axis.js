@@ -1,6 +1,6 @@
 function Axis(dimension, shrink, rangeOb, isVertical){
 	this.shrink = shrink;			// Setting the shrink ratio for axis
-	this.min = rangeOb.min;			// Setting the max and min value 
+	this.min = rangeOb.min;			// Setting the max and min value
 	this.max = rangeOb.max;			// for the range of axis
 	this.height = dimension.height;
 	this.width = dimension.width;
@@ -12,9 +12,9 @@ Axis.prototype.estimateRange = function(num){
 	var ratio = (num - this.min) / (this.max - this.min);	// Estimating ratio
 	// Getting actual positions on chart
 	if(this.isVertical){
-		return this.shrink * ratio * this.height;	
+		return this.shrink * ratio * this.height;
 	} else {
-		return this.shrink * ratio * this.width;	
+		return this.shrink * ratio * this.width;
 	}
 }	// end estimateRange
 
@@ -33,10 +33,10 @@ Axis.prototype.plotAxis = function(canvas, className){			// Public function to p
 	}
 
 	className = className || "axis";
-	canvas.drawLine(x1, y1, x2, y2, "test"); 
+	canvas.drawLine(x1, y1, x2, y2, className);
 } // end plotAxis
 
-Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get array of range with 
+Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get array of range with
 	  													// optional divisions parameter for number of
 	  													// divisions on axis
 	if(this.rangeArray){
@@ -50,14 +50,14 @@ Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get arra
 		steps = (max - min) / divisions;	// Calculating steps value
 
 	this.rangeArray = [];
-			
+
 
 	while (min <= max) {
 		this.rangeArray.push(min);
 		min += steps;
 	}
 	this.rangeArray.push(min);
-	
+
 	this.min = this.rangeArray[0];
 	this.max = this.rangeArray[this.rangeArray.length - 1];
 
@@ -68,7 +68,7 @@ Axis.prototype.plotTicks = function(canvas){
 
 	var rangeArray = this.__getRangeArray__(),	// getting ticks values
 		i, len, item,
-		x1, x2,		// Variables to store 
+		x1, x2,		// Variables to store
 		y1, y2;		// dimensions
 
     for (i = 0, len = rangeArray.length; i < len; ++i) {
@@ -83,11 +83,11 @@ Axis.prototype.plotTicks = function(canvas){
 		    x1 = this.estimateRange(item);
 		    x2 =  x1;
 		    y1 = -6;
-		    y2 = 0;	    	
+		    y2 = 0;
 	    }
 
-	    canvas.drawLine(x1, y1, x2, y2, "ticks test");
-	} 
+	    canvas.drawLine(x1, y1, x2, y2, "ticks");
+	}
 } // end plotTicks
 
 Axis.prototype.placeLabel = function(){

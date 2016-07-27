@@ -55,7 +55,7 @@ window.Sort = {
 }
 function Axis(dimension, shrink, rangeOb, isVertical){
 	this.shrink = shrink;			// Setting the shrink ratio for axis
-	this.min = rangeOb.min;			// Setting the max and min value 
+	this.min = rangeOb.min;			// Setting the max and min value
 	this.max = rangeOb.max;			// for the range of axis
 	this.height = dimension.height;
 	this.width = dimension.width;
@@ -67,9 +67,9 @@ Axis.prototype.estimateRange = function(num){
 	var ratio = (num - this.min) / (this.max - this.min);	// Estimating ratio
 	// Getting actual positions on chart
 	if(this.isVertical){
-		return this.shrink * ratio * this.height;	
+		return this.shrink * ratio * this.height;
 	} else {
-		return this.shrink * ratio * this.width;	
+		return this.shrink * ratio * this.width;
 	}
 }	// end estimateRange
 
@@ -88,10 +88,10 @@ Axis.prototype.plotAxis = function(canvas, className){			// Public function to p
 	}
 
 	className = className || "axis";
-	canvas.drawLine(x1, y1, x2, y2, "test"); 
+	canvas.drawLine(x1, y1, x2, y2, className);
 } // end plotAxis
 
-Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get array of range with 
+Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get array of range with
 	  													// optional divisions parameter for number of
 	  													// divisions on axis
 	if(this.rangeArray){
@@ -105,14 +105,14 @@ Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get arra
 		steps = (max - min) / divisions;	// Calculating steps value
 
 	this.rangeArray = [];
-			
+
 
 	while (min <= max) {
 		this.rangeArray.push(min);
 		min += steps;
 	}
 	this.rangeArray.push(min);
-	
+
 	this.min = this.rangeArray[0];
 	this.max = this.rangeArray[this.rangeArray.length - 1];
 
@@ -123,7 +123,7 @@ Axis.prototype.plotTicks = function(canvas){
 
 	var rangeArray = this.__getRangeArray__(),	// getting ticks values
 		i, len, item,
-		x1, x2,		// Variables to store 
+		x1, x2,		// Variables to store
 		y1, y2;		// dimensions
 
     for (i = 0, len = rangeArray.length; i < len; ++i) {
@@ -138,16 +138,17 @@ Axis.prototype.plotTicks = function(canvas){
 		    x1 = this.estimateRange(item);
 		    x2 =  x1;
 		    y1 = -6;
-		    y2 = 0;	    	
+		    y2 = 0;
 	    }
 
-	    canvas.drawLine(x1, y1, x2, y2, "ticks test");
-	} 
+	    canvas.drawLine(x1, y1, x2, y2, "ticks");
+	}
 } // end plotTicks
 
 Axis.prototype.placeLabel = function(){
 
 }
+
 function Chart(renderEngine, columnWidth) {
 } // A constructor function to represent behaviours of a chart
 Chart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // Function to render points
@@ -586,7 +587,6 @@ Engine.prototype.render = function(selector, type) {
         item.attachAxisY(new YAxis(dimension, item.shiftRatioY, rangeY));
         item.drawAxisX();
         item.drawAxisY();
-        item.drawAxisXLabel(this.isChartLabelTop);
         item.drawAxisYLabel();
         item.chartLabel();
 
@@ -696,11 +696,11 @@ Engine.prototype.__showLabels__ = function() {
         var i, len;
         if (this.isChartLabelTop) {
             for (i = 0, len = _this.storeSvgArray.length; i < this.numChartsRow && i < len; ++i) {
-                _this.storeSvgArray[i].object.drawAxisXLabel(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabel(this.isChartLabelTop)
             }
         } else {
             for (len = _this.storeSvgArray.length, i = len - this.numChartsRow; i < len; ++i) {
-                _this.storeSvgArray[i].object.drawAxisXLabels(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabel(this.isChartLabelTop)
             }
         }
     } // end showLabel
@@ -709,9 +709,10 @@ Engine.prototype.__hideLabels__ = function() {
         var _this = this;
         var i, len;
         for (i = 0, len = _this.storeSvgArray.length; i < len; ++i) {
-            _this.storeSvgArray[i].object.removeXAxisLabels(this.getXRange());
+            _this.storeSvgArray[i].object.removeAxisXLabel(this.getXRange());
         }
     } // end hideLabel
+
 var sortByTime = function(a, b) { // Helper function to sort array by time
     a = joinDate(a.year, a.month);
     b = joinDate(b.year, b.month);
@@ -1264,15 +1265,15 @@ function RenderEngine(engine, selector, dimension, name, isTop) {
 
     this.rootElement.appendChild(this.svg); // adding our canvas to parent element
 
-    this.marginX = 0.1 * this.width; // Margin will be used for labels
+    this.marginX = 0.13 * this.width; // Margin will be used for labels
     // and ticks
     if (!this.isLabelTop) {
         this.marginY = 0.1 * this.height;
     } else {
         this.marginY = 0.2 * this.height;
     }
-    this.shiftRatioX = 0.8; // Shifting values for better
-    this.shiftRatioY = 0.7; // screen accomodation	
+    this.shiftRatioX = 0.81; // Shifting values for better
+    this.shiftRatioY = 0.7; // screen accomodation
 
     this.plotCircleRadius = 5;
 
@@ -1309,6 +1310,17 @@ RenderEngine.prototype.drawAxisYLabel = function(){
     this.yaxis.placeLabel(this);
 } // end drawAxisYLabel
 
+RenderEngine.prototype.removeAxisXLabel = function(){
+    this.xaxis.removeLabel(this);
+} // end removeAxisXLabels
+
+RenderEngine.prototype.removeElement = function(el){
+    if(!el){
+      return el;
+    }
+    this.svg.removeChild(el);
+    return el;
+} // end removeAxisXLabels
 
 RenderEngine.prototype.__dragListener__ = function() {
         var _this = this,
@@ -1677,10 +1689,10 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
                 align = alignment[i];
                 if(align && align === "center-horizontal"){
                     x = x - textElement.clientWidth / 2;
-                }        
+                }
                 if(align && align === "down"){
                     y = y + +textElement.clientHeight;
-                }           
+                }
                 if(align && align === "center-vertical"){
                     y = y + textElement.clientHeight / 2;
                 }
@@ -1762,6 +1774,21 @@ XAxis.prototype.placeLabel = function(canvas, isLabelTop){
     }
 }
 
+XAxis.prototype.removeLabel = function(canvas){
+    var i = 0, len = 0, item;
+
+    if (!this.labelArray) {
+				return;
+    }
+
+    for (i = 0, len = this.labelArray.length; i < len; ++i) {
+				item = this.labelArray[i];
+				if(item){
+							canvas.removeElement(item);
+							this.labelArray[i] = undefined;
+				}
+		}
+} // end removeLabel
 
 // YAxis inherited from Axis
 YAxis.prototype = Object.create(Axis.prototype);
@@ -1793,10 +1820,10 @@ YAxis.prototype.__getRangeArray__ = function(){
             twoDigitMax = calcMax;
 
         // Algo started
-        
+
         if(this.rangeArray){
             return this.rangeArray;
-        }		
+        }
 
         if (calcMin === calcMax) {
             this.rangeArray = [calcMin * 2, calcMin, 0];
@@ -1862,7 +1889,7 @@ YAxis.prototype.__getRangeArray__ = function(){
         this.min = this.rangeArray[0];
         this.max = this.rangeArray[this.rangeArray.length - 1];
         return rangeArray;
-}	
+}
 
 YAxis.prototype.__beautifyLimits__ = function(){
 	var minValue = this.min;
@@ -1922,7 +1949,7 @@ YAxis.prototype.placeLabel = function(canvas){
         y = this.estimateRange(item);
         stringTime = shortNumber(item);
 
-        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment);
+        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label yaxis-label", null, alignment);
     }
 } // end placelabel
 
@@ -1930,7 +1957,7 @@ YAxis.prototype.placeDivBoxes = function(canvas){
     var i = 0, len = 0,
         x = canvas.xaxis.estimateRange(0),
         y = 5,
-        width = canvas.xaxis.estimateRange(canvas.xaxis.max),
+        width = (canvas.xaxis.max),
         height = this.estimateRange(this.rangeArray[1]) - this.estimateRange(this.rangeArray[0]),
         item,
         rangeArray = this.__getRangeArray__();

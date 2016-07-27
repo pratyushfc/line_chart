@@ -60,9 +60,8 @@ body{
 .chart .axis-label{
 	font-size: 13px;
 	text-align : left;
-	color: #535353;
 	stroke: #ABABAB;
-	stroke-width: 0.5;
+	stroke-width: 0.3;
 }
 
 .chart .xaxis-label{

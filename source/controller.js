@@ -249,7 +249,6 @@ Engine.prototype.render = function(selector, type) {
         item.attachAxisY(new YAxis(dimension, item.shiftRatioY, rangeY));
         item.drawAxisX();
         item.drawAxisY();
-        item.drawAxisXLabel(this.isChartLabelTop);
         item.drawAxisYLabel();
         item.chartLabel();
 
@@ -359,11 +358,11 @@ Engine.prototype.__showLabels__ = function() {
         var i, len;
         if (this.isChartLabelTop) {
             for (i = 0, len = _this.storeSvgArray.length; i < this.numChartsRow && i < len; ++i) {
-                _this.storeSvgArray[i].object.drawAxisXLabel(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabel(this.isChartLabelTop)
             }
         } else {
             for (len = _this.storeSvgArray.length, i = len - this.numChartsRow; i < len; ++i) {
-                _this.storeSvgArray[i].object.drawAxisXLabels(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabel(this.isChartLabelTop)
             }
         }
     } // end showLabel
@@ -372,6 +371,6 @@ Engine.prototype.__hideLabels__ = function() {
         var _this = this;
         var i, len;
         for (i = 0, len = _this.storeSvgArray.length; i < len; ++i) {
-            _this.storeSvgArray[i].object.removeXAxisLabels(this.getXRange());
+            _this.storeSvgArray[i].object.removeAxisXLabel(this.getXRange());
         }
     } // end hideLabel

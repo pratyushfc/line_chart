@@ -15,15 +15,15 @@ function RenderEngine(engine, selector, dimension, name, isTop) {
 
     this.rootElement.appendChild(this.svg); // adding our canvas to parent element
 
-    this.marginX = 0.1 * this.width; // Margin will be used for labels
+    this.marginX = 0.13 * this.width; // Margin will be used for labels
     // and ticks
     if (!this.isLabelTop) {
         this.marginY = 0.1 * this.height;
     } else {
         this.marginY = 0.2 * this.height;
     }
-    this.shiftRatioX = 0.8; // Shifting values for better
-    this.shiftRatioY = 0.7; // screen accomodation	
+    this.shiftRatioX = 0.81; // Shifting values for better
+    this.shiftRatioY = 0.7; // screen accomodation
 
     this.plotCircleRadius = 5;
 
@@ -60,6 +60,17 @@ RenderEngine.prototype.drawAxisYLabel = function(){
     this.yaxis.placeLabel(this);
 } // end drawAxisYLabel
 
+RenderEngine.prototype.removeAxisXLabel = function(){
+    this.xaxis.removeLabel(this);
+} // end removeAxisXLabels
+
+RenderEngine.prototype.removeElement = function(el){
+    if(!el){
+      return el;
+    }
+    this.svg.removeChild(el);
+    return el;
+} // end removeAxisXLabels
 
 RenderEngine.prototype.__dragListener__ = function() {
         var _this = this,
@@ -428,10 +439,10 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
                 align = alignment[i];
                 if(align && align === "center-horizontal"){
                     x = x - textElement.clientWidth / 2;
-                }        
+                }
                 if(align && align === "down"){
                     y = y + +textElement.clientHeight;
-                }           
+                }
                 if(align && align === "center-vertical"){
                     y = y + textElement.clientHeight / 2;
                 }
