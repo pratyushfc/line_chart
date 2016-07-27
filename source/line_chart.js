@@ -163,7 +163,7 @@ LineChart.prototype.__findCircleAtPoint = function(x) {
 
 LineChart.prototype.__tooltipHeightCalulator = function(value, key) {
 
-        var estimatedHeight = this.renderEngine.yRangeEstimator(value);
+        var estimatedHeight = this.renderEngine.yaxis.estimateRange(value);
         var fl = Math.floor.bind(Math);
         var top = this.renderEngine.height - estimatedHeight;
 

@@ -19,8 +19,8 @@ ColumnChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { /
     for (i = 0, len = dateOfVariable.length; i < len; ++i) {
         dateItem = dateOfVariable[i];
         valueItem = valueOfVariable[i];
-        var x = this.renderEngine.xRangeEstimator(dateItem) - (this.columnWidth / 2);
-        var y = this.renderEngine.yRangeEstimator(valueItem);
+        var x = this.renderEngine.xaxis.estimateRange(dateItem) - (this.columnWidth / 2);
+        var y = this.renderEngine.yaxis.estimateRange(valueItem);
         var rect = this.renderEngine.drawRect(x, y, this.columnWidth, y, "data-column");
 
         this.columnsObject.push({

@@ -53,28 +53,34 @@ window.Sort = {
         return Math.random() - Math.random();
     }
 }
-function Axis(dimension, shrink, rangeOb){
+function Axis(dimension, shrink, rangeOb, isVertical){
 	this.shrink = shrink;			// Setting the shrink ratio for axis
 	this.min = rangeOb.min;			// Setting the max and min value 
 	this.max = rangeOb.max;			// for the range of axis
 	this.height = dimension.height;
 	this.width = dimension.width;
+	this.isVertical = isVertical;
 }
 
 // Function to estimate actual graph positions from value
 Axis.prototype.estimateRange = function(num){
 	var ratio = (num - this.min) / (this.max - this.min);	// Estimating ratio
-	return this.shrink * ratio * this.size;					// Getting actual positions on chart
-}
+	// Getting actual positions on chart
+	if(this.isVertical){
+		return this.shrink * ratio * this.height;	
+	} else {
+		return this.shrink * ratio * this.width;	
+	}
+}	// end estimateRange
 
 
-Axis.prototype.plotAxis = function(canvas, isVertical, className){			// Public function to plot axis line
+Axis.prototype.plotAxis = function(canvas, className){			// Public function to plot axis line
 	var x1 = 0,
 		x2 = this.width * this.shrink,
 		y1 = 0,
 		y2 = 0;
 
-	if(isVertical){
+	if(this.isVertical){
 		x1 = 0;
 		x2 = 0;
 		y1 = 0;
@@ -83,26 +89,65 @@ Axis.prototype.plotAxis = function(canvas, isVertical, className){			// Public f
 
 	className = className || "axis";
 	canvas.drawLine(x1, y1, x2, y2, "test"); 
-}
+} // end plotAxis
 
 Axis.prototype.__getRangeArray__ = function(divisions){		// Function to get array of range with 
 	  													// optional divisions parameter for number of
 	  													// divisions on axis
-	var rangeArray = [],		// Array to store all steps min to max
-		min = this.min,			// Getting min
+	if(this.rangeArray){
+		return this.rangeArray;
+	}
+
+	divisions = divisions || 5;	 // Determining number of elements; default 5
+
+	var min = this.min,			// Getting min
 		max = this.max,			// and max
 		steps = (max - min) / divisions;	// Calculating steps value
 
-	divisions = divisions || 5;		// Determining number of elements; default 5+1
+	this.rangeArray = [];
+			
 
 	while (min <= max) {
-		rangeArray.push(Math.round(min));
+		this.rangeArray.push(min);
 		min += steps;
 	}
+	this.rangeArray.push(min);
+	
+	this.min = this.rangeArray[0];
+	this.max = this.rangeArray[this.rangeArray.length - 1];
 
-	return rangeArray;
+	return this.rangeArray;
+} //get __getRangeArray__
+
+Axis.prototype.plotTicks = function(canvas){
+
+	var rangeArray = this.__getRangeArray__(),	// getting ticks values
+		i, len, item,
+		x1, x2,		// Variables to store 
+		y1, y2;		// dimensions
+
+    for (i = 0, len = rangeArray.length; i < len; ++i) {
+	    item = rangeArray[i];
+
+	    if(this.isVertical){
+		    x1 = -6;
+		    x2 =  0;
+		    y1 = this.estimateRange(item);
+		    y2 = y1;
+	    } else {
+		    x1 = this.estimateRange(item);
+		    x2 =  x1;
+		    y1 = -6;
+		    y2 = 0;	    	
+	    }
+
+	    canvas.drawLine(x1, y1, x2, y2, "ticks test");
+	} 
+} // end plotTicks
+
+Axis.prototype.placeLabel = function(){
+
 }
-
 function Chart(renderEngine, columnWidth) {
 } // A constructor function to represent behaviours of a chart
 Chart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // Function to render points
@@ -135,8 +180,8 @@ ColumnChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { /
     for (i = 0, len = dateOfVariable.length; i < len; ++i) {
         dateItem = dateOfVariable[i];
         valueItem = valueOfVariable[i];
-        var x = this.renderEngine.xRangeEstimator(dateItem) - (this.columnWidth / 2);
-        var y = this.renderEngine.yRangeEstimator(valueItem);
+        var x = this.renderEngine.xaxis.estimateRange(dateItem) - (this.columnWidth / 2);
+        var y = this.renderEngine.yaxis.estimateRange(valueItem);
         var rect = this.renderEngine.drawRect(x, y, this.columnWidth, y, "data-column");
 
         this.columnsObject.push({
@@ -296,43 +341,43 @@ function Engine(model) {    // An object to fetch data from 'Chart' and make
 }
 
 Engine.prototype.__getYLimits__ = function(idx) { // Calculate a more good looking limit
-        var minValue = this.model.getMinY(idx);
-        var maxValue = this.model.getMaxY(idx);
+    var minValue = this.model.getMinY(idx);
+    var maxValue = this.model.getMaxY(idx);
 
-        if (minValue === maxValue) {
-            return {
-                min: minValue,
-                max: maxValue
-            }
-        }
-
-        var difference = maxValue - minValue;
-        var difference2 = maxValue - minValue;
-        // Algorithm to get more good looking ranges
-
-        var numDig = numberOfDigits(difference);
-
-        while (difference2 < 1) {
-            numDig -= 1;
-            difference2 *= 10;
-        }
-
-        var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
-
-        minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
-
-        if ((difference / maxValue) > 0.1) {
-            var newBeautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
-            beautyNumber = beautyNumber > newBeautyNumber ? beautyNumber : newBeautyNumber;
-        }
-
-        maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
+    if (minValue === maxValue) {
         return {
             min: minValue,
             max: maxValue
-        };
+        }
+    }
 
-    } // End getYLimits
+    var difference = maxValue - minValue;
+    var difference2 = maxValue - minValue;
+    // Algorithm to get more good looking ranges
+
+    var numDig = numberOfDigits(difference);
+
+    while (difference2 < 1) {
+        numDig -= 1;
+        difference2 *= 10;
+    }
+
+    var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
+
+    minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
+
+    if ((difference / maxValue) > 0.1) {
+        var newBeautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
+        beautyNumber = beautyNumber > newBeautyNumber ? beautyNumber : newBeautyNumber;
+    }
+
+    maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
+    return {
+        min: minValue,
+        max: maxValue
+    };
+
+} // End getYLimits
 
 Engine.prototype.getYRange = function(idx) {
 
@@ -515,27 +560,50 @@ Engine.prototype.render = function(selector, type) {
     this.isChartLabelTop = (allVariables.length) % this.numChartsRow !== 0;
 
     this.renderEngineObject = {};
+    var dimension = {
+        height : this.model.getWidth(),
+        width : this.model.getWidth()
+    }
+    var rangeX = {
+        min : joinDate(this.model.getMinX().year, this.model.getMinX().month),
+        max : joinDate(this.model.getMaxX().year, this.model.getMaxX().month)
+    };
+    var rangeY = {};
 
     for (var idx in allVariables) {
         key = allVariables[idx];
+        this.renderEngineObject[key] = new RenderEngine(this, selector, dimension, key, this.isChartLabelTop);
+        item = this.renderEngineObject[key];
 
 
 
-        this.renderEngineObject[key] = new RenderEngine(this, selector, this.model.getWidth(), this.model.getHeight(), key, this.isChartLabelTop);
-        this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
-        this.renderEngineObject[key].drawXAxis(this.getXRange());
-        this.renderEngineObject[key].chartLabel();
+        rangeY = {
+            min : this.model.getMinY(key),
+            max : this.model.getMaxY(key)
+        }
+        // Attaching xaxis module
+        item.attachAxisX(new XAxis(dimension, item.shiftRatioX, rangeX));
+        item.attachAxisY(new YAxis(dimension, item.shiftRatioY, rangeY));
+        item.drawAxisX();
+        item.drawAxisY();
+        item.drawAxisXLabel(this.isChartLabelTop);
+        item.drawAxisYLabel();
+        item.chartLabel();
 
-        //this.renderEngineObject[key].drawXAxisLabels(this.getXRange(), this.isChartLabelTop);
+/*        // Remove later
+        item.drawYAxis(this.getYRange(key), key);
+        item.drawXAxis(this.getXRange());
+        */
+        //item.drawXAxisLabels(this.getXRange(), this.isChartLabelTop);
 
 
         if (type.toLowerCase() === "column") {
-            this.renderEngineObject[key].attachChart(new ColumnChart(this.renderEngineObject[key], colWidth));
+            item.attachChart(new ColumnChart(item, colWidth));
         } else {
-            this.renderEngineObject[key].attachChart(new LineChart(this.renderEngineObject[key], colWidth));
+            item.attachChart(new LineChart(item, colWidth));
         }
 
-        this.renderEngineObject[key].renderChart(this.getXRangeOfVariable(key), this.getYRangeOfVariable(key))
+        item.renderChart(this.getXRangeOfVariable(key), this.getYRangeOfVariable(key))
 
         ++count;
     }
@@ -628,11 +696,11 @@ Engine.prototype.__showLabels__ = function() {
         var i, len;
         if (this.isChartLabelTop) {
             for (i = 0, len = _this.storeSvgArray.length; i < this.numChartsRow && i < len; ++i) {
-                _this.storeSvgArray[i].object.drawXAxisLabels(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabel(this.getXRange(), this.isChartLabelTop)
             }
         } else {
             for (len = _this.storeSvgArray.length, i = len - this.numChartsRow; i < len; ++i) {
-                _this.storeSvgArray[i].object.drawXAxisLabels(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabels(this.getXRange(), this.isChartLabelTop)
             }
         }
     } // end showLabel
@@ -966,7 +1034,7 @@ LineChart.prototype.__findCircleAtPoint = function(x) {
 
 LineChart.prototype.__tooltipHeightCalulator = function(value, key) {
 
-        var estimatedHeight = this.renderEngine.yRangeEstimator(value);
+        var estimatedHeight = this.renderEngine.yaxis.estimateRange(value);
         var fl = Math.floor.bind(Math);
         var top = this.renderEngine.height - estimatedHeight;
 
@@ -1179,25 +1247,23 @@ Tooltip.prototype.hide = function() {
     this.toolEl.setAttribute("style", this.style + visibility);
 }
 
-function RenderEngine(engine, selector, width, height, name, isTop) {
+function RenderEngine(engine, selector, dimension, name, isTop) {
 
     this.isLabelTop = isTop;
     this.engine = engine;
     this.key = name;
-    width = width ? width : 600;
-    height = height ? height : 500;
+
+    this.width = dimension.width || 600; // Storing height and width
+    this.height = dimension.height || 500; // for future uses
 
     this.rootElement = document.getElementById(selector); // getting parent element
-
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); // creating canvas				// getting the canvas that was created
-    this.svg.setAttribute("height", height);
-    this.svg.setAttribute("width", width);
+    this.svg.setAttribute("height", this.height);
+    this.svg.setAttribute("width", this.width);
     this.svg.setAttribute("class", "chart");
 
     this.rootElement.appendChild(this.svg); // adding our canvas to parent element
 
-    this.width = width; // Storing height and width
-    this.height = height; // for future uses
     this.marginX = 0.1 * this.width; // Margin will be used for labels
     // and ticks
     if (!this.isLabelTop) {
@@ -1213,7 +1279,35 @@ function RenderEngine(engine, selector, width, height, name, isTop) {
     // Saving X coordinate to retrieve position value later by Vertical line
     this.xCoords = {};
     this.__dragListener__();
-}
+} // end renderengine constructor
+
+
+RenderEngine.prototype.attachAxisX = function(axis){
+    this.xaxis = axis;
+} // end setXAxis
+
+RenderEngine.prototype.attachAxisY = function(axis){
+    this.yaxis = axis;
+} // end setYAxis
+
+RenderEngine.prototype.drawAxisX = function(axis){
+    this.xaxis.plotAxis(this);
+    this.xaxis.plotTicks(this);
+} // end setXAxis
+
+RenderEngine.prototype.drawAxisY = function(axis){
+    this.yaxis.plotAxis(this);
+    this.yaxis.plotTicks(this);
+    this.yaxis.placeDivBoxes(this);
+} // end setYAxis
+
+RenderEngine.prototype.drawAxisXLabel = function(isChartLabelTop){
+    this.xaxis.placeLabel(this, isChartLabelTop);
+} // end drawAxisXLabel
+
+RenderEngine.prototype.drawAxisYLabel = function(){
+    this.yaxis.placeLabel(this);
+} // end drawAxisYLabel
 
 
 RenderEngine.prototype.__dragListener__ = function() {
@@ -1474,167 +1568,39 @@ RenderEngine.prototype.__drawCircle = function(x, y, r, className) { // Private 
     } // end constructor function
 
 
-RenderEngine.prototype.__xRangeEstimateGenerator = function(min, max) {
-        var _this = this;
-        return function(num) {
-            return this.__shiftX(((num - min) / (max - min)) * _this.width);
-        }
-    } // End yRangeEstimator
-
-RenderEngine.prototype.__yRangeEstimateGenerator = function(min, max) {
-        var _this = this;
-        return function(num) {
-            return this.__shiftY(((num - min) / (max - min)) * _this.height);
-        }
-    } // End yRangeEstimator
-
-
-RenderEngine.prototype.drawXAxisLabels = function(rangeArray, isTop) {
-
-    var i, len, x1, x2, y1, y2, stringTime, item;
-
-
-    if (!this.xAxisLabelsArray) {
-        this.xAxisLabelsArray = [];
-    }
-
-    for (i = 0, len = rangeArray.length; i < len; ++i) {
-        item = rangeArray[i];
-        x1 = this.xRangeEstimator(item);
-        x2 = this.xRangeEstimator(item);
-        y1 = -6;
-        y2 = 0;
-        stringTime = timeInWords(item);
-        stringTime = stringTime.split(" ")
-        stringTime = stringTime[0] + "\n" + stringTime[1];
-        if (isTop) {
-            this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), this.height * (this.shiftRatioY + 0.035), stringTime, "axis-label xaxis-label");
-        } else {
-            this.xAxisLabelsArray[i] = this.__placeText(x1 - (timeInWords(item).length * 1.3), 0 - 7 - (this.marginY * 0.7) + (this.height * 0.016), stringTime, "axis-label xaxis-label");
+RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private function to
+        // draw lines
+        var coord1 = this.convert(x1, y1); // Getting converted axis
+        // according to canvas
+        if (coord1.x < this.marginX) {
+            coord1.x = this.marginX;
         }
 
-    }
-}
 
+        var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect"); // creating our
+        // element line.
+
+        rect.setAttribute("x", coord1.x); // setting line
+        rect.setAttribute("y", coord1.y); // coordinates
+        rect.setAttribute("width", w); // and styles
+        rect.setAttribute("height", h); // with shifting
+
+        if (className) {
+            rect.setAttribute("class", className);
+        }
+        this.svg.appendChild(rect); // Drawing line to our canvas
+        return rect;
+    } // end drawRect function
+
+
+// To delete
 RenderEngine.prototype.removeXAxisLabels = function(rangeArray) {
 
-    if (!this.xAxisLabelsArray) {
-        return;
-    }
 
-    var i;
-    for (i = rangeArray.length; i--;) {
-        if (this.xAxisLabelsArray[i]) {
-            this.svg.removeChild(this.xAxisLabelsArray[i]);
-            delete this.xAxisLabelsArray[i];
-        }
-    }
 }
 
-RenderEngine.prototype.drawXAxis = function(rangeArray) {
-        var i, len, item; // Loop iteration variables
-        // Drawing X axis
-        var x1 = 0;
-        var x2 = this.width;
-        var y1 = 0;
-        var y2 = 0;
-        //this.drawLine(x1, y1, x2, y2, "axis xaxis");
 
-        var dim = {
-            height : this.height,
-            width : this.width
-        }
-        var rng = {
-            min : rangeArray[0],
-            max : rangeArray[rangeArray.length - 1]
-        }
-        var xax = new Axis(dim, this.shiftRatioX, rng);
-        xax.plotAxis(this)
 
-        // Drawing the ticks
-        var firstItem = rangeArray[0];
-        var lastItem = rangeArray[rangeArray.length - 1];
-
-        this.xRangeEstimator = this.__xRangeEstimateGenerator(firstItem, lastItem);
-
-        for (i = 0, len = rangeArray.length; i < len; ++i) {
-            item = rangeArray[i];
-            x1 = this.xRangeEstimator(item);
-            x2 = this.xRangeEstimator(item);
-            y1 = -6;
-            y2 = 0;
-            //this.drawLine(x1, y1, x2, y2, "ticks");
-
-            // Saving first and last coordinate and value 
-
-            if (i === 0) {
-                this.xCoords.start = {};
-                this.xCoords.start.value = item;
-                this.xCoords.start.position = x1 + this.marginX;
-            }
-            if (i === len - 1) {
-                this.xCoords.end = {};
-                this.xCoords.end.value = item;
-                this.xCoords.end.position = x1 + this.marginX;
-            }
-        }
-    } // end draw x axis
-
-RenderEngine.prototype.drawYAxis = function(rangeArray, key) {
-        var i, len, item;
-        var x1 = 0;
-        var x2 = 0;
-        var y1 = 0;
-        var y2 = this.height * this.shiftRatioY;
-
-        var divBoxHeight;
-        this.drawLine(x1, y1, x2, y2, "axis yaxis");
-        // Drawing the ticks
-        var firstItem = rangeArray[0];
-        var lastItem = rangeArray[rangeArray.length - 1];
-
-        this.yRangeEstimator = this.__yRangeEstimateGenerator(firstItem, lastItem);
-
-        for (i = 0, len = rangeArray.length; i < len; ++i) {
-            item = rangeArray[i];
-            y1 = this.yRangeEstimator(item);
-            y2 = this.yRangeEstimator(item);
-            x1 = -6;
-            x2 = 0;
-            var text = "" + shortNumber(rangeArray[i]);
-            text = text.trim();
-            // Adjustments to X position
-            var tx1 = x1 - 0.025 * this.width;
-            tx1 -= (text.length / 4) * 10;
-            var textEl = this.__placeText(tx1, y1 - 3, text, "axis-label yaxis-label");
-
-            var textLeft = Number(textEl.getAttribute("x"));
-            var textWidth = Number(textEl.clientWidth);
-            textEl.setAttribute("x", textLeft - (textWidth / 4))
-
-            this.drawLine(x1, y1, x2, y2, "ticks", true);
-
-            if (i !== 0 && !divBoxHeight) {
-                divBoxHeight = y1 - this.yRangeEstimator(rangeArray[0]);
-            }
-
-        }
-        for (i = 0, len = rangeArray.length; i < len; ++i) {
-            item = rangeArray[i];
-            y1 = this.yRangeEstimator(item);
-            y2 = this.yRangeEstimator(item);
-            x1 = 0;
-            x2 = this.width;
-            if (i) {
-                this.drawRect(x1, y1, this.width, divBoxHeight, "div-lines", true);
-            }
-        }
-
-        // Placing the yaxis name
-        key = key[0].toUpperCase() + key.substr(1);
-        var chartYLabelX = 0 - (this.marginX * 2 / 3);
-        var chartYLabelY = (this.height - this.marginY) / 2 - key.length * 2;
-    } // end drawYAxis
 
 RenderEngine.prototype.chartLabel = function() {
     var key = this.key;
@@ -1667,15 +1633,15 @@ RenderEngine.prototype.chartLabel = function() {
 
 RenderEngine.prototype.getRatio = function(x) {
 
-        var difference = this.xCoords.end.position - this.xCoords.start.position;
-        var position = x - this.xCoords.start.position;
+        var difference = this.xaxis.estimateRange(this.xaxis.max) - this.xaxis.estimateRange(this.xaxis.min);
+        var position = x - this.xaxis.estimateRange(this.xaxis.min) - this.marginX;
         var ratio = position / difference;
-        var valueDifference = this.xCoords.end.value - this.xCoords.start.value;
+        var valueDifference = this.xaxis.max - this.xaxis.min;
 
         var value;
 
         if (ratio >= 0 && ratio <= 1) {
-            value = (ratio * valueDifference) + this.xCoords.start.value;
+            value = (ratio * valueDifference) + this.xaxis.min;
         }
 
         return Math.round(value);
@@ -1683,8 +1649,9 @@ RenderEngine.prototype.getRatio = function(x) {
     } // end getRatio
 
 
-RenderEngine.prototype.__placeText = function(x, y, text, className, rotate) {
-        var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, alignment) {
+        var i, len, align,      // loop iteration variables
+            textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
 
         x = this.convert(x, y).x;
         y = this.convert(x, y).y;
@@ -1703,21 +1670,50 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate) {
         }
         textElement.innerHTML = text;
         this.svg.appendChild(textElement);
+
+        if(alignment){
+            alignment = alignment.split(" ");
+            for(i in alignment){
+                align = alignment[i];
+                if(align && align === "center-horizontal"){
+                    x = x - textElement.clientWidth / 2;
+                }        
+                if(align && align === "down"){
+                    y = y + +textElement.clientHeight;
+                }           
+                if(align && align === "center-vertical"){
+                    y = y + textElement.clientHeight / 2;
+                }
+                if(align && align === "half-center-vertical"){
+                    y = y + textElement.clientHeight / 4;
+                }
+                if(align && align === "up"){
+                    y = y - +textElement.clientHeight;
+                }
+                if(align && align === "left-horizontal"){
+                    x = x - textElement.clientWidth;
+                }
+                textElement.setAttribute("x", x)
+                textElement.setAttribute("y", y)
+            }
+        }
         return textElement;
     } // End placetext
 
 RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style) {
-    x1 = this.xRangeEstimator(x1);
-    x2 = this.xRangeEstimator(x2);
-    y1 = this.yRangeEstimator(y1);
-    y2 = this.yRangeEstimator(y2);
-    this.drawLine(x1, y1, x2, y2, "chart-line");
+    x1 = this.xaxis.estimateRange(x1);
+    x2 = this.xaxis.estimateRange(x2);
+    y1 = this.yaxis.estimateRange(y1);
+    y2 = this.yaxis.estimateRange(y2);
+
+    style = style || "chart-line";
+    this.drawLine(x1, y1, x2, y2, style);
 }
 
 RenderEngine.prototype.plotCircle = function(x, y) {
     var value = y;
-    x = this.xRangeEstimator(x);
-    y = this.yRangeEstimator(y);
+    x = this.xaxis.estimateRange(x);
+    y = this.yaxis.estimateRange(y);
     var className = 'plot-circle';
     return this.__drawCircle(x, y, this.plotCircleRadius, className);
 }
@@ -1726,28 +1722,224 @@ RenderEngine.prototype.plotCircle = function(x, y) {
 
 
 /* Function to replace existing */
-RenderEngine.prototype.drawLine$ = function(x1, y1, x2, y2, className) { // Private function to
-    // draw lines
 
-    var line = document.createElementNS("http://www.w3.org/2000/svg", "line"); // creating our
-    // element line.
+// XAxis inherited from Axis
+XAxis.prototype = Object.create(Axis.prototype);
+XAxis.prototype.constructor = XAxis;
 
-    x1 += this.marginX;
-    x2 += this.marginX;
-    y1 += this.marginY;
-    y2 += this.marginY;
+function XAxis(dimension, shrink, rangeOb){
+	Axis.call(this, dimension, shrink, rangeOb);
+}
 
-    console.log(this.marginY / this.heig)
 
-    line.setAttribute("x1", x1); // setting line
-    line.setAttribute("y1", y1); // coordinates
-    line.setAttribute("x2", x2); // and styles
-    line.setAttribute("y2", y2); // with shifting
+XAxis.prototype.placeLabel = function(canvas, isLabelTop){
+    var i = 0, len = 0,
+    	x = 0,
+    	y = 0,
+    	newx = 0,
+    	newy = 0,
+    	stringTime = "",
+    	item,
+    	rangeArray = this.__getRangeArray__(),
+    	alignment = "center-horizontal down";
 
-    if (className) {
-        line.setAttribute("class", className);
+
+    if (!this.labelArray) {
+        this.labelArray = [];
     }
-    this.svg.appendChild(line); // Drawing line to our canvas
-    return line;
-} // end drawLine function
+
+    if (isLabelTop){
+    	y = canvas.yaxis.shrink * this.height;
+    	alignment = "center-horizontal up";
+    }
+
+    for (i = 0, len = rangeArray.length; i < len; ++i) {
+        item = Math.round(rangeArray[i]);
+        x = this.estimateRange(item);
+        stringTime = timeInWords(item);
+
+        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment);
+    }
+}
+
+
+// YAxis inherited from Axis
+YAxis.prototype = Object.create(Axis.prototype);
+YAxis.prototype.constructor = YAxis;
+
+function YAxis(dimension, shrink, rangeOb){
+	Axis.call(this, dimension, shrink, rangeOb, true);
+	this.__getRangeArray__();
+}
+
+YAxis.prototype.__getRangeArray__ = function(){
+	    var i, j, temp,
+        	rangeArray = [], 			// final range array that the
+        								// function will return
+        	beautyLimits = this.__beautifyLimits__(),
+        	calcMin = beautyLimits.min,
+        	calcMax = beautyLimits.max,
+        	computedMin = 0, computedMax = 0, 	// variable to store final limits of
+        								// calculated range
+        	difference = 0,
+        	steps = 0, 						// Variable to store steps from
+        								// min to max
+
+        	twoDigitMin = 0, twoDigitMax = 0, 	// Variables to store leading
+        								// two digits of max and min
+
+        	stepsDown = 0, 				// A variable to store how
+        								// many divisions were made
+            twoDigitMax = calcMax;
+
+        // Algo started
+        
+        if(this.rangeArray){
+            return this.rangeArray;
+        }		
+
+        if (calcMin === calcMax) {
+            this.rangeArray = [calcMin * 2, calcMin, 0];
+            return this.rangeArray;
+        }
+
+        while (twoDigitMax > 99 || twoDigitMax < -99) {
+            twoDigitMax /= 10;
+            ++stepsDown;
+        }
+
+        twoDigitMin = Math.floor((calcMin * 100) / (Math.pow(10, stepsDown))) / 100;
+
+
+        while (twoDigitMin > 99 || twoDigitMin < -99) {
+            twoDigitMin /= 10;
+            twoDigitMax /= 10;
+            ++stepsDown;
+        }
+
+        difference = twoDigitMax - twoDigitMin;
+
+        if (difference <= 0.3) {
+            steps = 0.05;
+        } else if (difference <= 1) {
+            steps = 0.2;
+        } else if (difference <= 3) {
+            steps = 0.5;
+        } else if (difference <= 6) {
+            steps = 1;
+        } else if (difference <= 12) {
+            steps = 2;
+        } else if (difference <= 20) {
+            steps = 4;
+        } else if (difference <= 30) {
+            steps = 5;
+        } else if (difference <= 40) {
+            steps = 7;
+        } else {
+            steps = 10;
+        }
+
+        computedMin = Math.floor(twoDigitMin / steps) * steps;
+        computedMax = Math.ceil(twoDigitMax / steps) * steps;
+
+        // Step up; Multiplying the value to min-max that was divided before
+
+        steps *= Math.pow(10, stepsDown);
+        computedMin *= Math.pow(10, stepsDown);
+        computedMax *= Math.pow(10, stepsDown);
+
+        temp = computedMin;
+
+        // Setting new global min and max
+
+        while (temp <= computedMax) {
+            temp = Math.round(temp * 100) / 100;
+            rangeArray.push(temp);
+            temp += steps;
+        }
+        this.rangeArray = rangeArray;
+
+        this.min = this.rangeArray[0];
+        this.max = this.rangeArray[this.rangeArray.length - 1];
+        return rangeArray;
+}	
+
+YAxis.prototype.__beautifyLimits__ = function(){
+	var minValue = this.min;
+    var maxValue = this.max;
+
+    if (minValue === maxValue) {
+        return {
+            min: minValue,
+            max: maxValue
+        }
+    }
+
+    var difference = maxValue - minValue;
+    var difference2 = maxValue - minValue;
+    // Algorithm to get more good looking ranges
+
+    var numDig = numberOfDigits(difference);
+
+    while (difference2 < 1) {
+        numDig -= 1;
+        difference2 *= 10;
+    }
+
+    var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
+
+    minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
+
+    if ((difference / maxValue) > 0.1) {
+        var newBeautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
+        beautyNumber = beautyNumber > newBeautyNumber ? beautyNumber : newBeautyNumber;
+    }
+
+    maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
+    return {
+        min: minValue,
+        max: maxValue
+    };
+}
+
+YAxis.prototype.placeLabel = function(canvas){
+    var i = 0, len = 0,
+        x = 0,
+        y = 0,
+        newx = 0,
+        newy = 0,
+        stringTime = "",
+        item,
+        rangeArray = this.__getRangeArray__(),
+        alignment = "left-horizontal center-horizontal half-center-vertical";
+
+    if (!this.labelArray) {
+        this.labelArray = [];
+    }
+
+    for (i = 0, len = rangeArray.length; i < len; ++i) {
+        item = Math.round(rangeArray[i]);
+        y = this.estimateRange(item);
+        stringTime = shortNumber(item);
+
+        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment);
+    }
+} // end placelabel
+
+YAxis.prototype.placeDivBoxes = function(canvas){
+    var i = 0, len = 0,
+        x = canvas.xaxis.estimateRange(0),
+        y = 5,
+        width = canvas.xaxis.estimateRange(canvas.xaxis.max),
+        height = this.estimateRange(this.rangeArray[1]) - this.estimateRange(this.rangeArray[0]),
+        item,
+        rangeArray = this.__getRangeArray__();
+
+    for (i = 1, len = rangeArray.length; i < len; ++i) {
+        item = Math.round(rangeArray[i]);
+        y = this.estimateRange(item);
+
+        canvas.drawRect(x, y, width, height, "div-lines")
+    }
+} // end placelabel
 }());

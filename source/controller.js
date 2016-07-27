@@ -4,43 +4,43 @@ function Engine(model) {    // An object to fetch data from 'Chart' and make
 }
 
 Engine.prototype.__getYLimits__ = function(idx) { // Calculate a more good looking limit
-        var minValue = this.model.getMinY(idx);
-        var maxValue = this.model.getMaxY(idx);
+    var minValue = this.model.getMinY(idx);
+    var maxValue = this.model.getMaxY(idx);
 
-        if (minValue === maxValue) {
-            return {
-                min: minValue,
-                max: maxValue
-            }
-        }
-
-        var difference = maxValue - minValue;
-        var difference2 = maxValue - minValue;
-        // Algorithm to get more good looking ranges
-
-        var numDig = numberOfDigits(difference);
-
-        while (difference2 < 1) {
-            numDig -= 1;
-            difference2 *= 10;
-        }
-
-        var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
-
-        minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
-
-        if ((difference / maxValue) > 0.1) {
-            var newBeautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
-            beautyNumber = beautyNumber > newBeautyNumber ? beautyNumber : newBeautyNumber;
-        }
-
-        maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
+    if (minValue === maxValue) {
         return {
             min: minValue,
             max: maxValue
-        };
+        }
+    }
 
-    } // End getYLimits
+    var difference = maxValue - minValue;
+    var difference2 = maxValue - minValue;
+    // Algorithm to get more good looking ranges
+
+    var numDig = numberOfDigits(difference);
+
+    while (difference2 < 1) {
+        numDig -= 1;
+        difference2 *= 10;
+    }
+
+    var beautyNumber = Math.pow(10, (numDig - 2)) * 5;
+
+    minValue = Math.floor(minValue / beautyNumber) * beautyNumber;
+
+    if ((difference / maxValue) > 0.1) {
+        var newBeautyNumber = Math.pow(10, numberOfDigits(maxValue) - 2);
+        beautyNumber = beautyNumber > newBeautyNumber ? beautyNumber : newBeautyNumber;
+    }
+
+    maxValue = Math.ceil(maxValue / beautyNumber) * beautyNumber;
+    return {
+        min: minValue,
+        max: maxValue
+    };
+
+} // End getYLimits
 
 Engine.prototype.getYRange = function(idx) {
 
@@ -223,27 +223,50 @@ Engine.prototype.render = function(selector, type) {
     this.isChartLabelTop = (allVariables.length) % this.numChartsRow !== 0;
 
     this.renderEngineObject = {};
+    var dimension = {
+        height : this.model.getWidth(),
+        width : this.model.getWidth()
+    }
+    var rangeX = {
+        min : joinDate(this.model.getMinX().year, this.model.getMinX().month),
+        max : joinDate(this.model.getMaxX().year, this.model.getMaxX().month)
+    };
+    var rangeY = {};
 
     for (var idx in allVariables) {
         key = allVariables[idx];
+        this.renderEngineObject[key] = new RenderEngine(this, selector, dimension, key, this.isChartLabelTop);
+        item = this.renderEngineObject[key];
 
 
 
-        this.renderEngineObject[key] = new RenderEngine(this, selector, this.model.getWidth(), this.model.getHeight(), key, this.isChartLabelTop);
-        this.renderEngineObject[key].drawYAxis(this.getYRange(key), key);
-        this.renderEngineObject[key].drawXAxis(this.getXRange());
-        this.renderEngineObject[key].chartLabel();
+        rangeY = {
+            min : this.model.getMinY(key),
+            max : this.model.getMaxY(key)
+        }
+        // Attaching xaxis module
+        item.attachAxisX(new XAxis(dimension, item.shiftRatioX, rangeX));
+        item.attachAxisY(new YAxis(dimension, item.shiftRatioY, rangeY));
+        item.drawAxisX();
+        item.drawAxisY();
+        item.drawAxisXLabel(this.isChartLabelTop);
+        item.drawAxisYLabel();
+        item.chartLabel();
 
-        //this.renderEngineObject[key].drawXAxisLabels(this.getXRange(), this.isChartLabelTop);
+/*        // Remove later
+        item.drawYAxis(this.getYRange(key), key);
+        item.drawXAxis(this.getXRange());
+        */
+        //item.drawXAxisLabels(this.getXRange(), this.isChartLabelTop);
 
 
         if (type.toLowerCase() === "column") {
-            this.renderEngineObject[key].attachChart(new ColumnChart(this.renderEngineObject[key], colWidth));
+            item.attachChart(new ColumnChart(item, colWidth));
         } else {
-            this.renderEngineObject[key].attachChart(new LineChart(this.renderEngineObject[key], colWidth));
+            item.attachChart(new LineChart(item, colWidth));
         }
 
-        this.renderEngineObject[key].renderChart(this.getXRangeOfVariable(key), this.getYRangeOfVariable(key))
+        item.renderChart(this.getXRangeOfVariable(key), this.getYRangeOfVariable(key))
 
         ++count;
     }
@@ -336,11 +359,11 @@ Engine.prototype.__showLabels__ = function() {
         var i, len;
         if (this.isChartLabelTop) {
             for (i = 0, len = _this.storeSvgArray.length; i < this.numChartsRow && i < len; ++i) {
-                _this.storeSvgArray[i].object.drawXAxisLabels(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabel(this.getXRange(), this.isChartLabelTop)
             }
         } else {
             for (len = _this.storeSvgArray.length, i = len - this.numChartsRow; i < len; ++i) {
-                _this.storeSvgArray[i].object.drawXAxisLabels(this.getXRange(), this.isChartLabelTop)
+                _this.storeSvgArray[i].object.drawAxisXLabels(this.getXRange(), this.isChartLabelTop)
             }
         }
     } // end showLabel

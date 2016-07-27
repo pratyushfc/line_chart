@@ -112,7 +112,7 @@ var chart = new MultiVariantChart({
 			taliban : 520
 		}		,{
 			time : "2010-8-10",
-			taliban : 254
+			taliban : 400
 		}		,{
 			time : "2011-12-10",
 			taliban : 1018
