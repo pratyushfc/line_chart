@@ -1,7 +1,7 @@
 var chart = new MultiVariantChart({
 	"dimensions" : {						// Size of canvas
-		"width" : 500,
-		"height" : 300,
+		"width" : 370,
+		"height" : 240,
 	},
 
 	"caption" : "Caption",
