@@ -31,12 +31,12 @@ var process = function(){
     console.log("File build; See output at 'public'")
 }
 
-gulp.task('js', function () {
+gulp.task('build', function () {
 	process();
 });
 
 gulp.task('default', function(){
-    gulp.run('js'); 
+    //gulp.run('js'); 
 });
 
-gulp.watch('./development/*.js', process);
+//gulp.watch('./development/*.js', process);
