@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Chart Demo </title>
+
+    <!-- build:css -->
+		<link rel="stylesheet" href="css/chart.css"/>
+    <!-- endbuild -->
+
+</head>
+<body>
+
+<input type="button" value="Shuffle" onclick="chart.sort(Sort.shuffle)"/>
+<input type="button" value="Reverse" onclick="chart.reverse()"/>
+<input type="button" value="Sort by min" onclick="chart.sort(Sort.min)"/>
+<input type="button" value="Sort by average" onclick="chart.sort(Sort.average)"/>
+<input type="button" value="Sort by max" onclick="chart.sort(Sort.max)"/>
+<div id="graph" style=""> </div>
+
+    <!-- build:js -->
+	<script src="js/api.js"></script>
+	<script src="js/axis.js"></script>
+	<script src="js/chart.js"></script>
+	<script src="js/column_chart.js"></script>
+	<script src="js/controller.js"></script>
+	<script src="js/global.js"></script>
+	<script src="js/line_chart.js"></script>
+	<script src="js/model.js"></script>
+	<script src="js/tooltip.js"></script>
+	<script src="js/view.js"></script>
+	<script src="js/xaxis.js"></script>
+	<script src="js/yaxis.js"></script>
+    <!-- endbuild -->
+
+	<script src="app.js"></script>
+</body>
+</html>

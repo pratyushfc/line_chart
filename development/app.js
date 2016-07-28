@@ -1,13 +1,13 @@
 var chart = new MultiVariantChart({
 	"dimensions" : {						// Size of canvas
-		"width" : 370,
-		"height" : 240,
+		"width" : 500,
+		"height" : 300,
 	},
 
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "column",						// default line
+	"type" : "line",						// default line
 
 	"data" : [
 		{
