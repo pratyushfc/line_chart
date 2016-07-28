@@ -3,7 +3,8 @@ var gulp	= require('gulp'),
 	uglify  = require('gulp-uglify'),
 	concat  = require('gulp-concat'),
 	iife = require("gulp-iife"),
-	htmlreplace = require('gulp-html-replace');
+	htmlreplace = require('gulp-html-replace'),
+    prettify = require('gulp-jsbeautifier');
 
 var process = function(){
 	gulp.src('./development/js/*.js')
@@ -30,6 +31,14 @@ var process = function(){
 
     console.log("File build; See output at 'public'")
 }
+var i = 0;
+function pretty() {
+  gulp.src(['./development/js/*.js'])
+    .pipe(prettify())
+    .pipe(gulp.dest('./development/js/'));
+ 
+  console.log("Beautified...(" + i++ + ')')
+}
 
 gulp.task('build', function () {
 	process();
@@ -39,4 +48,7 @@ gulp.task('default', function(){
     //gulp.run('js'); 
 });
 
-//gulp.watch('./development/*.js', process);
+gulp.task('pretty', pretty);
+
+gulp.watch('./devel
+    opment/js/*.js', pretty);
