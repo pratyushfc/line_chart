@@ -382,14 +382,7 @@ RenderEngine.prototype.chartLabel = function() {
     }
 
     this.drawRect(rectLeft, rectTop, rectWidth, rectHeight, "chart-label-back");
-    textEl = this.__placeText(rectWidth / 2, rectTop, key.toUpperCase(), "chart-label");
-
-    var textTop = Number(textEl.getAttribute("y"));
-    var textLeft = Number(textEl.getAttribute("x"));
-    var textHeight = Number(textEl.clientHeight);
-    var textWidth = Number(textEl.clientWidth);
-    textEl.setAttribute("y", textTop + textHeight)
-    textEl.setAttribute("x", textLeft - (textWidth / 2))
+    textEl = this.__placeText(rectWidth / 2, rectTop, key.toUpperCase(), "chart-label", "", "down center-horizontal center-vertical");
 
 }
 
