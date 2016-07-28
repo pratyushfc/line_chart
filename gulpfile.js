@@ -40,9 +40,7 @@ function pretty() {
   console.log("Beautified...(" + i++ + ')')
 }
 
-gulp.task('build', function () {
-	process();
-});
+gulp.task('build', process);
 
 gulp.task('default', function(){
     //gulp.run('js'); 
