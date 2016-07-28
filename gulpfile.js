@@ -49,6 +49,3 @@ gulp.task('default', function(){
 });
 
 gulp.task('pretty', pretty);
-
-gulp.watch('./devel
-    opment/js/*.js', pretty);
