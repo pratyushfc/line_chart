@@ -1,9 +1,15 @@
 // Exposing public Api
 window.MultiVariantChart = function(data, selector) {
     var t = performance.now();
-    var model = new Model(data);
-    this.engine = new Engine(model);
-    this.engine.render(selector, model.getType());
+    if(data.crosstab){
+        var model = new CrossModel(data);
+        this.engine = new CrossController(model);
+        this.engine.render(selector);
+    } else {
+        var model = new Model(data);
+        this.engine = new Engine(model);
+        this.engine.render(selector, model.getType());
+    }
     console.log("rendered in ", performance.now() - t, " seconds")
 };
 

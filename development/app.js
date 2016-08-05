@@ -7,7 +7,8 @@ var chart = new MultiVariantChart({
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "line",						// default line
+	"type" : "line",						// line, column
+	"crosstab" : true,
 
 	"data" : [
 		{
@@ -138,5 +139,64 @@ var chart = new MultiVariantChart({
 			time : "2014-1-10",
 			taliban : 923
 		}
+	],
+
+	"dataset" : [
+		{
+			"category" : "Coffee",
+			"zone" : "Central",
+			"name" : "Amaretto",
+			"profit" : 5105,
+			"sale" : 14011
+		}, {
+			"category" : "Coffee",
+			"zone" : "Central",
+			"name" : "Columbian",
+			"profit" : 8528,
+			"sale" : 28913
+		}, {
+			"category" : "Coffee",
+			"zone" : "Central",
+			"name" : "Decaf Irish Cream",
+			"profit" : 9632,
+			"sale" : 26155
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Amaretto",
+			"profit" : 5105,
+			"sale" : 14011
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Columbian",
+			"profit" : 8528,
+			"sale" : 28913
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Decaf Irish Cream",
+			"profit" : 9632,
+			"sale" : 26155
+		}, {
+			"category" : "Espresso",
+			"zone" : "Central",
+			"name" : "Caffee Mocha",
+			"profit" : 	14646,
+			"sale" : 35218
+		}, {
+			"category" : "Espresso",
+			"zone" : "Central",
+			"name" : "Decaf Espresso",
+			"profit" : 8840,
+			"sale" : 24410
+		}, {
+			"category" : "Espresso",
+			"zone" : "South",
+			"name" : "Caffee Lattee",
+			"profit" : 3872,
+			"sale" : 15444
+		}
 	]
+
 }, 'graph');
