@@ -77,7 +77,7 @@ Axis.prototype.plotTicks = function(canvas){
 	    if(this.isVertical){
 		    x1 = -6;
 		    x2 =  0;
-		    y1 = this.estimateRange(item);
+		    y1 = this.estimateRange(item);	
 		    y2 = y1;
 	    } else {
 		    x1 = this.estimateRange(item);

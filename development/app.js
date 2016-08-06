@@ -178,7 +178,7 @@ var chart = new MultiVariantChart({
 			"name" : "Decaf Irish Cream",
 			"profit" : 9632,
 			"sale" : 26155
-		}, {
+		},/* {
 			"category" : "Espresso",
 			"zone" : "Central",
 			"name" : "Caffee Mocha",
@@ -196,7 +196,7 @@ var chart = new MultiVariantChart({
 			"name" : "Caffee Lattee",
 			"profit" : 3872,
 			"sale" : 15444
-		}
+		}*/
 	]
 
 }, 'graph');

@@ -10,7 +10,7 @@ window.MultiVariantChart = function(data, selector) {
         this.engine = new Engine(model);
         this.engine.render(selector, model.getType());
     }
-    console.log("rendered in ", performance.now() - t, " seconds")
+    console.log("rendered in ", performance.now() - t, " mili seconds")
 };
 
 MultiVariantChart.prototype.sort = function(fn) {

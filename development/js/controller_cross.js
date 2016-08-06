@@ -10,7 +10,6 @@ function CrossController(model){
 		width : width,
 		height : height
 	};
-	console.log(numSvgs, width);
 
 }	// end constructor crosscontroller
 
@@ -30,13 +29,14 @@ CrossController.prototype.render = function(selector){
 		item = canvasOb[key];
         item.shiftRatioX = 1;
         item.shiftRatioY = 1;
-        item.marginY *= 0;
-        item.marginX *= 0;
-        item.attachAxisX(new XAxis(this.dimension, 1, {min : 0, max : 100}));
+        item.marginY *= 1;
+        item.marginX *= 1;
+        item.attachAxisX(new XAxisCross(this.dimension, 0.8, {min : 0, max : 100}));
         item.drawAxisX();
-        item.attachAxisY(new YAxis(this.dimension, 1, {min : 0, max : 100}));
+        item.attachAxisY(new YAxisCross(this.dimension, 0.8, ["A", "B"]));
         item.drawAxisY();
         item.drawAxisXLabel();
+        item.drawAxisYLabel();
 	}
 
 
