@@ -8,7 +8,7 @@ var chart = new MultiVariantChart({
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
 	"type" : "line",						// line, column
-	"crosstab" : true,
+	"crosstab" : false,
 
 	"data" : [
 		{
