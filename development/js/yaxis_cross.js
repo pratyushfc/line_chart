@@ -29,7 +29,7 @@ YAxisCross.prototype.__getRangeArray__ = function(divisions){       // Function 
 } //get __getRangeArray__
 
 
-YAxisCross.prototype.placeLabel = function(canvas){
+YAxisCross.prototype.placeLabel = function(canvas, alignment){
     var i = 0, len = 0,
         x = 0,
         y = 0,
@@ -38,7 +38,7 @@ YAxisCross.prototype.placeLabel = function(canvas){
         textLabel = "",
         item,
         rangeArray = this.__getRangeArray__(),
-        alignment = "half-center-vertical";
+        alignment = alignment + " half-center-vertical";
 
     if (!this.labelArray) {
         this.labelArray = [];

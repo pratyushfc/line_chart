@@ -17,6 +17,8 @@ CrossModel.prototype.__crunch__ = function(){
 	this.max = {};
 	this.max.sale = 0;
 	this.max.profit = 0;
+	this.min = {};
+	this.min.profit = 0;
 
 	this.uniqueZones = [];
 	this.productsPerCategory = {};
@@ -51,6 +53,10 @@ CrossModel.prototype.__crunch__ = function(){
 			this.max.profit = item.profit;
 		}
 
+		if(item.profit < this.min.profit){
+			this.min.profit = item.profit;
+		}
+
 	}
 
 }
@@ -78,6 +84,18 @@ CrossModel.prototype.getUniqueNames = function(ob){
 	return uniqueNames;
 }
 
+CrossModel.prototype.getMaxColumnCount = function() {
+	var key = "",
+		maxColumn = 0;
+
+	for(key in this.dataStore){
+		if(this.getUniqueNames(this.dataStore[key]).length > maxColumn){
+			maxColumn = this.getUniqueNames(this.dataStore[key]).length;
+		} 
+	}
+	return maxColumn;
+}	// end getMin
+
 CrossModel.prototype.getMaxSale = function() {
 	return this.max.sale;
 }	// end getMin
@@ -89,3 +107,40 @@ CrossModel.prototype.getZones = function(){
 CrossModel.prototype.getPlotData = function(){
 	return this.dataStore;
 }	// end getPlotData
+
+CrossModel.prototype.getColorByProfit = function(profit){
+	var minProfit = this.min.profit;
+	var maxProfit = this.max.profit;
+
+	var color1, color2;
+
+	if(profit > 0){
+		var ratio = (profit) / (maxProfit);
+	} else {
+		var ratio = (-profit) / (minProfit);
+	}
+	
+	if(ratio < 0){
+		ratio *= -1;
+	}
+
+	if(profit > 0 ){
+		color1 = this.data.colorRange[0];
+		color2 = this.data.colorRange[1];
+	} else {
+		color1 = this.data.colorRange[2];
+		color2 = this.data.colorRange[3];
+		//profit = -profit;
+	}
+	var hex = function(x) {
+	    x = x.toString(16);
+	    return (x.length <= 1) ? '0' + x : x;
+	};
+
+	var r = Math.ceil(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
+	var g = Math.ceil(parseInt(color1.substring(2,4), 16) * ratio + parseInt(color2.substring(2,4), 16) * (1-ratio));
+	var b = Math.ceil(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
+	var middle = hex(r) + hex(g) + hex(b);
+	return "#" + middle;
+}
+

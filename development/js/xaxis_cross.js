@@ -159,7 +159,7 @@ XAxisCross.prototype.placeLabel = function(canvas, isLabelTop){
     for (i = 0, len = rangeArray.length; i < len; ++i) {
         item = Math.round(rangeArray[i]);
         x = this.estimateRange(item);
-        stringTime = item;
+        stringTime = shortNumber(item);
         this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label YAxisCross-label", null, alignment);
     }
 }

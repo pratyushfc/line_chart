@@ -9,6 +9,7 @@ var chart = new MultiVariantChart({
 	"interpolation" : true,					// Default true
 	"type" : "line",						// line, column
 	"crosstab" : true,
+	"colorRange" : ["aaaaaa", "000000", "770000", "ff0000"],
 
 	"data" : [
 		{
@@ -138,6 +139,18 @@ var chart = new MultiVariantChart({
 		}		,{
 			time : "2014-1-10",
 			taliban : 923
+		},{
+			time : "2013-10-10",
+			taliban2 : 1612
+		}		,{
+			time : "2014-1-10",
+			taliban2 : 1923
+		},{
+			time : "2013-10-10",
+			taliban2 : 1893
+		}		,{
+			time : "2014-1-10",
+			taliban2 : 2223
 		}
 	],
 
@@ -164,7 +177,7 @@ var chart = new MultiVariantChart({
 			"category" : "Coffee",
 			"zone" : "East",
 			"name" : "Amaretto",
-			"profit" : 5105,
+			"profit" : -5105,
 			"sale" : 14011
 		}, {
 			"category" : "Coffee",
@@ -182,13 +195,13 @@ var chart = new MultiVariantChart({
 			"category" : "Espresso",
 			"zone" : "Central",
 			"name" : "Caffee Mocha",
-			"profit" : 	14646,
+			"profit" : 	-14646,
 			"sale" : 35218
 		}, {
 			"category" : "Espresso",
 			"zone" : "Central",
 			"name" : "Decaf Espresso",
-			"profit" : 8840,
+			"profit" : -8840,
 			"sale" : 24410
 		}, {
 			"category" : "Espresso",
@@ -202,7 +215,7 @@ var chart = new MultiVariantChart({
 			"name" : "Decaf Espresso 2",
 			"profit" : 8840,
 			"sale" : 24410
-		},
+		}
 	]
 
 }, 'graph');

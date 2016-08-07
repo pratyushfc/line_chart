@@ -56,8 +56,8 @@ RenderEngine.prototype.drawAxisXLabel = function(isChartLabelTop){
     this.xaxis.placeLabel(this, isChartLabelTop);
 } // end drawAxisXLabel
 
-RenderEngine.prototype.drawAxisYLabel = function(){
-    this.yaxis.placeLabel(this);
+RenderEngine.prototype.drawAxisYLabel = function(al){
+    this.yaxis.placeLabel(this, al);
 } // end drawAxisYLabel
 
 RenderEngine.prototype.removeAxisXLabel = function(){
@@ -286,7 +286,7 @@ RenderEngine.prototype.drawLine = function(x1, y1, x2, y2, className) { // Priva
     return line;
 } // end drawLine function
 
-RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private function to
+RenderEngine.prototype.drawRect = function(x1, y1, w, h, className, color) { // Private function to
         // draw lines
         var coord1 = this.convert(x1, y1); // Getting converted axis
         // according to canvas
@@ -302,7 +302,8 @@ RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private
         rect.setAttribute("y", coord1.y); // coordinates
         rect.setAttribute("width", w); // and styles
         rect.setAttribute("height", h); // with shifting
-
+        rect.style.fill = color;
+        
         if (className) {
             rect.setAttribute("class", className);
         }
@@ -330,7 +331,7 @@ RenderEngine.prototype.__drawCircle = function(x, y, r, className) { // Private 
     } // end constructor function
 
 
-RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private function to
+/*RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private function to
         // draw lines
         var coord1 = this.convert(x1, y1); // Getting converted axis
         // according to canvas
@@ -352,7 +353,7 @@ RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private
         }
         this.svg.appendChild(rect); // Drawing line to our canvas
         return rect;
-    } // end drawRect function
+    } // end drawRect function*/
 
 
 // To delete

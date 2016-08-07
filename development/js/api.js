@@ -4,7 +4,7 @@ window.MultiVariantChart = function(data, selector) {
     if(data.crosstab){
         var model = new CrossModel(data);
         this.engine = new CrossController(model);
-        this.engine.render(selector);
+        this.engine.render(selector + "cross");
     } else {
         var model = new Model(data);
         this.engine = new Engine(model);
