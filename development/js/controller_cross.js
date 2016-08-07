@@ -1,6 +1,5 @@
 function CrossController(model){
 	this.model = model;
-	console.log(model)
 
 	// Calculating dimensions
 	var numSvgs = 2 + model.getZones().length;
@@ -19,24 +18,31 @@ CrossController.prototype.render = function(selector){
 		len = 0,
 		item = {},
 		key = "",
+		key2 = "",
 		dataAr = [],
+		arItem1 = {},
+		arItem2 = [],
+		uniqueNameList = [],
 		canvasOb = {};
 
 	dataAr = this.model.getPlotData();
 
 	for(key in dataAr){
-		canvasOb[key] = new RenderEngine(this, selector, this.dimension, key);
-		item = canvasOb[key];
-        item.shiftRatioX = 1;
-        item.shiftRatioY = 1;
-        item.marginY *= 1;
-        item.marginX *= 1;
-        item.attachAxisX(new XAxisCross(this.dimension, 0.8, {min : 0, max : 100}));
-        item.drawAxisX();
-        item.attachAxisY(new YAxisCross(this.dimension, 0.8, ["A", "B"]));
-        item.drawAxisY();
-        item.drawAxisXLabel();
-        item.drawAxisYLabel();
+		arItem1 = dataAr[key];
+		uniqueNameList = this.model.getUniqueNames(arItem1);
+		for(key2 of this.model.getZones()){
+			arItem2 = arItem1[key2];
+			canvasOb[key] = new RenderEngine(this, selector, this.dimension, key);
+			item = canvasOb[key];
+	        item.marginY *= 1;
+	        item.marginX *= 1;
+	        item.attachAxisX(new XAxisCross(this.dimension, 0.8, {min : 0, max : this.model.getMaxSale()}));
+	        item.drawAxisX();
+	        item.attachAxisY(new YAxisCross(this.dimension, 0.8, uniqueNameList));
+	        item.drawAxisY();
+	        item.drawAxisXLabel();
+	        item.drawAxisYLabel();
+		}
 	}
 
 

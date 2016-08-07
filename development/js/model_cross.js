@@ -55,6 +55,29 @@ CrossModel.prototype.__crunch__ = function(){
 
 }
 
+CrossModel.prototype.getUniqueNames = function(ob){
+
+	var i = 0, 
+		len = 0,
+		key = "",
+		item = [],
+		uniqueNames = [];
+
+	for(key in ob){
+		item = ob[key];
+
+		for(i = 0, len = item.length; i < len; ++i){
+			if(uniqueNames.indexOf(item[i].name) === -1){
+				uniqueNames.push(item[i].name);
+			}
+		}
+	}
+	uniqueNames.sort(function(a, b){
+		return (a < b ? -1 : (a > b ? 1 : 0) ) * -1;
+	});
+	return uniqueNames;
+}
+
 CrossModel.prototype.getMaxSale = function() {
 	return this.max.sale;
 }	// end getMin

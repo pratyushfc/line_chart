@@ -3,12 +3,18 @@ YAxisCross.prototype = Object.create(Axis.prototype);
 YAxisCross.prototype.constructor = YAxisCross;
 
 function YAxisCross(dimension, shrink, rangeArray){
-    Axis.call(this, dimension, shrink, {min : 0, max : rangeArray.length - 1}, true);
+    var max = rangeArray ? rangeArray.length - 1 : 1;
+    Axis.call(this, dimension, shrink, {min : 0, max : max}, true);
     this.rangeArray = rangeArray;
 }
 
 // Function to estimate actual graph positions from value
 YAxisCross.prototype.estimateRange = function(num){
+
+    if(typeof num === "string"){
+        num = this.rangeArray.indexOf(num);
+    }
+
     var ratio = (num + 0.5) / this.rangeArray.length;   // Estimating ratio
     // Getting actual positions on chart
      return this.shrink * ratio * this.height;
@@ -32,10 +38,14 @@ YAxisCross.prototype.placeLabel = function(canvas){
         textLabel = "",
         item,
         rangeArray = this.__getRangeArray__(),
-        alignment = "left-horizontal center-horizontal half-center-vertical";
+        alignment = "half-center-vertical";
 
     if (!this.labelArray) {
         this.labelArray = [];
+    }
+
+    if(!rangeArray){
+        return;
     }
 
     for (i = 0, len = rangeArray.length; i < len; ++i) {
@@ -71,6 +81,10 @@ YAxisCross.prototype.plotTicks = function(canvas){
         i, len, item,
         x1, x2,     // Variables to store
         y1, y2;     // dimensions
+
+    if(!rangeArray){
+        return;
+    }
 
     for (i = 0, len = rangeArray.length; i < len; ++i) {
         item = rangeArray[i];

@@ -8,7 +8,7 @@ var chart = new MultiVariantChart({
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
 	"type" : "line",						// line, column
-	"crosstab" : false,
+	"crosstab" : true,
 
 	"data" : [
 		{
@@ -178,7 +178,7 @@ var chart = new MultiVariantChart({
 			"name" : "Decaf Irish Cream",
 			"profit" : 9632,
 			"sale" : 26155
-		},/* {
+		}, {
 			"category" : "Espresso",
 			"zone" : "Central",
 			"name" : "Caffee Mocha",
@@ -196,7 +196,13 @@ var chart = new MultiVariantChart({
 			"name" : "Caffee Lattee",
 			"profit" : 3872,
 			"sale" : 15444
-		}*/
+		}, {
+			"category" : "Espresso",
+			"zone" : "Central",
+			"name" : "Decaf Espresso 2",
+			"profit" : 8840,
+			"sale" : 24410
+		},
 	]
 
 }, 'graph');
