@@ -1,4 +1,4 @@
-function RenderEngine(engine, selector, dimension, name, isTop) {
+function RenderEngine(engine, selector, dimension, name, isTop, className) {
 
     this.isLabelTop = isTop;
     this.engine = engine;
@@ -11,7 +11,8 @@ function RenderEngine(engine, selector, dimension, name, isTop) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); // creating canvas				// getting the canvas that was created
     this.svg.setAttribute("height", this.height);
     this.svg.setAttribute("width", this.width);
-    this.svg.setAttribute("class", "chart");
+    this.svg.setAttribute("class", className || "chart");
+
 
     this.rootElement.appendChild(this.svg); // adding our canvas to parent element
 
@@ -443,8 +444,20 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
                 if(align && align === "half-center-vertical"){
                     y = y + textElement.clientHeight / 4;
                 }
+                if(align && align === "half-right"){
+                    x = x + textElement.clientWidth / 2;
+                }
+                if(align && align === "right-10px"){
+                    x = x + 10;
+                }
                 if(align && align === "up"){
                     y = y - +textElement.clientHeight;
+                }
+                if(align && align === "left-10px"){
+                    x = x - 10;
+                }
+                if(align && align === "half-left"){
+                    x = x - textElement.clientWidth / 2;
                 }
                 if(align && align === "left-horizontal"){
                     x = x - textElement.clientWidth;

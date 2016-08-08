@@ -157,6 +157,9 @@ XAxisCross.prototype.placeLabel = function(canvas, isLabelTop){
         alignment = "center-horizontal up";
     }
     for (i = 0, len = rangeArray.length; i < len; ++i) {
+        if(i === 0 || i === rangeArray.length - 1){
+            continue;
+        }
         item = Math.round(rangeArray[i]);
         x = this.estimateRange(item);
         stringTime = shortNumber(item);

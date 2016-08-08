@@ -7,7 +7,7 @@ var chart = new MultiVariantChart({
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "line",						// line, column
+	"type" : "column",						// line, column
 	"crosstab" : true,
 	"colorRange" : ["aaaaaa", "000000", "770000", "ff0000"],
 
@@ -155,6 +155,26 @@ var chart = new MultiVariantChart({
 	],
 
 	"dataset" : [
+		{
+			"category" : "Coffee",
+			"zone" : "South",
+			"name" : "Amaretto",
+			"profit" : -5105,
+			"sale" : 19011
+		},
+		{
+			"category" : "Coffee",
+			"zone" : "West",
+			"name" : "Amaretto",
+			"profit" : -5105,
+			"sale" : 7011
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Columbian",
+			"profit" : 9528,
+			"sale" : 18913
+		},
 		{
 			"category" : "Coffee",
 			"zone" : "Central",

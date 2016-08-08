@@ -10,11 +10,24 @@ body{
     margin-left: auto;
     margin-right: auto;
 }
+
+#graphcross .x-axis-only{
+	margin-top: -12vh;
+}
+#graphcross .x-axis-only-first{
+	margin-top: -12vh;
+	margin-left : 18vw;
+}
+
+#graphcross{
+	margin-top : 20px;
+}
 #graphcross svg{
 	float : left;
 	display : block;
 	margin-left: 0%;
-	margin-top : 0%;
+	margin-top : 0px;
+	margin : 0px;
 	-webkit-transition: top 0.7s, left 0.7s;
 }
 #graph svg{
