@@ -1,4 +1,4 @@
-function RenderEngine(engine, selector, dimension, name, isTop, className) {
+function RenderEngine(engine, selector, dimension, name, isTop, className, dragOff) {
 
     this.isLabelTop = isTop;
     this.engine = engine;
@@ -30,7 +30,9 @@ function RenderEngine(engine, selector, dimension, name, isTop, className) {
 
     // Saving X coordinate to retrieve position value later by Vertical line
     this.xCoords = {};
-    this.__dragListener__();
+    if(!dragOff){
+        this.__dragListener__();
+    }
 } // end renderengine constructor
 
 
@@ -366,7 +368,7 @@ RenderEngine.prototype.removeXAxisLabels = function(rangeArray) {
 
 
 
-RenderEngine.prototype.chartLabel = function() {
+RenderEngine.prototype.chartLabel = function(text) {
     var key = this.key;
     var textEl;
     var rectTop, rectLeft, rectHeight, rectWidth;
@@ -383,8 +385,10 @@ RenderEngine.prototype.chartLabel = function() {
         rectHeight = this.height * 0.1;
     }
 
-    this.drawRect(rectLeft, rectTop, rectWidth, rectHeight, "chart-label-back");
-    textEl = this.__placeText(rectWidth / 2, rectTop, key.toUpperCase(), "chart-label", "", "down center-horizontal center-vertical");
+    if(!text){
+        this.drawRect(rectLeft, rectTop, rectWidth, rectHeight, "chart-label-back");
+    }
+    textEl = this.__placeText(rectWidth / 2, rectTop, text || key.toUpperCase(), "chart-label", "", "down center-horizontal center-vertical");
 
 }
 

@@ -12,11 +12,11 @@ body{
 }
 
 #graphcross .x-axis-only{
-	margin-top: -12vh;
+	margin-top: -4vh;
 }
 #graphcross .x-axis-only-first{
-	margin-top: -12vh;
-	margin-left : 18vw;
+	margin-top: -4vh;
+	margin-left : 17.5vw;
 }
 
 #graphcross{
@@ -37,10 +37,15 @@ body{
 	margin-top : 1%;
 	-webkit-transition: top 0.7s, left 0.7s;
 }
-.chart .chart-label{
+#graph .chart-label{
 	stroke-width : 0.2;
 	stroke : #216AA8;
 	fill : #216AA8;
+	font-family: Tahoma, Geneva, sans-serif;
+}
+#graphcross .chart-label{
+	fill : #555555;
+	font-size: 13.5px;
 	font-family: Tahoma, Geneva, sans-serif;
 }
 .chart .chart-label-back{

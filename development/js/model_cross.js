@@ -11,6 +11,10 @@ CrossModel.prototype.__crunch__ = function(){
 		item = {},
 		item2 = {},
 		key = "",
+		key2 = "",
+		item3 = {},
+		sumSale = 0,
+		sumProfit = 0,
 		data = this.data;
 
 	this.dataStore = {};
@@ -57,6 +61,39 @@ CrossModel.prototype.__crunch__ = function(){
 			this.min.profit = item.profit;
 		}
 
+	}
+
+	for(key in this.dataStore){
+		item3 = this.dataStore[key];
+		for(key2 in item3){
+			item2 = item3[key2];
+			sumSale = 0;
+			sumProfit = 0;
+			for(i = 0, len = item2.length; i < len; ++i){
+				item = item2[i];
+				sumSale += item.sale;
+				sumProfit += item.profit;
+			}
+
+
+			if(sumSale > this.max.sale){
+				this.max.sale = sumSale;
+			}
+
+			if(sumProfit > this.max.profit){
+				this.max.profit = sumProfit;
+			}
+
+			if(sumProfit < this.min.profit){
+				this.min.profit = sumProfit;
+			}
+
+			item2.push({
+				name : "Total",
+				sale : sumSale,
+				profit : sumProfit
+			});
+		}
 	}
 
 }

@@ -45,7 +45,7 @@ CrossController.prototype.render = function(selector){
 		width : this.dimension.width,
 	}
 	dwarfDimension = {
-		height : 10,
+		height : 20,
 		width : this.dimension.width,
 	}
 	dataAr = this.model.getPlotData();
@@ -89,7 +89,7 @@ CrossController.prototype.render = function(selector){
 
 
 
-			item = new RenderEngine(this, selector, smallerDimension, key);
+			item = new RenderEngine(this, selector, smallerDimension, key, null, null,true);
 	        item.marginY *= 0;
 	        item.marginX *= 0;
 	        item.shiftRatioX *= 1;
@@ -99,9 +99,9 @@ CrossController.prototype.render = function(selector){
 	        item.attachAxisY(new YAxisCross(smallerDimension, 0.8, [key]));
 	        item.drawAxisY();
 	        item.drawAxisXLabel();
-	        item.drawAxisYLabel("half-right");
+	        item.drawAxisYLabel("right-10px right-10px");
 	        // Drawing product type
-	        item = new RenderEngine(this, selector, smallerDimension, key);
+	        item = new RenderEngine(this, selector, smallerDimension, key, null, null,true);
 	        item.marginY *= 0;
 	        item.marginX *= 0;
 	        item.shiftRatioX *= 1;
@@ -121,7 +121,7 @@ CrossController.prototype.render = function(selector){
 			chartDimension =  this.dimension;
 
 			arItem2 = arItem1[key2];
-			canvasOb[key] = new RenderEngine(this, selector, chartDimension, key);
+			canvasOb[key] = new RenderEngine(this, selector, chartDimension, key, null, null,true);
 			item = canvasOb[key];
 	        item.marginY *= 0;
         	item.shiftRatioX *= 0;
@@ -141,19 +141,17 @@ CrossController.prototype.render = function(selector){
 
 	}
 	for(var i = 0; i < this.numSvgs - 2; ++i){
-		item = new RenderEngine(this, selector, chartDimension, key, null, i ? "chart x-axis-only" : "chart x-axis-only-first");
-        item.marginY *= 2;
-    	item.shiftRatioX *= 1;
-	    item.marginX *= 1;
-        item.shiftRatioY *= 1;
-        item.attachAxisX(new XAxisCross(chartDimension, 1, {min : 0, max : this.model.getMaxSale()}));
+		item = new RenderEngine(this, selector, this.dimension, key, true, i ? "chart x-axis-only" : "chart x-axis-only-first", true);
+        item.marginY *= 3;
+        item.attachAxisX(new XAxisCross(this.dimension, 1, {min : 0, max : this.model.getMaxSale()}));
         item.drawAxisX();
-        item.attachAxisY(new YAxisCross(chartDimension, 0.8, ["uniqueNameList"]));
+        item.attachAxisY(new YAxisCross(this.dimension, 0.8, ["uniqueNameList"]));
         //item.drawAxisY();
         item.drawAxisXLabel();
         //item.drawAxisYLabel();
         item.attachChart(new ColumnCrossChart(item, columnWidth));
-        item.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));        
+        item.renderChart(arItem2, this.model.getColorByProfit.bind(this.model)); 
+        item.chartLabel("Sum of sales");       
     
 	}
 

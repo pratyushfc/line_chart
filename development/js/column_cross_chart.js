@@ -27,7 +27,11 @@ ColumnCrossChart.prototype.renderData = function(arr, colorFunction) { // Functi
         var x0 = 0;
         var x = this.renderEngine.xaxis.estimateRange(dateItem);
         var y = this.renderEngine.yaxis.estimateRange(valueItem) + (this.columnWidth / 2);
-        var rect = this.renderEngine.drawRect(x0, y, x, this.columnWidth, "data-column-cross", color);
+        var h = x;
+        if(h < 1){
+            h = 1;
+        }
+        var rect = this.renderEngine.drawRect(x0, y, h, this.columnWidth, "data-column-cross", color);
 
         this.columnsObject.push({
             x1: Math.floor(rect.getAttribute("x")),

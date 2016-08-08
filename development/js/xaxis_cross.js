@@ -69,8 +69,12 @@ XAxisCross.prototype.__getRangeArray__ = function(){
             steps = 5;
         } else if (difference <= 40) {
             steps = 7;
-        } else {
+        } else if (difference <= 50){
             steps = 10;
+        } else if (difference <= 80){
+            steps = 15;
+        } else{
+            steps = 20;
         }
 
         computedMin = Math.floor(twoDigitMin / steps) * steps;
