@@ -147,8 +147,8 @@ var chart = new MultiVariantChart({
 			"category" : "Coffee",
 			"zone" : "South",
 			"name" : "Amaretto",
-			"profit" : -51050000,
-			"sale" : 19011000000
+			"profit" : -5105,
+			"sale" : 19011
 		},
 		{
 			"category" : "Coffee",
