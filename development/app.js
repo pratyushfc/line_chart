@@ -7,8 +7,8 @@ var chart = new MultiVariantChart({
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "column",						// line, column
-	"crosstab" : true,
+	"type" : "line",						// line, column
+	"crosstab" : false,
 	"colorRange" : ["aaaaaa", "000000", "770000", "ff6600"],
 
 	"data" : [
@@ -48,97 +48,97 @@ var chart = new MultiVariantChart({
 			population : 1618174413
 		}		,{
 			time : "4-10-2010",
-			alqaida : 472
+			sale1 : 472
 		}		,{
 			time : "2010-4-10",
-			alqaida : 475
+			sale1 : 475
 		}		,{
 			time : "2010-8-10",
-			alqaida : 1053
+			sale1 : 1053
 		}		,{
 			time : "2011-12-10",
-			alqaida : 962
+			sale1 : 962
 		}		,{
 			time : "2012-3-10",
-			alqaida : 397
+			sale1 : 397
 		}		,{
 			time : "2012-7-10",
-			alqaida : 649
+			sale1 : 649
 		}		,{
 			time : "2012-11-10",
-			alqaida : 360
+			sale1 : 360
 		}		,{
 			time : "2013-2-10",
-			alqaida : 556
+			sale1 : 556
 		}		,{
 			time : "2013-6-10",
-			alqaida : 597
+			sale1 : 597
 		}		,{
 			time : "2013-10-10",
-			alqaida : 874
+			sale1 : 874
 		}		,{
 			time : "2014-1-10",
-			alqaida : 659
+			sale1 : 659
 		}		,{
 			time : "2010-4-10",
-			isis : 1655
+			sale2 : 1655
 		}		,{
 			time : "2010-8-10",
-			isis : 1107
+			sale2 : 1107
 		}		,{
 			time : "2011-12-10",
-			isis : 1387
+			sale2 : 1387
 		}		,{
 			time : "2012-3-10",
-			isis : 1634
+			sale2 : 1634
 		}		,{
 			time : "2012-7-10",
-			isis : 528
+			sale2 : 528
 		}		,{
 			time : "2012-11-10",
-			isis : 1361
+			sale2 : 1361
 		}		,{
 			time : "2013-2-10",
-			isis : 1424
+			sale2 : 1424
 		}		,{
 			time : "2013-6-10",
-			isis : 859
+			sale2 : 859
 		}		,{
 			time : "2013-10-10",
-			isis : 866
+			sale2 : 866
 		}		,{
 			time : "2014-1-10",
-			isis : 370
+			sale2 : 370
 		}		,{
 			time : "2010-4-10",
-			taliban : 520
+			sale3 : 520
 		}		,{
 			time : "2010-8-10",
-			taliban : 400
+			sale3 : 400
 		}		,{
 			time : "2011-12-10",
-			taliban : 1018
+			sale3 : 1018
 		}		,{
 			time : "2012-3-10",
-			taliban : 1130
+			sale3 : 1130
 		}		,{
 			time : "2012-7-10",
-			taliban : 331
+			sale3 : 331
 		}		,{
 			time : "2012-11-10",
-			taliban : 535
+			sale3 : 535
 		}		,{
 			time : "2013-2-10",
-			taliban : 1390
+			sale3 : 1390
 		}		,{
 			time : "2013-6-10",
-			taliban : 1374
+			sale3 : 1374
 		}		,{
 			time : "2013-10-10",
-			taliban : 533
+			sale3 : 533
 		}		,{
 			time : "2014-1-10",
-			taliban : 923
+			sale3 : 923
 		}
 	],
 
