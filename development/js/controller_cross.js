@@ -65,7 +65,8 @@ CrossController.prototype.render = function(selector){
     item.attachChart(new ColumnCrossChart(item, columnWidth));
     item.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));
 		// Rendering top labels
-	for(key2 of this.model.getZones()){
+	for(key2 in this.model.getZones()){
+		key2 = this.model.getZones()[key2];
 		arItem2 = arItem1[key2];
 		canvasOb[key] = new RenderEngine(this, selector, dwarfDimension, key);
 		item = canvasOb[key];
@@ -116,7 +117,8 @@ CrossController.prototype.render = function(selector){
 
 	        var isLastRow = Object.keys(dataAr)[Object.keys(dataAr).length - 1] === key;
 
-		for(key2 of this.model.getZones()){
+		for(key2 in this.model.getZones()){
+			key2 = this.model.getZones()[key2];
 
 			chartDimension =  this.dimension;
 

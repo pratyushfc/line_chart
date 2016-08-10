@@ -6,13 +6,20 @@ var gulp	= require('gulp'),
 	htmlreplace = require('gulp-html-replace'),
     prettify = require('gulp-jsbeautifier');
 
+function createErrorHandler(name) {
+    return function (err) {
+      console.error('Error from ' + name + ' in compress task', err.toString());
+    };
+}
+
 var process = function(){
 	gulp.src('./development/js/*.js')
         .pipe(concat('multivariant.min.js'))
         .pipe(iife())
         .pipe(uglify())
+        .on('error', createErrorHandler('uglify'))
         .pipe(gulp.dest('./public/js'));
-
+    
     gulp.src('./development/index.html')
     .pipe(htmlreplace({
         'css': 'css/chart.css',
@@ -27,7 +34,6 @@ var process = function(){
 	gulp.src('./development/app.js')
     .pipe(concat('app.js'))
     .pipe(gulp.dest('./public'));
-
 
     console.log("File build; See output at 'public'")
 }
