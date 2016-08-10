@@ -12,10 +12,6 @@ Tooltip.prototype.show = function(top, left, value) {
     this.style = "position:absolute;top:" + top + "px;left:" + left + "px;visibility:";
     this.style += 'visible';
 
-    //if(interpolated){
-    //	this.style += ";opacity : 1"
-    //}
-
     this.toolEl.innerHTML = value;
     this.toolEl.setAttribute("style", this.style);
 }

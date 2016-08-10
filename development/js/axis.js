@@ -15,13 +15,19 @@ function Axis(ob){
 // Function to estimate actual graph positions from value
 Axis.prototype.estimateRange = function(data){
 	var value,	// Estimating ratio
-		dataAr = this.rangeArray;
+		dataAr = this.rangeArray,
+		readFn;
 
-	if(!this.isNumericType){
-		data += "";
-		value = data.in(dataAr, this.readFn) / (dataAr.length - 1);
-	} else {
+	if(this.isDateType && typeof data === "string"){
+		data = new Date(data);
+		data = joinDate(data.getYear(), data.getMonth());
+	}
+
+	if(this.isNumericType){
 		value = (data - this.min) / (this.max - this.min);
+	} else {
+		data += "";
+		value = data.in(dataAr) / (dataAr.length - 1);
 	}
 
 	// Getting actual positions on chart
@@ -67,9 +73,13 @@ Axis.prototype.__getRangeArray__ = function(){		// Function to get
 		dataAr = this.range,
 		dataArLen = dataAr.length,
 		readFn = this.readFn,
+		newReadFn = function(item){
+			var date = new Date(readFn(item));
+			return joinDate(date.getYear(), date.getMonth());
+		},
 		arrayType = typeOfArray(dataAr, this.readFn);
 
-	if(arrayType === "date" || arrayType === "numeric"){
+	if(arrayType === "numeric"){
 		this.isNumericType = true;
 		min = Math.min.apply(null, readArray(dataAr, readFn));
 		max = Math.max.apply(null, readArray(dataAr, readFn));
@@ -82,6 +92,21 @@ Axis.prototype.__getRangeArray__ = function(){		// Function to get
 
 		this.min = this.rangeArray[0];
 		this.max = this.rangeArray[this.rangeArray.length - 1];
+	} else if(arrayType === "date") {
+		this.isNumericType = true;
+		this.isDateType = true;
+		min = Math.min.apply(null, readArray(dataAr, newReadFn));
+		max = Math.max.apply(null, readArray(dataAr, newReadFn));
+
+		this.rangeArray = createRange({
+			min : min,
+			max : max,
+			basic : true
+		});
+
+		this.min = this.rangeArray[0];
+		this.max = this.rangeArray[this.rangeArray.length - 1];
+
 	} else {
 		this.isNumericType = false;
 		this.rangeArray = arrayType;
@@ -141,17 +166,20 @@ Axis.prototype.placeLabel = function(canvas, isLabelTop){
         item = (rangeArray[i]);
         if(typeof item === "number"){
         	item = Math.round(item);
-        } else {
-        	item = this.readFn(item);
         }
+        
         if(this.isVertical){
         	y = this.estimateRange(item);
         } else {
         	x = this.estimateRange(item);
         }
-        stringTime = this.displayFn(item);
 
-        if(stringTime.indexOf("b") !== -1) console.log(item, stringTime)
+
+        if(this.isDateType){
+        	stringTime = timeInWords(item);
+        } else {
+        	stringTime = this.displayFn(item);
+        }
 
         this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment);
     }

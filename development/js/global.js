@@ -171,22 +171,17 @@ var binarySearchDate = function(low, high, date, array, interpolation) {
             result = array[high].value;
         }
 
-        if (interpolation) {
 
-            var ratio = (array[high].value - array[low].value) / (array[high].date - array[low].date);
-            var extra = array[low].value - (array[low].date * ratio);
-            result = date * ratio + extra;
+        if (date - array[low].date > array[high].date - date) {
+            result = array[high].value;
         } else {
-
-            if (date - array[low].date > array[high].date - date) {
-                result = array[high].value;
-            } else {
-                result = array[low].value;
-            }
+            result = array[low].value;
         }
+    
 
         return {
-            value: result
+            value: result,
+            date : date
         };
     }
     var mid = Math.floor((low + high) / 2);
@@ -406,6 +401,7 @@ function typeOfArray (arr, readFn) {
         isNumeric = true,
         typeMatch = true,
         boolAr = [],
+        finalAr = [],
         readFn = readFn || function(item){ return item; };
 
 
@@ -462,8 +458,14 @@ function typeOfArray (arr, readFn) {
         }
     }
 
-    return arr;
+    for(i = 0; i < len; ++i){
+        item = readFn(arr[i]);
+        if(finalAr.indexOf(item) === -1){
+            finalAr.push(item);
+        }
+    }
 
+    return finalAr;
 }
 
 

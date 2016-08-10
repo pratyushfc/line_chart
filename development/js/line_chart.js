@@ -111,7 +111,10 @@ LineChart.prototype.__syncVerticalLine__ = function(x) {
         var verticalLineXPoint = this.renderEngine.getRatio(x);
         var yValue = this.renderEngine.engine.__getValueAtPosition(verticalLineXPoint, this.renderEngine.key);
         if (yValue) {
-            var toolString = shortNumberExpanded(yValue.value);
+            var toolString = yValue.value;
+            if(typeof yValue.value === "number"){
+                toolString = shortNumberExpanded(yValue.value);
+            }
             toolString += " \n " + timeInWords(verticalLineXPoint);
             var tooltipTop = this.__tooltipHeightCalulator(yValue.value, this.renderEngine.key);
             this.tooltip.show(svgTop + tooltipTop, x + (this.renderEngine.plotCircleRadius * 2) + svgLeft, toolString);

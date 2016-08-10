@@ -14,7 +14,21 @@ var chart = new MultiVariantChart({
 	"data" : [
 		{
 			time : "2009-4-10",
-			population : "Hello"
+			key : "2009-4-10"
+		},
+		{
+			time : "2010-4-10",
+			key : "2008-4-10"
+		}		,{
+			time : "2010-8-10",
+			key : "2019-4-10"
+		}		,{
+			time : "2011-12-10",
+			key : "2012-4-11"
+		}		,
+		{
+			time : "2009-4-10",
+			population : "uij",
 		},
 		{
 			time : "2010-4-10",

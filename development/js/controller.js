@@ -132,7 +132,6 @@ Engine.prototype.render = function(selector, type) {
             alignment : "center-horizontal down"
         }));
 
-        if(key === "population")console.log(this.model.getY(key));
         item.attachAxisY(new YAxis({
             height : dimension.height,
             width : dimension.width,
@@ -142,9 +141,8 @@ Engine.prototype.render = function(selector, type) {
             readFn : function(item){
                 return item.value;
             },
-            alignment : "left center-horizontal half-center-vertical"
+            alignment : "left left-10px half-center-vertical"
         }));
-
 
         item.drawAxisX();
         item.drawAxisY();

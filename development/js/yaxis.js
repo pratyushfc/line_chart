@@ -10,19 +10,21 @@ function YAxis(ob){
 
 YAxis.prototype.placeDivBoxes = function(canvas){
     var i = 0, len = 0,
-        x = canvas.xaxis.estimateRange(0),
+        x = 0,
         y = 5,
+        readFn = this.readFn,
+        rangeArray = this.rangeArray,
         width = (canvas.xaxis.max),
-        height = this.estimateRange(this.rangeArray[1]) - this.estimateRange(this.rangeArray[0]),
-        item,
-        rangeArray = this.__getRangeArray__();
+        estimateRange = this.estimateRange.bind(this),
+        height = 0,
+        item;
 
-    if(this.isVertical){
-        for (i = 1, len = rangeArray.length; i < len; ++i) {
-            item = Math.round(rangeArray[i]);
-            y = this.estimateRange(item);
+    height = estimateRange(rangeArray[1])- estimateRange(rangeArray[0]);    
 
-            canvas.drawRect(x, y, width, height, "div-lines")
-        }
+    for (i = 1, len = rangeArray.length; i < len; ++i) {
+        item = rangeArray[i];
+        y = this.estimateRange(item);
+        canvas.drawRect(x, y, width, height, "div-lines")
     }
+
 } // end placelabel
