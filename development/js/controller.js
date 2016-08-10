@@ -112,32 +112,44 @@ Engine.prototype.render = function(selector, type) {
         max : joinDate(this.model.getMaxX().year, this.model.getMaxX().month)
     };
     var rangeY = {};
-
     for (var idx in allVariables) {
         key = allVariables[idx];
         this.renderEngineObject[key] = new RenderEngine(this, selector, dimension, key, this.isChartLabelTop);
         item = this.renderEngineObject[key];
 
-
-
-        rangeY = {
-            min : this.model.getMinY(key),
-            max : this.model.getMaxY(key)
-        }
         // Attaching xaxis module
-        item.attachAxisX(new XAxis(dimension, item.shiftRatioX, rangeX));
-        item.attachAxisY(new YAxis(dimension, item.shiftRatioY, rangeY));
+        item.attachAxisX(new XAxis({
+            height : dimension.height,
+            width : dimension.width,
+            range : this.model.getX(key),
+            shrink : item.shiftRatioX,
+            basicRange : true,
+            displayFn : timeInWords,
+            readFn : function(item){
+                item = new Date(item);
+                return joinDate(item.getYear(), item.getMonth());
+            },
+            alignment : "center-horizontal down"
+        }));
+
+        if(key === "population")console.log(this.model.getY(key));
+        item.attachAxisY(new YAxis({
+            height : dimension.height,
+            width : dimension.width,
+            range : this.model.getY(key),
+            shrink : item.shiftRatioY,
+            displayFn : shortNumber,
+            readFn : function(item){
+                return item.value;
+            },
+            alignment : "left center-horizontal half-center-vertical"
+        }));
+
+
         item.drawAxisX();
         item.drawAxisY();
         item.drawAxisYLabel();
         item.chartLabel();
-
-/*        // Remove later
-        item.drawYAxis(this.getYRange(key), key);
-        item.drawXAxis(this.getXRange());
-        */
-        //item.drawXAxisLabels(this.getXRange(), this.isChartLabelTop);
-
 
         if (type.toLowerCase() === "column") {
             item.attachChart(new ColumnChart(item, colWidth));

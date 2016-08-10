@@ -1,3 +1,41 @@
+String.prototype.in = function(arr, readFn){
+    var i = 0,
+        len = arr.length,
+        readFn = readFn || function(item){ return item; };
+
+    for(i = len; i--;){
+        if((readFn(arr[i]) + "").toLowerCase() === this.valueOf().toLowerCase()){
+            return i;
+        }
+    }
+    return false
+}
+
+var setAll = function(arr, val, size){
+    var i = 0,
+        len = size || arr.length;
+    for(i = len; i--;){
+        if(size){
+            arr.push(val);
+        } else {
+            arr[i] = val;
+        }
+    }
+}
+
+var getSelection = function(arr, boolAr){
+    var i = 0,
+        len = arr.length,
+        retAr = [];
+    for(i = 0; i < len; ++i){
+        if(boolAr[i]){
+            retAr.push(arr[i]);
+        }
+    }
+    return retAr;
+}
+
+
 var sortByTime = function(a, b) { // Helper function to sort array by time
     a = joinDate(a.year, a.month);
     b = joinDate(b.year, b.month);
@@ -55,6 +93,11 @@ var timeInWords = function(date) { // Conver  joined dates to 'Feb'06' format
 }
 
 var shortNumber = function(num) {
+
+    if(typeof num !== "number"){
+        return num;
+    }
+
     var numDig = numberOfDigits(num);
     var suffix = "";
     var stepsDown;
@@ -76,7 +119,12 @@ var shortNumber = function(num) {
         stepsDown = 0;
     }
 
-    return (num / Math.pow(10, stepsDown)) + suffix;
+    num = (num / Math.pow(10, stepsDown));
+    num *= 100;
+    num = Math.round(num);
+    num /= 100;
+
+    return num + suffix;
 }
 var shortNumberExpanded = function(num) {
     var numDig = numberOfDigits(num);
@@ -157,10 +205,10 @@ var binarySearchDate = function(low, high, date, array, interpolation) {
 
 
 var createRange = function(ob){
-    
+
     if(!ob || typeof ob !== "object"){
         return [];
-    }
+    }true
 
     if(ob.basic){
         return createBasicRange(ob);
@@ -190,6 +238,7 @@ var createRange = function(ob){
         rangeArray = [];
 
     // Algo started
+
 
     if (calcMin === calcMax) {
         rangeArray = [calcMin * 2, calcMin, 0];
@@ -266,8 +315,8 @@ var beautifyLimits = function(ob){
 
     if (minValue === maxValue) {
         return {
-            min: minValue,
-            max: maxValue
+            min: minValue - 1,
+            max: maxValue + 1
         }
     }
 
@@ -316,9 +365,105 @@ var createBasicRange = function(ob){        // Function to get array of range wi
 
     for(i = 0; i <= divisions; ++i){
         temp = (i / divisions) * difference + min;
+        
         rangeArray.push(temp);
     }
 
     
     return rangeArray;
 } //get createBasicRange
+
+var readArray = function(ar, readFn){
+    var i = 0,
+        len = ar.length,
+        genAr = [];
+
+    for(i = 0; i < len; ++i){
+        genAr.push(readFn(ar[i]));
+    }
+    return genAr;
+}   // end readArray
+
+function typeOfArray (arr, readFn) {
+    var i = 0,
+        j = 0,
+        item,
+        item2,
+        len2 = 0,
+        ob = {},
+        str = "",
+        len = arr.length,
+        categoryArr = [["January", "February", "March"
+        , "April", "May", "June", "July", "August", "September" 
+        , "October", "November", "December"],
+        ["Jan", "Feb", "Mar", "Apr", "May" 
+        , "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+        ["Sunday", "Monday", "Tuesday" 
+            , "Wednesday", "Thursday", "Friday", "Saturday"]],
+
+        isDate = true,
+        isNumeric = true,
+        typeMatch = true,
+        boolAr = [],
+        readFn = readFn || function(item){ return item; };
+
+
+    for(i = len; i--; ){
+        item = readFn(arr[i]);
+
+        // Check for Date
+        if(isDate && typeof item !== "string" || isNaN(+new Date(item)) ){
+            isDate = false;
+        }
+        if(isDate && item.split("-").length !== 3){
+            isDate = false;
+        }
+
+        // Check if numeric
+        if(isNumeric && typeof item !== "number"){
+            isNumeric = false;
+        }
+
+        // break if item is not of any type
+        if(!isDate && !isNumeric){
+            break;
+        }
+
+    }
+
+    if(isDate){
+        return "date";
+    }
+
+    if(isNumeric){
+        return "numeric";
+    }
+
+    // Algo to match array with any category
+    setAll(boolAr, false, len);
+    len2 = categoryArr.length;
+    for(j = 0; j < len2; ++j){
+        item = categoryArr[j];
+        if(j) setAll(boolAr, false);
+
+        typeMatch = true;
+        for(i = 0; i < len; ++i){
+            str = readFn(arr[i]) + "";
+            if(str.in(item) === false){
+                typeMatch = false;
+                break;
+            } else {
+                boolAr[str.in(item)] = true;
+            }
+        }
+        if(typeMatch){
+            return getSelection(item, boolAr);
+        }
+    }
+
+    return arr;
+
+}
+
+

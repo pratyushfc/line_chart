@@ -69,19 +69,19 @@ function Model(data) { // Contructor function to parse and validate data
                 var joinedDate = joinDate(date.getYear(), date.getMonth());
 
                 this.data.category[key].push({
-                    year: date.getYear(),
-                    month: date.getMonth(),
-                    value: Number(item[key]),
-                    date: joinedDate
+                    year : date.getYear(),
+                    month : date.getMonth(),
+                    value : item[key],
+                    date : joinedDate,
+                    time : item.time 
                 });
 
             }
 
             // Push current date to date Array
-            this.data.dateArray.push({
-                year: date.getYear(),
-                month: date.getMonth()
-            });
+            if(this.data.dateArray.indexOf(item.time) === -1){
+                this.data.dateArray.push(item.time);
+            }
 
         } // End for loop
     } // End copy data

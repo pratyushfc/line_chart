@@ -334,36 +334,6 @@ RenderEngine.prototype.__drawCircle = function(x, y, r, className) { // Private 
     } // end constructor function
 
 
-/*RenderEngine.prototype.drawRect = function(x1, y1, w, h, className) { // Private function to
-        // draw lines
-        var coord1 = this.convert(x1, y1); // Getting converted axis
-        // according to canvas
-        if (coord1.x < this.marginX) {
-            coord1.x = this.marginX;
-        }
-
-
-        var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect"); // creating our
-        // element line.
-
-        rect.setAttribute("x", coord1.x); // setting line
-        rect.setAttribute("y", coord1.y); // coordinates
-        rect.setAttribute("width", w); // and styles
-        rect.setAttribute("height", h); // with shifting
-
-        if (className) {
-            rect.setAttribute("class", className);
-        }
-        this.svg.appendChild(rect); // Drawing line to our canvas
-        return rect;
-    } // end drawRect function*/
-
-
-// To delete
-RenderEngine.prototype.removeXAxisLabels = function(rangeArray) {
-
-
-}
 
 
 
@@ -463,7 +433,7 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
                 if(align && align === "half-left"){
                     x = x - textElement.clientWidth / 2;
                 }
-                if(align && align === "left-horizontal"){
+                if(align && align === "left"){
                     x = x - textElement.clientWidth;
                 }
                 textElement.setAttribute("x", x)
