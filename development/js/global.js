@@ -1,3 +1,4 @@
+"use strict";
 String.prototype.in = function(arr, readFn){
     var i = 0,
         len = arr.length,
@@ -21,18 +22,6 @@ var setAll = function(arr, val, size){
             arr[i] = val;
         }
     }
-}
-
-var getSelection = function(arr, boolAr){
-    var i = 0,
-        len = arr.length,
-        retAr = [];
-    for(i = 0; i < len; ++i){
-        if(boolAr[i]){
-            retAr.push(arr[i]);
-        }
-    }
-    return retAr;
 }
 
 
@@ -161,43 +150,6 @@ var numberOfDigits = function(num) {
     return dig;
 }
 
-var binarySearchDate = function(low, high, date, array, interpolation) {
-    var result;
-    if (high - low === 1) {
-        if (array[low].date === date) {
-            result = array[low].value;
-        }
-        if (array[high].date === date) {
-            result = array[high].value;
-        }
-
-
-        if (date - array[low].date > array[high].date - date) {
-            result = array[high].value;
-        } else {
-            result = array[low].value;
-        }
-    
-
-        return {
-            value: result,
-            date : date
-        };
-    }
-    var mid = Math.floor((low + high) / 2);
-    if (array[mid].date === date) {
-        return {
-            value: array[mid].value
-        };
-    }
-
-    if (date > array[mid].date) {
-        return binarySearchDate(mid, high, date, array, interpolation);
-    } else {
-        return binarySearchDate(low, mid, date, array, interpolation);
-    }
-}
-
 
 var createRange = function(ob){
 
@@ -274,7 +226,7 @@ var createRange = function(ob){
         steps = 7;
     } else if (difference <= 50){
         steps = 10;
-    } else if (difference <= 80){
+    } else if (difference <= 75){
         steps = 15;
     } else{
         steps = 20;
@@ -348,7 +300,6 @@ var createBasicRange = function(ob){        // Function to get array of range wi
     if(!ob || typeof ob !== "object"){
         return [];
     }
-    divisions = ob.divisions || 5;   // Determining number of elements; default 5
     --divisions;
 
     var i = 0,
@@ -356,6 +307,7 @@ var createBasicRange = function(ob){        // Function to get array of range wi
         max = ob.max,           // and max
         difference = (max - min),    // Calculating steps value
         temp = 0,
+        divisions = ob.divisions || 5,
         rangeArray = [];
 
     for(i = 0; i <= divisions; ++i){
@@ -379,13 +331,15 @@ var readArray = function(ar, readFn){
     return genAr;
 }   // end readArray
 
-function typeOfArray (arr, readFn) {
+function typeOfArray (ob) {
     var i = 0,
         j = 0,
         item,
         item2,
         len2 = 0,
-        ob = {},
+        arr = ob.array,
+        readFn = ob.read,
+        smart = ob.smart,
         str = "",
         len = arr.length,
         categoryArr = [["January", "February", "March"
@@ -394,6 +348,7 @@ function typeOfArray (arr, readFn) {
         ["Jan", "Feb", "Mar", "Apr", "May" 
         , "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+        ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         ["Sunday", "Monday", "Tuesday" 
             , "Wednesday", "Thursday", "Friday", "Saturday"]],
 
@@ -417,7 +372,7 @@ function typeOfArray (arr, readFn) {
         }
 
         // Check if numeric
-        if(isNumeric && typeof item !== "number"){
+        if(isNumeric && isNaN(+item)){
             isNumeric = false;
         }
 
@@ -439,7 +394,7 @@ function typeOfArray (arr, readFn) {
     // Algo to match array with any category
     setAll(boolAr, false, len);
     len2 = categoryArr.length;
-    for(j = 0; j < len2; ++j){
+    for(j = 0; j < len2 && smart; ++j){
         item = categoryArr[j];
         if(j) setAll(boolAr, false);
 
@@ -454,7 +409,7 @@ function typeOfArray (arr, readFn) {
             }
         }
         if(typeMatch){
-            return getSelection(item, boolAr);
+            return item;
         }
     }
 

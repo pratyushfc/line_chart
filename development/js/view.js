@@ -364,8 +364,10 @@ RenderEngine.prototype.chartLabel = function(text) {
 
 RenderEngine.prototype.getRatio = function(x) {
 
-        var difference = this.xaxis.estimateRange(this.xaxis.max) - this.xaxis.estimateRange(this.xaxis.min);
-        var position = x - this.xaxis.estimateRange(this.xaxis.min) - this.marginX;
+        var estimateRange = this.xaxis.estimateRange.bind(this.xaxis);
+        var xaxis = this.xaxis;
+        var difference = estimateRange(xaxis.max) - estimateRange(xaxis.min);
+        var position = x - estimateRange(xaxis.min) - this.marginX;
         var ratio = position / difference;
         var valueDifference = this.xaxis.max - this.xaxis.min;
 
@@ -374,9 +376,7 @@ RenderEngine.prototype.getRatio = function(x) {
         if (ratio >= 0 && ratio <= 1) {
             value = (ratio * valueDifference) + this.xaxis.min;
         }
-
         return Math.round(value);
-
     } // end getRatio
 
 

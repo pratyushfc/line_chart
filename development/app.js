@@ -7,35 +7,101 @@ var chart = new MultiVariantChart({
 	"caption" : "Caption",
 	"subcaption" : "Subcaption",
 	"interpolation" : true,					// Default true
-	"type" : "line",						// line, column
+	"type" : "column",						// line, column
 	"crosstab" : false,
+	"smartCategory" : true,
+	"xaxisname" : "time",
 	"colorRange" : ["aaaaaa", "000000", "770000", "ff6600"],
+
+
+		"data" : [
+		{
+			"category" : "Coffee",
+			"zone" : "South",
+			"name" : "Amaretto",
+			"profit" : -5105,
+			"sale" : 19011
+		},
+		{
+			"category" : "Coffee",
+			"zone" : "West",
+			"name" : "Amaretto",
+			"profit" : -5105,
+			"sale" : 7011
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Columbian",
+			"profit" : 9528,
+			"sale" : 18913
+		},
+		{
+			"category" : "Coffee",
+			"zone" : "Central",
+			"name" : "Amaretto",
+			"profit" : 5105,
+			"sale" : 14011
+		}, {
+			"category" : "Coffee",
+			"zone" : "Central",
+			"name" : "Columbian",
+			"profit" : 8528,
+			"sale" : 28913
+		}, {
+			"category" : "Coffee",
+			"zone" : "Central",
+			"name" : "Decaf Irish",
+			"profit" : 9632,
+			"sale" : 26155
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Amaretto",
+			"profit" : -5105,
+			"sale" : 14011
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Columbian",
+			"profit" : 8528,
+			"sale" : 28913
+		}, {
+			"category" : "Coffee",
+			"zone" : "East",
+			"name" : "Decaf Irish",
+			"profit" : 9632,
+			"sale" : 26155
+		}, {
+			"category" : "Espresso",
+			"zone" : "Central",
+			"name" : "Mocha",
+			"profit" : 	-14646,
+			"sale" : 35218
+		}, {
+			"category" : "Espresso",
+			"zone" : "Central",
+			"name" : "Decaf Es",
+			"profit" : -8840,
+			"sale" : 24410
+		}, {
+			"category" : "Espresso",
+			"zone" : "South",
+			"name" : "Lattee",
+			"profit" : 3872,
+			"sale" : 15444
+		}
+	],
 
 	"data" : [
 		{
 			time : "2009-4-10",
-			key : "2009-4-10"
-		},
-		{
+			population : "324324",
+		}		,{
 			time : "2010-4-10",
-			key : "2008-4-10"
+			population : "4412631857"
 		}		,{
 			time : "2010-8-10",
-			key : "2019-4-10"
-		}		,{
-			time : "2011-12-10",
-			key : "2012-4-11"
-		}		,
-		{
-			time : "2009-4-10",
-			population : "uij",
-		},
-		{
-			time : "2010-4-10",
-			population : 4412631857
-		}		,{
-			time : "2010-8-10",
-			population : 1775217418
+			population : "1775217418"
 		}		,{
 			time : "2011-12-10",
 			population : 4451251998
@@ -62,7 +128,7 @@ var chart = new MultiVariantChart({
 			population : 1618174413
 		}		,{
 			time : "4-10-2010",
-			sale1 : 472
+			sale1 : "472"
 		}		,{
 			time : "2010-4-10",
 			sale1 : 475
@@ -153,85 +219,40 @@ var chart = new MultiVariantChart({
 		}		,{
 			time : "2014-1-10",
 			sale3 : 923
+		}		,{
+			time : "2009-4-10",
+			test4 : "sUN"
+		}	,{
+			time : "2010-4-10",
+			test4 : "sat"
+		}		,{
+			time : "2010-8-10",
+			test4 : "tUE"
+		}		,{
+			time : "2011-12-10",
+			test4 : "Thu"
+		}		,{
+			time : "2009-4-10",
+			test2 : "dEC"
+		}	,{
+			time : "2010-4-10",
+			test2 : "JaN"
+		}		,{
+			time : "2010-8-10",
+			test2 : "fEB"
+		}		,{
+			time : "2011-12-10",
+			test2 : "aPR"
+		},{
+			time : "2010-4-10",
+			test5 : "2004-8-10"
+		}		,{
+			time : "2010-8-10",
+			test5 : "2017-8-10"
+		}		,{
+			time : "2011-12-10",
+			test5 : "2011-12-10"
 		}
 	],
-
-	"dataset" : [
-		{
-			"category" : "Coffee",
-			"zone" : "South",
-			"name" : "Amaretto",
-			"profit" : -5105,
-			"sale" : 19011
-		},
-		{
-			"category" : "Coffee",
-			"zone" : "West",
-			"name" : "Amaretto",
-			"profit" : -5105,
-			"sale" : 7011
-		}, {
-			"category" : "Coffee",
-			"zone" : "East",
-			"name" : "Columbian",
-			"profit" : 9528,
-			"sale" : 18913
-		},
-		{
-			"category" : "Coffee",
-			"zone" : "Central",
-			"name" : "Amaretto",
-			"profit" : 5105,
-			"sale" : 14011
-		}, {
-			"category" : "Coffee",
-			"zone" : "Central",
-			"name" : "Columbian",
-			"profit" : 8528,
-			"sale" : 28913
-		}, {
-			"category" : "Coffee",
-			"zone" : "Central",
-			"name" : "Decaf Irish Cream",
-			"profit" : 9632,
-			"sale" : 26155
-		}, {
-			"category" : "Coffee",
-			"zone" : "East",
-			"name" : "Amaretto",
-			"profit" : -5105,
-			"sale" : 14011
-		}, {
-			"category" : "Coffee",
-			"zone" : "East",
-			"name" : "Columbian",
-			"profit" : 8528,
-			"sale" : 28913
-		}, {
-			"category" : "Coffee",
-			"zone" : "East",
-			"name" : "Decaf Irish Cream",
-			"profit" : 9632,
-			"sale" : 26155
-		}, {
-			"category" : "Espresso",
-			"zone" : "Central",
-			"name" : "Caffee Mocha",
-			"profit" : 	-14646,
-			"sale" : 35218
-		}, {
-			"category" : "Espresso",
-			"zone" : "Central",
-			"name" : "Decaf Espresso",
-			"profit" : -8840,
-			"sale" : 24410
-		}, {
-			"category" : "Espresso",
-			"zone" : "South",
-			"name" : "Caffee Lattee",
-			"profit" : 3872,
-			"sale" : 15444
-		}
-	]
 
 }, 'graph');

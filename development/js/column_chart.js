@@ -104,31 +104,42 @@ ColumnChart.prototype.behaveColumnOver = function(pos, y) {
 // private functions for inner usage
 ColumnChart.prototype.__focus__ = function(x, y) {
 
-        var svgTop = cumulativeOffset(this.renderEngine.svg).top;
-        var svgLeft = cumulativeOffset(this.renderEngine.svg).left;
+        var svgTop = cumulativeOffset(this.renderEngine.svg).top,
+            svgLeft = cumulativeOffset(this.renderEngine.svg).left,
+            i = 0,
+            len = 0;
 
         if (x < this.renderEngine.marginX) {
             return
         }
 
 
-        var rect = this.__findRectAtPoint(x);
-        if (rect) {
-            rect.element.setAttribute("class", "data-column data-column-hover");
+        var rectAr = this.__findRectAtPoint(x);
+        if (rectAr.length) {
+            
+            for(i = 0, len = rectAr.length; i < len; ++i){
+                rect = rectAr[i];
+                rect.element.setAttribute("class", "data-column data-column-hover");
+                var toolString = (rect.value);
+                var tooltipTop = y;
+                if (rect.element.getAttribute("y") > tooltipTop + 5) {
+                    tooltipTop = Number(rect.element.getAttribute("y")) - 5;
+                }
+                this.tooltip.show(tooltipTop + svgTop + 8, x + svgLeft, toolString);
 
-            var toolString = shortNumberExpanded(rect.value);
-
-            var tooltipTop = y;
-            if (rect.element.getAttribute("y") > tooltipTop + 5) {
-                tooltipTop = Number(rect.element.getAttribute("y")) - 5;
             }
-            // toolString += " \n " + timeInWords(verticalLineXPoint);
-            this.tooltip.show(tooltipTop + svgTop + 8, x + svgLeft, toolString);
-
 
         } else {}
         for (var keyx in this.columnsObject) {
-            if (this.columnsObject[keyx] !== rect && !this.columnsObject[keyx].hoverProtected) {
+            var isHovered = false;
+
+            for(i = 0, len = rectAr.length; i < len; ++i){
+                rect = rectAr[i];
+                if(this.columnsObject[keyx] === rect){
+                    isHovered = true;
+                }
+            }
+            if (!isHovered && !this.columnsObject[keyx].hoverProtected) {
                 this.columnsObject[keyx].element.setAttribute("class", "data-column");
             }
         }
@@ -149,15 +160,17 @@ ColumnChart.prototype.__loseFocus__ = function() {
 ColumnChart.prototype.__findRectAtPoint = function(x) {
 
         x = Math.floor(x);
-        var i;
+        var i, arr = [];
 
 
         for (i in this.columnsObject) {
             var item = this.columnsObject[i];
             if (x >= item.x1 && x <= item.x2) {
-                return item
+                arr.push(item);
             }
         }
+
+        return arr;
 
     } // __findCircleAtPoint
 

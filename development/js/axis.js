@@ -4,8 +4,9 @@ function Axis(ob){
 	this.width = ob.width || 300;
 	this.shrink = ob.shrink || 0.81;
 	this.range = ob.range;
-	this.readFn = ob.readFn;
-	this.isVertical = ob.isVertical;
+	this.readFn = ob.readFn || function (item) { return item; };
+	this.isVertical = ob.isVertical || false;
+	this.smartCategory = ob.smartCategory || false;
 	this.isRangeBasic = ob.basicRange || false;
 	this.displayFn = ob.displayFn || function (item) { return item; };
 	this.alignment = ob.alignment || "";
@@ -36,6 +37,7 @@ Axis.prototype.estimateRange = function(data){
 		return this.shrink * value * this.height;
 	} else {
 		return this.shrink * value * this.width;
+		console.log(this.rangeArray)
 	}
 };	// end estimateRange
 
@@ -77,7 +79,11 @@ Axis.prototype.__getRangeArray__ = function(){		// Function to get
 			var date = new Date(readFn(item));
 			return joinDate(date.getYear(), date.getMonth());
 		},
-		arrayType = typeOfArray(dataAr, this.readFn);
+		arrayType = typeOfArray({
+			array : dataAr,
+			read :  this.readFn,
+			smart : this.smartCategory
+		});
 
 	if(arrayType === "numeric"){
 		this.isNumericType = true;
@@ -95,12 +101,13 @@ Axis.prototype.__getRangeArray__ = function(){		// Function to get
 	} else if(arrayType === "date") {
 		this.isNumericType = true;
 		this.isDateType = true;
+		this.readFn = newReadFn;
 		min = Math.min.apply(null, readArray(dataAr, newReadFn));
 		max = Math.max.apply(null, readArray(dataAr, newReadFn));
 
 		this.rangeArray = createRange({
-			min : min,
-			max : max,
+			min : min - 1,
+			max : max + 1,
 			basic : true
 		});
 
@@ -110,6 +117,8 @@ Axis.prototype.__getRangeArray__ = function(){		// Function to get
 	} else {
 		this.isNumericType = false;
 		this.rangeArray = arrayType;
+		this.min = arrayType[0];
+		this.max = arrayType[arrayType.length - 1];
 	}
 
 	return this.rangeArray;
@@ -120,10 +129,12 @@ Axis.prototype.plotTicks = function(canvas){
 
 	var rangeArray = this.__getRangeArray__(),	// getting ticks values
 		i, len, item,
+		isYear = rangeArray.length === 12,
 		x1, x2,		// Variables to store
 		y1, y2;		// dimensions
+		
 
-    for (i = 0, len = rangeArray.length; i < len; ++i) {
+    for (isYear ? i = 2 : i = 0, len = rangeArray.length; i < len; isYear ? i += 3 : ++i ) {
 	    item = rangeArray[i];
 
 	    if(this.isVertical){
@@ -150,6 +161,7 @@ Axis.prototype.placeLabel = function(canvas, isLabelTop){
     	stringTime = "",
     	item,
     	rangeArray = this.__getRangeArray__(),
+		isYear = rangeArray.length === 12,
     	alignment = this.alignment;
 
 
@@ -162,7 +174,7 @@ Axis.prototype.placeLabel = function(canvas, isLabelTop){
     	alignment = "center-horizontal up";
     }
 
-    for (i = 0, len = rangeArray.length; i < len; ++i) {
+    for (isYear ? i = 2 : i = 0, len = rangeArray.length; i < len; isYear ? i += 3 : ++i) {
         item = (rangeArray[i]);
         if(typeof item === "number"){
         	item = Math.round(item);
@@ -174,16 +186,23 @@ Axis.prototype.placeLabel = function(canvas, isLabelTop){
         	x = this.estimateRange(item);
         }
 
-
-        if(this.isDateType){
-        	stringTime = timeInWords(item);
-        } else {
-        	stringTime = this.displayFn(item);
-        }
+        stringTime = this.convertValue(item);
 
         this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment);
     }
 };
+
+Axis.prototype.convertValue = function(item){
+	var result;
+    if(this.isDateType){
+    	result = timeInWords(item);
+    } else if(typeof item === "number"){
+    	result = shortNumber(item);
+    } else {
+    	result = item;
+    }
+    return result;
+}
 
 Axis.prototype.removeLabel = function(canvas){
     var i = 0, len = 0, item;

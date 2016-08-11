@@ -9,7 +9,11 @@ window.MultiVariantChart = function(data, selector) {
     } else {
         var model = new Model(data);
         this.engine = new Engine(model);
-        this.engine.render(selector, model.getType());
+        this.engine.render({
+            selector : selector,
+            type : model.getType(),
+            smartCategory : data.smartCategory
+        });
     }
     console.log("rendered in ", performance.now() - t, " mili seconds")
 };

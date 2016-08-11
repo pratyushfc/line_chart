@@ -1,4 +1,4 @@
-// A constructor function to render chart of type line
+// A constructor function to renderline chart of type line
 // Inheriting properties from chart base object
 LineChart.prototype = Object.create(Chart.prototype);
 
@@ -95,26 +95,35 @@ LineChart.prototype.highlight = function(x1, y1, x2, y2) {
 
 LineChart.prototype.__syncVerticalLine__ = function(x) {
 
-        var svgTop = cumulativeOffset(this.renderEngine.svg).top;
-        var svgLeft = cumulativeOffset(this.renderEngine.svg).left;
+        var svgTop = cumulativeOffset(this.renderEngine.svg).top,
+            svgLeft = cumulativeOffset(this.renderEngine.svg).left,
+            verticalLine = this.verticalLine,
+            canvas = this.renderEngine,
+            xaxis = canvas.xaxis,
+            yaxis = canvas.yaxis,
+            convertFn = xaxis.convertValue.bind(xaxis);
+        // Tooltip position and value
+        var verticalLineXPoint = canvas.getRatio(x);
+        var yValue = canvas.engine.getValueAtPosition({
+            point : verticalLineXPoint, 
+            convertFn : convertFn,
+            key : this.renderEngine.key,
+            readFn : xaxis.readFn.bind(xaxis)
+        });
 
         if (x < this.renderEngine.marginX) {
             return
         }
 
         // Vertical line; create if already not created
-        if (!this.verticalLine) {
+        if (!verticalLine) {
             this.verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            verticalLine = this.verticalLine;
             this.renderEngine.svg.appendChild(this.verticalLine);
         }
-        // Tooltip position and value
-        var verticalLineXPoint = this.renderEngine.getRatio(x);
-        var yValue = this.renderEngine.engine.__getValueAtPosition(verticalLineXPoint, this.renderEngine.key);
+        
         if (yValue) {
-            var toolString = yValue.value;
-            if(typeof yValue.value === "number"){
-                toolString = shortNumberExpanded(yValue.value);
-            }
+            var toolString = yaxis.convertValue(yValue.value);
             toolString += " \n " + timeInWords(verticalLineXPoint);
             var tooltipTop = this.__tooltipHeightCalulator(yValue.value, this.renderEngine.key);
             this.tooltip.show(svgTop + tooltipTop, x + (this.renderEngine.plotCircleRadius * 2) + svgLeft, toolString);
@@ -129,11 +138,11 @@ LineChart.prototype.__syncVerticalLine__ = function(x) {
             }
         }
         var verticalLineTop = this.renderEngine.height * (1 - this.renderEngine.shiftRatioY) - this.renderEngine.marginY;
-        this.verticalLine.setAttribute("x1", x - 2); // setting line
-        this.verticalLine.setAttribute("y1", verticalLineTop); // coordinates
-        this.verticalLine.setAttribute("x2", x); // and styles
-        this.verticalLine.setAttribute("y2", this.renderEngine.height - this.renderEngine.marginY); // with shifting
-        this.verticalLine.setAttribute("class", "vertical-line");
+        verticalLine.setAttribute("x1", x - 2); // setting line
+        verticalLine.setAttribute("y1", verticalLineTop); // coordinates
+        verticalLine.setAttribute("x2", x); // and styles
+        verticalLine.setAttribute("y2", this.renderEngine.height - this.renderEngine.marginY); // with shifting
+        verticalLine.setAttribute("class", "vertical-line");
     } // end syncverticalline
 
 LineChart.prototype.__destroyVerticalLine = function() {

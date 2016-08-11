@@ -29,7 +29,7 @@ function Model(data) { // Contructor function to parse and validate data
     this.type = data.type || "line"; // Fetching type of chart; default line
     this.data.caption = data.caption || ""; // Fetching values for caption and
     this.data.subcaption = data.subcaption || ""; // subcaption; default "" string
-    this.data.xaxisname = data.xaxisname || "Time"; // Default name for x-axis
+    this.xaxisname = data.xaxisname || "time"; // Default name for x-axis
 
     this.data.variables = data.variables || []; // Default blank array for yaxis variables
     this.data.separator = data.separator || '|'; // Default '|' for separator
@@ -60,7 +60,7 @@ function Model(data) { // Contructor function to parse and validate data
             item = data.data[i];
             date = new Date(item.time);
             for (key in item) {
-                if (key === "time") {
+                if (key === this.xaxisname) {
                     continue;
                 }
 
@@ -69,18 +69,15 @@ function Model(data) { // Contructor function to parse and validate data
                 var joinedDate = joinDate(date.getYear(), date.getMonth());
 
                 this.data.category[key].push({
-                    year : date.getYear(),
-                    month : date.getMonth(),
                     value : item[key],
-                    date : joinedDate,
-                    time : item.time 
+                    xaxis : item[this.xaxisname]
                 });
 
             }
 
             // Push current date to date Array
-            if(this.data.dateArray.indexOf(item.time) === -1){
-                this.data.dateArray.push(item.time);
+            if(this.data.dateArray.indexOf(item[this.xaxisname]) === -1){
+                this.data.dateArray.push(item[this.xaxisname]);
             }
 
         } // End for loop
@@ -148,7 +145,36 @@ Model.prototype.getX = function() {
         return this.data.dateArray;
     } // end getX
 
-Model.prototype.getY = function(idx) {
+Model.prototype.getY = function(ob) {
+        var ob = ob || {},
+            idx = ob.key,
+            isDateType = ob.isDateType || false,
+            isNumericType = ob.isNumericType || false,
+            t1, t2,
+            _this = this,
+            sortAr = ob.sortAr || [];
+
+        if(ob.sortAr){
+
+            this.data.category[idx].sort(function(a, b){
+
+                if(isDateType){
+                    a = new Date(a.xaxis);
+                    b = new Date(b.xaxis);
+
+                    a = joinDate(a.getYear(), a.getMonth());
+                    b = joinDate(b.getYear(), b.getMonth());
+
+                    return a - b;
+                } else if(isNumericType){
+                    return a.xaxis - b.xaxis;
+                } else {
+                    return a.xaxis.in(sortAr) - b.xaxis.in(sortAr);
+                }
+
+            });
+        }
+
         return this.data.category[idx];
     } // end getY
 

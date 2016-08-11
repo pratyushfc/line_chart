@@ -24,19 +24,19 @@ Engine.prototype.getXRange = function() {
 
 Engine.prototype.getXRangeOfVariable = function(idx) {
     var i, len, item; // Loop variables
-    var dataArray = this.model.getY(idx);
+    var dataArray = this.model.getY({key : idx});
     var yDateArray = [];
 
     for (i = 0, len = dataArray.length; i < len; ++i) {
-        item = dataArray[i];
-        yDateArray[i] = joinDate(item.year, item.month);
+        item = dataArray[i].xaxis;
+        yDateArray[i] = item;
     }
     return yDateArray;
 
 }
 Engine.prototype.getYRangeOfVariable = function(idx) {
     var i, len, item; // Loop variables
-    var dataArray = this.model.getY(idx);
+    var dataArray = this.model.getY({key : idx});
     var yDataArray = [];
 
     for (i = 0, len = dataArray.length; i < len; ++i) {
@@ -47,18 +47,32 @@ Engine.prototype.getYRangeOfVariable = function(idx) {
 
 }
 
-Engine.prototype.__getValueAtPosition = function(xValue, key) {
-    if (!xValue) {
+Engine.prototype.getValueAtPosition = function(ob) {
+    if (!ob) {
         return;
     }
 
-    var yArray = this.model.getY(key);
-    var date = splitDate(xValue);
+    ob = ob || {};
 
-    if (xValue < yArray[0].date || xValue > yArray[yArray.length - 1].date) {
+    var xValue = ob.point,
+        key = ob.key,
+        yArray = this.model.getY({key : key}), 
+        convertFn = ob.convertFn,
+        readFn = ob.readFn,
+        i = 0,
+        len = yArray.length;
+
+    if(isNaN(xValue)){
         return;
     }
-    return binarySearchDate(0, yArray.length - 1, xValue, yArray, this.model.interpolation);
+
+    console.log(yArray[1], xValue)
+
+    for(i = len; i--; ){
+        if(readFn(yArray[i].xaxis) === xValue){
+            return yArray[i];
+        }
+    }
 }
 
 Engine.prototype.getColumnWidth = function() {
@@ -71,9 +85,15 @@ Engine.prototype.getColumnWidth = function() {
     return Math.floor((chartWidth) / (maxPoints + maxGaps));
 }
 
-Engine.prototype.render = function(selector, type) {
+Engine.prototype.render = function(ob) {
 
-    var i, len, key, item; // Loop variables
+    var i = 0,
+        len = 0,
+        key = 0,
+        item, 
+        selector = ob.selector,
+        type = ob.type,
+        smartCategory = ob.smartCategory;
 
     this.rootEl = document.getElementById(selector);
     this.rootEl.innerHTML = "";
@@ -107,11 +127,6 @@ Engine.prototype.render = function(selector, type) {
         height : this.model.getWidth(),
         width : this.model.getWidth()
     }
-    var rangeX = {
-        min : joinDate(this.model.getMinX().year, this.model.getMinX().month),
-        max : joinDate(this.model.getMaxX().year, this.model.getMaxX().month)
-    };
-    var rangeY = {};
     for (var idx in allVariables) {
         key = allVariables[idx];
         this.renderEngineObject[key] = new RenderEngine(this, selector, dimension, key, this.isChartLabelTop);
@@ -124,20 +139,21 @@ Engine.prototype.render = function(selector, type) {
             range : this.model.getX(key),
             shrink : item.shiftRatioX,
             basicRange : true,
-            displayFn : timeInWords,
-            readFn : function(item){
-                item = new Date(item);
-                return joinDate(item.getYear(), item.getMonth());
-            },
             alignment : "center-horizontal down"
         }));
 
+   
         item.attachAxisY(new YAxis({
             height : dimension.height,
             width : dimension.width,
-            range : this.model.getY(key),
+            range : this.model.getY({
+                key : key,
+                sortAr : item.xaxis.rangeArray,
+                isDateType : item.xaxis.isDateType,
+                isNumericType : item.xaxis.isNumericType
+            }),
             shrink : item.shiftRatioY,
-            displayFn : shortNumber,
+            smartCategory : smartCategory,
             readFn : function(item){
                 return item.value;
             },
@@ -178,7 +194,7 @@ Engine.prototype.__prepareArrange__ = function() {
             this.storeSvgArray.push({
                 svg: this.renderEngineObject[key].svg,
                 key: key,
-                data: this.model.getY(key),
+                data: this.model.getY({key : key}),
                 object: this.renderEngineObject[key]
             });
             this.storeSvgDimensionArray.push(cumulativeOffset(this.renderEngineObject[key].svg))
