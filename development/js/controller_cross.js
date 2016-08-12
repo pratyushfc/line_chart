@@ -53,34 +53,50 @@ CrossController.prototype.render = function(selector){
 
 	// Rendering text product type
 	item = new RenderEngine(this, selector, dwarfDimension, key);
-    item.marginY *= 1;
-    item.marginX *= 1;
-    item.shiftRatioX *= 1;
-    item.shiftRatioY *= 1;
-    item.attachAxisX(new XAxisCross(dwarfDimension, 1, {min : 0, max : 100}));
-    //item.drawAxisX();
-    item.attachAxisY(new YAxisCross(dwarfDimension, 0.8, ["Product type &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Product"]));
-    //item.drawAxisY();
-    item.drawAxisYLabel("left-10px");
-    item.attachChart(new ColumnCrossChart(item, columnWidth));
-    item.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));
-		// Rendering top labels
+	item.marginY *= 1;
+	item.marginX *= 1;
+	item.shiftRatioX *= 1;
+	item.shiftRatioY *= 1;
+	item.attachAxisX(new XAxis({
+		height : dwarfDimension.height,
+		width : dwarfDimension.width,
+		shrink : 1,
+		range : [0, 100]
+	}))
+	.attachAxisY(new YAxis({
+		height : dwarfDimension.height,
+		width : dwarfDimension.width,
+		shrink : 1,
+		range : ["Product type &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Product"],
+		alignment : "left-10px left-10px"
+	}))
+    .drawAxisYLabel();
+	
 	for(key2 in this.model.getZones()){
 		key2 = this.model.getZones()[key2];
 		arItem2 = arItem1[key2];
 		canvasOb[key] = new RenderEngine(this, selector, dwarfDimension, key);
 		item = canvasOb[key];
-        item.marginY *= 1;
-        item.marginX *= 1;
-        item.shiftRatioX *= 1;
-        item.shiftRatioY *= 1;
-        item.attachAxisX(new XAxisCross(dwarfDimension, 1, {min : 0, max : 100}));
-        //item.drawAxisX();
-        item.attachAxisY(new YAxisCross(dwarfDimension, 0.8, [key2]));
-        //item.drawAxisY();
-        item.drawAxisYLabel();
-        item.attachChart(new ColumnCrossChart(item, columnWidth));
-        item.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));
+		item.marginY *= 1;
+		item.marginX *= 1;
+		item.shiftRatioX *= 1;
+		item.shiftRatioY *= 1;
+		item.attachAxisX(new XAxis({
+			height : dwarfDimension.height,
+			width : dwarfDimension.width,
+			shrink : 1,
+			range : [0, 100]
+		}))
+		.attachAxisY(new YAxis({
+			height : dwarfDimension.height,
+			width : dwarfDimension.width,
+			shrink : 0.8,
+			range : [key2],
+			alignment : "left-10px left-10px "
+		}))
+		.drawAxisYLabel()
+		.attachChart(new ColumnCrossChart(item, columnWidth))
+		.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));
 	}
 
 
@@ -91,31 +107,50 @@ CrossController.prototype.render = function(selector){
 
 
 			item = new RenderEngine(this, selector, smallerDimension, key, null, null,true);
-	        item.marginY *= 0;
-	        item.marginX *= 0;
-	        item.shiftRatioX *= 1;
-	        item.shiftRatioY *= 1;
-	        item.attachAxisX(new XAxisCross(smallerDimension, 1, {min : 0, max : this.model.getMaxSale()}));
-	        item.drawAxisX();
-	        item.attachAxisY(new YAxisCross(smallerDimension, 0.8, [key]));
-	        item.drawAxisY();
-	        item.drawAxisXLabel();
-	        item.drawAxisYLabel("right-10px right-10px");
-	        // Drawing product type
-	        item = new RenderEngine(this, selector, smallerDimension, key, null, null,true);
-	        item.marginY *= 0;
-	        item.marginX *= 0;
-	        item.shiftRatioX *= 1;
-	        item.shiftRatioY *= 1;
-	        item.attachAxisX(new XAxisCross(smallerDimension, 1, {min : 0, max : this.model.getMaxSale()}));
-	        item.drawAxisX();
-	        item.attachAxisY(new YAxisCross(smallerDimension, 0.8, uniqueNameList));
-	        item.drawAxisY();
-	        item.drawAxisXLabel();
-	        item.drawAxisYLabel("right-10px");
+			item.marginY *= 0;
+			item.marginX *= 0;
+			item.shiftRatioX *= 1;
+			item.shiftRatioY *= 1;
+			item.attachAxisX(new XAxis({
+				height : smallerDimension.height,
+				width : smallerDimension.width,
+				shrink : 1,
+				range : [0, this.model.getMaxSale()]
+			}))
+			.attachAxisY(new YAxis({
+				height : smallerDimension.height,
+				width : smallerDimension.width,
+				shrink : 0.8,
+				range : [key],
+				alignment : "right-10px"
+			}))
+			.drawAxisY(true)
+			.drawAxisYLabel();
+			
+			item = new RenderEngine(this, selector, smallerDimension, key, null, null,true);
+			item.marginY *= 0;
+			item.marginX *= 0;
+			item.shiftRatioX *= 1;
+			item.shiftRatioY *= 1;
+			item.attachAxisX(new XAxis({
+				height : smallerDimension.height,
+				width : smallerDimension.width,
+				shrink : 1,
+				range : [0, this.model.getMaxSale()]
+			}))
+			.drawAxisX()
+			.attachAxisY(new YAxis({
+				height : smallerDimension.height,
+				width : smallerDimension.width,
+				shrink : 0.8,
+				range : uniqueNameList,
+				alignment : "right-10px"
+			}))
+			.drawAxisY(true)
+			.drawAxisYLabel();
 
 
-	        var isLastRow = Object.keys(dataAr)[Object.keys(dataAr).length - 1] === key;
+			var isLastRow = Object.keys(dataAr)[Object.keys(dataAr).length - 1] === key;
 
 		for(key2 in this.model.getZones()){
 			key2 = this.model.getZones()[key2];
@@ -125,36 +160,52 @@ CrossController.prototype.render = function(selector){
 			arItem2 = arItem1[key2];
 			canvasOb[key] = new RenderEngine(this, selector, chartDimension, key, null, null,true);
 			item = canvasOb[key];
-	        item.marginY *= 0;
-        	item.shiftRatioX *= 0;
-		    item.marginX *= 0;
-	        item.shiftRatioY *= 1;
-	        item.attachAxisX(new XAxisCross(chartDimension, 1, {min : 0, max : this.model.getMaxSale()}));
-	        item.drawAxisX();
-	        item.attachAxisY(new YAxisCross(chartDimension, 0.8, uniqueNameList));
-	        item.drawAxisY();
-	        item.drawAxisXLabel();
-	        //item.drawAxisYLabel();
-	        item.attachChart(new ColumnCrossChart(item, columnWidth));
-	        item.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));
-			//item.rootElement.appendChild(document.createElement("br"));
+			item.marginY *= 0;
+			item.shiftRatioX *= 0;
+			item.marginX *= 0;
+			item.shiftRatioY *= 1;
+			item.attachAxisX(new XAxis({
+				height : chartDimension.height,
+				width : chartDimension.width,
+				shrink : 0.8,
+				range : [0, this.model.getMaxSale()]
+			}))
+			.attachAxisY(new YAxis({
+				height : chartDimension.height,
+				width : chartDimension.width,
+				shrink : 0.8,
+				range : uniqueNameList
+			}))
+			.drawAxisX(true)
+			.drawAxisY(true)
+			.attachChart(new ColumnCrossChart(item, columnWidth))
+			.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));
 
 		}
 
 	}
 	for(var i = 0; i < this.numSvgs - 2; ++i){
 		item = new RenderEngine(this, selector, this.dimension, key, true, i ? "chart x-axis-only" : "chart x-axis-only-first", true);
-        item.marginY *= 3;
-        item.attachAxisX(new XAxisCross(this.dimension, 1, {min : 0, max : this.model.getMaxSale()}));
-        item.drawAxisX();
-        item.attachAxisY(new YAxisCross(this.dimension, 0.8, ["uniqueNameList"]));
-        //item.drawAxisY();
-        item.drawAxisXLabel();
-        //item.drawAxisYLabel();
-        item.attachChart(new ColumnCrossChart(item, columnWidth));
-        item.renderChart(arItem2, this.model.getColorByProfit.bind(this.model)); 
-        item.chartLabel("Sum of sales");       
-    
+		item.marginY *= 3;
+		item.attachAxisX(new XAxis({
+				height : chartDimension.height,
+				width : chartDimension.width,
+				shrink : 0.8,
+				range : [0, this.model.getMaxSale()],
+				alignment : "down center-horizontal"
+		}))
+		.attachAxisY(new YAxis({
+				height : chartDimension.height,
+				width : chartDimension.width,
+				shrink : 0.8,
+				range : uniqueNameList
+		}))
+		.drawAxisX()
+		.drawAxisXLabel()
+		.attachChart(new ColumnCrossChart(item, columnWidth))
+		.renderChart(arItem2, this.model.getColorByProfit.bind(this.model))
+		.chartLabel("Sum of sales");       
+	
 	}
 
 }

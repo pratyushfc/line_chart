@@ -13,8 +13,6 @@ CrossModel.prototype.__crunch__ = function(){
 		key = "",
 		key2 = "",
 		item3 = {},
-		sumSale = 0,
-		sumProfit = 0,
 		data = this.data;
 
 	this.dataStore = {};
@@ -27,8 +25,8 @@ CrossModel.prototype.__crunch__ = function(){
 	this.uniqueZones = [];
 	this.productsPerCategory = {};
 
-	for(i = 0, len = data.dataset.length; i < len; ++i){
-		item = data.dataset[i];
+	for(i = 0, len = data.data.length; i < len; ++i){
+		item = data.data[i];
 
 		this.dataStore[item.category] = this.dataStore[item.category] || {};
 		this.dataStore[item.category][item.zone] = this.dataStore[item.category][item.zone] || [];
@@ -61,39 +59,6 @@ CrossModel.prototype.__crunch__ = function(){
 			this.min.profit = item.profit;
 		}
 
-	}
-
-	for(key in this.dataStore){
-		item3 = this.dataStore[key];
-		for(key2 in item3){
-			item2 = item3[key2];
-			sumSale = 0;
-			sumProfit = 0;
-			for(i = 0, len = item2.length; i < len; ++i){
-				item = item2[i];
-				sumSale += item.sale;
-				sumProfit += item.profit;
-			}
-
-
-			if(sumSale > this.max.sale){
-				this.max.sale = sumSale;
-			}
-
-			if(sumProfit > this.max.profit){
-				this.max.profit = sumProfit;
-			}
-
-			if(sumProfit < this.min.profit){
-				this.min.profit = sumProfit;
-			}
-
-			item2.push({
-				name : "Total",
-				sale : sumSale,
-				profit : sumProfit
-			});
-		}
 	}
 
 }
@@ -168,11 +133,11 @@ CrossModel.prototype.getColorByProfit = function(profit){
 	}
 
 	if(profit > 0 ){
-		color1 = this.data.colorRange[0];
-		color2 = this.data.colorRange[1];
+		color1 = this.data.colorRange.minprofit;
+		color2 = this.data.colorRange.maxprofit;
 	} else {
-		color1 = this.data.colorRange[2];
-		color2 = this.data.colorRange[3];
+		color1 = this.data.colorRange.minloss;
+		color2 = this.data.colorRange.maxloss;
 		//profit = -profit;
 	}
 	var hex = function(x) {

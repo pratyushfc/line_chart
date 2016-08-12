@@ -3,7 +3,7 @@ function Axis(ob){
 	this.height = ob.height || 500;
 	this.width = ob.width || 300;
 	this.shrink = ob.shrink || 0.81;
-	this.range = ob.range;
+	this.range = ob.range || [];
 	this.readFn = ob.readFn || function (item) { return item; };
 	this.isVertical = ob.isVertical || false;
 	this.smartCategory = ob.smartCategory || false;
@@ -28,7 +28,7 @@ Axis.prototype.estimateRange = function(data){
 		value = (data - this.min) / (this.max - this.min);
 	} else {
 		data += "";
-		value = data.in(dataAr) / (dataAr.length - 1);
+		value = (data.in(dataAr) + 0.5) / dataAr.length;
 	}
 
 	// Getting actual positions on chart
@@ -92,8 +92,7 @@ Axis.prototype.__getRangeArray__ = function(){		// Function to get
 
 		this.rangeArray = createRange({
 			min : min,
-			max : max,
-			basic : this.isRangeBasic
+			max : max
 		});
 
 		this.min = this.rangeArray[0];
@@ -195,6 +194,10 @@ Axis.prototype.placeLabel = function(canvas, isLabelTop){
 Axis.prototype.convertValue = function(item){
 	var result;
     if(this.isDateType){
+    	if(typeof item === "string"){
+    		item = new Date(item);
+    		item = joinDate(item.getYear(), item.getMonth());
+    	}
     	result = timeInWords(item);
     } else if(typeof item === "number"){
     	result = shortNumber(item);
@@ -219,3 +222,45 @@ Axis.prototype.removeLabel = function(canvas){
 				}
 		}
 } // end removeLabel
+
+
+Axis.prototype.placeDivBoxes = function(canvas){
+    var i = 0, len = 0,
+        x = 0,
+        y = 5,
+        readFn = this.readFn,
+        rangeArray = this.rangeArray,
+        xRangeAr = canvas.xaxis.rangeArray,
+        lastElX = xRangeAr[xRangeAr.length - 1],
+        width = canvas.xaxis.max,
+        estimateRange = this.estimateRange.bind(this),
+        height = 0,
+        isYear = rangeArray.length === 12,
+        item;
+
+    height = estimateRange(rangeArray[1])- estimateRange(rangeArray[0]);    
+
+
+    if(!width || typeof width !== 'number'){
+        width = canvas.xaxis.estimateRange(lastElX);
+    }
+
+    width *= 1.2;
+
+    if(!isYear){
+        for (i = 1, len = rangeArray.length; i < len; ++i) {
+            item = rangeArray[i];
+            y = this.estimateRange(item);
+            canvas.drawRect(x, y, width, height, "div-lines")
+        }
+    } else {
+
+
+        height *= 2;
+        for (i = 2, len = rangeArray.length; i < len; i += 3) {
+            item = rangeArray[i];
+            y = this.estimateRange(item);
+            canvas.drawRect(x, y, width, i !== 2 ? height * 1.5 : height, "div-lines")
+        }
+    }
+} // end placelabel

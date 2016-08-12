@@ -1,7 +1,8 @@
+"use strict"
 // Exposing public Api
 window.MultiVariantChart = function(data, selector) {
     var t = performance.now();
-    if(data.crosstab){
+    if (data.crosstab) {
         var model = new CrossModel(data);
         this.engine = new CrossController(model);
         document.getElementById(selector).setAttribute("id", selector + "cross");
@@ -10,24 +11,24 @@ window.MultiVariantChart = function(data, selector) {
         var model = new Model(data);
         this.engine = new Engine(model);
         this.engine.render({
-            selector : selector,
-            type : model.getType(),
-            smartCategory : data.smartCategory
+            selector: selector,
+            type: model.getType(),
+            smartCategory: data.smartCategory
         });
     }
-    console.log("rendered in ", performance.now() - t, " mili seconds")
+    console.log("rendered in ", performance.now() - t, " ms")
 };
 
 MultiVariantChart.prototype.sort = function(fn) {
     this.engine.rearrange(fn);
 }
 
-// Data function; helper for sorting
 
 MultiVariantChart.prototype.reverse = function(fn) {
-        this.engine.reverse();
-    } // end reverse
+    this.engine.reverse();
+} // end reverse
 
+// Data function; helper for sorting
 window.Sort = {
     average: function(arr) {
         var sum = 0,

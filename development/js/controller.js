@@ -66,7 +66,6 @@ Engine.prototype.getValueAtPosition = function(ob) {
         return;
     }
 
-    console.log(yArray[1], xValue)
 
     for(i = len; i--; ){
         if(readFn(yArray[i].xaxis) === xValue){
@@ -127,6 +126,7 @@ Engine.prototype.render = function(ob) {
         height : this.model.getWidth(),
         width : this.model.getWidth()
     }
+
     for (var idx in allVariables) {
         key = allVariables[idx];
         this.renderEngineObject[key] = new RenderEngine(this, selector, dimension, key, this.isChartLabelTop);

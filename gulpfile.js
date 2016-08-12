@@ -16,7 +16,7 @@ var process = function(){
 	gulp.src('./development/js/*.js')
         .pipe(concat('multivariant.min.js'))
         .pipe(iife())
-        .pipe(uglify())
+        //.pipe(uglify())
         .on('error', createErrorHandler('uglify'))
         .pipe(gulp.dest('./public/js'));
     

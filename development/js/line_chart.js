@@ -4,7 +4,7 @@ LineChart.prototype = Object.create(Chart.prototype);
 
 function LineChart(renderEngine) {
     this.renderEngine = renderEngine; // storing the renderEngine instance
-    this.plotCirclesObject = {};
+    this.plotCirclesObject = [];
     // A tooltip for every chart
     this.tooltip = new Tooltip();
     // Storing chart Radius
@@ -58,30 +58,31 @@ LineChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // 
         dateItem = dateOfVariable[i];
         valueItem = valueOfVariable[i];
         var circle = this.renderEngine.plotCircle(dateItem, valueItem);
-        this.plotCirclesObject[Math.floor(circle.getAttribute("cx"))] = {
+        this.plotCirclesObject.push({
             circle: circle,
+            x : circle.getAttribute("cx"),
             y: circle.getAttribute("cy")
-        }; // Storing the current circle with its x value
+        }); // Storing the current circle with its x value
     }
 }
 
 LineChart.prototype.behave = function(pos) {
     if (pos === -1 || this.__flagMouseDown__) {
-        this.__destroyVerticalLine();
+        this.destroyVerticalLine();
 
     } else {
-        this.__syncVerticalLine__(pos);
+        this.syncVerticalLine(pos);
     }
 }
 
 LineChart.prototype.highlight = function(x1, y1, x2, y2) {
 
-        var keyx, item;
-
+        var keyx, item,
+            radius = this.renderEngine.plotCircleRadius;
 
         for (keyx in this.plotCirclesObject) {
             item = this.plotCirclesObject[keyx];
-            if (keyx >= x1 - this.renderEngine.plotCircleRadius && keyx <= x2 + this.renderEngine.plotCircleRadius && item.y - this.renderEngine.plotCircleRadius <= y2 && item.y + this.renderEngine.plotCircleRadius  >= y1) {
+            if (item.x >= x1 - radius && item.x <= x2 + radius && item.y - radius <= y2 && item.y + radius  >= y1) {
                 item.hoverProtected = true;
                 item.circle.setAttribute("class", "plot-circle plot-circle-hover");
             } else {
@@ -93,7 +94,7 @@ LineChart.prototype.highlight = function(x1, y1, x2, y2) {
 } // end highlight
 
 
-LineChart.prototype.__syncVerticalLine__ = function(x) {
+LineChart.prototype.syncVerticalLine = function(x) {
 
         var svgTop = cumulativeOffset(this.renderEngine.svg).top,
             svgLeft = cumulativeOffset(this.renderEngine.svg).left,
@@ -101,10 +102,10 @@ LineChart.prototype.__syncVerticalLine__ = function(x) {
             canvas = this.renderEngine,
             xaxis = canvas.xaxis,
             yaxis = canvas.yaxis,
-            convertFn = xaxis.convertValue.bind(xaxis);
+            convertFn = xaxis.convertValue.bind(xaxis),
         // Tooltip position and value
-        var verticalLineXPoint = canvas.getRatio(x);
-        var yValue = canvas.engine.getValueAtPosition({
+            verticalLineXPoint = canvas.getRatio(x),
+            yValue = canvas.engine.getValueAtPosition({
             point : verticalLineXPoint, 
             convertFn : convertFn,
             key : this.renderEngine.key,
@@ -127,7 +128,7 @@ LineChart.prototype.__syncVerticalLine__ = function(x) {
             toolString += " \n " + timeInWords(verticalLineXPoint);
             var tooltipTop = this.__tooltipHeightCalulator(yValue.value, this.renderEngine.key);
             this.tooltip.show(svgTop + tooltipTop, x + (this.renderEngine.plotCircleRadius * 2) + svgLeft, toolString);
-            var circle = this.__findCircleAtPoint(x);
+            var circle = this.findCircleAtPoint(x);
             if (circle) {
                 circle.setAttribute("class", "plot-circle plot-circle-hover");
             } else {}
@@ -145,7 +146,7 @@ LineChart.prototype.__syncVerticalLine__ = function(x) {
         verticalLine.setAttribute("class", "vertical-line");
     } // end syncverticalline
 
-LineChart.prototype.__destroyVerticalLine = function() {
+LineChart.prototype.destroyVerticalLine = function() {
 
         if (this.verticalLine) {
             this.renderEngine.svg.removeChild(this.verticalLine);
@@ -159,19 +160,24 @@ LineChart.prototype.__destroyVerticalLine = function() {
         }
     } // end crosshair
 
-LineChart.prototype.__findCircleAtPoint = function(x) {
+LineChart.prototype.findCircleAtPoint = function(x) {
 
         x = Math.floor(x);
-        var i;
+        var i = 0,
+            circleOb,
+            circles = this.plotCirclesObject,
+            len = circles.length,
+            radius = this.plotCircleRadius;
 
 
-        for (i = x - this.plotCircleRadius; i <= x + this.plotCircleRadius; ++i) {
-            if (this.plotCirclesObject[i]) {
-                return this.plotCirclesObject[i].circle;
+        for (i = 0; i < len; ++i) {
+            circleOb = circles[i];
+            if (circleOb.x <= x + radius && circleOb.x >= x - radius) {
+                return circleOb.circle;
             }
         }
 
-    } // __findCircleAtPoint
+    } // findCircleAtPoint
 
 LineChart.prototype.__tooltipHeightCalulator = function(value, key) {
 

@@ -38,33 +38,45 @@ function RenderEngine(engine, selector, dimension, name, isTop, className, dragO
 
 RenderEngine.prototype.attachAxisX = function(axis){
     this.xaxis = axis;
+    return this;
 } // end setXAxis
 
 RenderEngine.prototype.attachAxisY = function(axis){
     this.yaxis = axis;
+    return this;
 } // end setYAxis
 
-RenderEngine.prototype.drawAxisX = function(axis){
+RenderEngine.prototype.drawAxisX = function(notDrawTicks){
     this.xaxis.plotAxis(this);
-    this.xaxis.plotTicks(this);
+    notDrawTicks = notDrawTicks || false;
+    if(!notDrawTicks) this.xaxis.plotTicks(this);
+    return this;
 } // end setXAxis
 
-RenderEngine.prototype.drawAxisY = function(axis){
+RenderEngine.prototype.drawAxisY = function(extra){
     this.yaxis.plotAxis(this);
-    this.yaxis.plotTicks(this);
-    this.yaxis.placeDivBoxes(this);
+
+    extra = extra || false;
+    if(!extra){
+        this.yaxis.plotTicks(this);
+        this.yaxis.placeDivBoxes(this);   
+    }
+    return this;
 } // end setYAxis
 
 RenderEngine.prototype.drawAxisXLabel = function(isChartLabelTop){
     this.xaxis.placeLabel(this, isChartLabelTop);
+    return this;
 } // end drawAxisXLabel
 
 RenderEngine.prototype.drawAxisYLabel = function(al){
     this.yaxis.placeLabel(this, al);
+    return this;
 } // end drawAxisYLabel
 
 RenderEngine.prototype.removeAxisXLabel = function(){
     this.xaxis.removeLabel(this);
+    return this;
 } // end removeAxisXLabels
 
 RenderEngine.prototype.removeElement = function(el){
@@ -247,10 +259,12 @@ RenderEngine.prototype.__drawBox__ = function(start, end) {
 
 RenderEngine.prototype.attachChart = function(chart) { // Function to attach desired chart type
     this.attachedChart = chart;
+    return this;
 }
 
 RenderEngine.prototype.renderChart = function(xArr, yArr) {
     this.attachedChart.renderData(xArr, yArr);
+    return this;
 }
 
 RenderEngine.prototype.convert = function(x, y) {
@@ -432,6 +446,12 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
                 }
                 if(align && align === "half-left"){
                     x = x - textElement.clientWidth / 2;
+                }
+                if(align && align === "right"){
+                    x = x + textElement.clientWidth;
+                }
+                if(align && align === "half-right"){
+                    x = x + textElement.clientWidth / 2;
                 }
                 if(align && align === "left"){
                     x = x - textElement.clientWidth;
