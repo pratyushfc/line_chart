@@ -1,10 +1,11 @@
-function Model(data) { // Contructor function to parse and validate data
+function Model(data, library) { // Contructor function to parse and validate data
 
     var i, len, key, // Varibles for loop iteration
         item, // Data parsing variables
         date,
         index,
-        value, 
+        value,
+        error = "", 
         dataAr = data[data.datasource || "data"];
 
     if (typeof data === "string") { // If data is string; convert to
@@ -30,7 +31,14 @@ function Model(data) { // Contructor function to parse and validate data
     this.type = data.type || "line"; // Fetching type of chart; default line
     this.data.caption = data.caption || ""; // Fetching values for caption and
     this.data.subcaption = data.subcaption || ""; // subcaption; default "" string
-    this.xaxisname = data.xaxisname || "time"; // Default name for x-axis
+    
+    if(data.xaxisname){                     // Setting xaxis name
+        this.xaxisname = data.xaxisname;
+    } else {
+        error = "Error XAxis Undefined : xaxis name was not defined in json";
+        library.error(error);
+    }
+
 
     this.data.variables = data.variables || []; // Default blank array for yaxis variables
     this.data.separator = data.separator || '|'; // Default '|' for separator
@@ -60,6 +68,13 @@ function Model(data) { // Contructor function to parse and validate data
         for (i = 0, len = dataAr.length; i < len; ++i) {
             item = dataAr[i];
             date = new Date(item.time);
+
+            if(!item[this.xaxisname]){
+                error = "Error XAxis Undefined : xaxis value '" + this.xaxisname +  
+                        "' not found at index " + i;
+                library.error(error);
+            }
+
             for (key in item) {
                 if (key === this.xaxisname) {
                     continue;

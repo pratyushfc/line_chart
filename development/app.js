@@ -10,7 +10,7 @@ var jsonData = {
     "crosschartoff": false,     // force switch off crosschart 
     "datasource" : "data",      // Default - data
     "smartCategory": false,      // Detect weeks, months
-    "xaxisname": "time",        // default - time
+    "xaxisname": "name",        // default - time
     "colorRange": {
         "minprofit": "aaaaaa",
         "maxprofit": "000000",

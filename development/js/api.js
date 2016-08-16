@@ -4,12 +4,14 @@ window.MultiVariantChart = function(data, selector) {
     var t = performance.now(),
         dataAr = data[data.datasource || "data"];
     if (this.isCrossChart(dataAr) && !data.crosschartoff) {
-        var model = new CrossModel(data);
-        this.engine = new CrossController(model);
         document.getElementById(selector).setAttribute("id", selector + "cross");
+        this.rootEl = document.getElementById(selector + "cross");
+        var model = new CrossModel(data, this);
+        this.engine = new CrossController(model);
         this.engine.render(selector + "cross");
     } else {
-        var model = new Model(data);
+        this.rootEl = document.getElementById(selector);
+        var model = new Model(data, this);
         this.engine = new Engine(model);
         this.engine.render({
             selector: selector,
@@ -19,6 +21,11 @@ window.MultiVariantChart = function(data, selector) {
     }
     console.log("rendered in ", performance.now() - t, " ms")
 };
+
+MultiVariantChart.prototype.error = function(msg) {
+    this.rootEl.appendChild(document.createTextNode(msg));
+    throw Error(msg);
+}   // end eror
 
 MultiVariantChart.prototype.sort = function(fn) {
     this.engine.rearrange(fn);
