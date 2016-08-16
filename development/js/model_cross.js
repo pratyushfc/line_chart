@@ -18,10 +18,12 @@ CrossModel.prototype.__crunch__ = function(){
 
 	this.dataStore = {};
 	this.max = {};
-	this.max.sale = 0;
-	this.max.profit = 0;
+	this.max.sale = -Infinity;
+	this.max.profit = -Infinity;
+	this.max.loss = Infinity;
 	this.min = {};
-	this.min.profit = 0;
+	this.min.profit = Infinity;
+	this.min.loss = -Infinity;
 
 	this.uniqueZones = [];
 	this.productsPerCategory = {};
@@ -52,12 +54,22 @@ CrossModel.prototype.__crunch__ = function(){
 			this.max.sale = item.sale;
 		}
 
-		if(item.profit > this.max.profit){
-			this.max.profit = item.profit;
-		}
+		if(item.profit > 0){
+			if(item.profit > this.max.profit){
+				this.max.profit = item.profit;
+			}
 
-		if(item.profit < this.min.profit){
-			this.min.profit = item.profit;
+			if(item.profit < this.min.profit){
+				this.min.profit = item.profit;
+			}
+		} else {
+			if(item.profit < this.max.loss){
+				this.max.loss = item.profit;
+			}
+
+			if(item.profit > this.min.loss){
+				this.min.loss = item.profit;
+			}
 		}
 
 	}
@@ -120,13 +132,15 @@ CrossModel.prototype.getPlotData = function(){
 CrossModel.prototype.getColorByProfit = function(profit){
 	var minProfit = this.min.profit;
 	var maxProfit = this.max.profit;
+	var minLoss = this.min.loss;
+	var maxLoss = this.max.loss;
 
 	var color1, color2;
 
 	if(profit > 0){
-		var ratio = (profit) / (maxProfit);
+		var ratio = (profit - minProfit) / (maxProfit - minProfit);
 	} else {
-		var ratio = (-profit) / (minProfit);
+		var ratio = (profit - maxLoss) / (minLoss - maxLoss);
 	}
 	
 	if(ratio < 0){
