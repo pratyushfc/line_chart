@@ -13,7 +13,8 @@ CrossModel.prototype.__crunch__ = function(){
 		key = "",
 		key2 = "",
 		item3 = {},
-		data = this.data;
+		data = this.data,
+        dataAr = data[data.datasource || "data"];
 
 	this.dataStore = {};
 	this.max = {};
@@ -25,8 +26,8 @@ CrossModel.prototype.__crunch__ = function(){
 	this.uniqueZones = [];
 	this.productsPerCategory = {};
 
-	for(i = 0, len = data.data.length; i < len; ++i){
-		item = data.data[i];
+	for(i = 0, len = dataAr.length; i < len; ++i){
+		item = dataAr[i];
 
 		this.dataStore[item.category] = this.dataStore[item.category] || {};
 		this.dataStore[item.category][item.zone] = this.dataStore[item.category][item.zone] || [];

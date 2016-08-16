@@ -6,11 +6,12 @@ var jsonData = {
 
     "caption": "Caption",
     "subcaption": "Subcaption",
-    "interpolation": true, // Default true
-    "type": "column", // line, column
-    "crosstab": true,
-    "smartCategory": true,
-    "xaxisname": "zone",
+    "interpolation": true,      // Default true
+    "type": "column",           // line, column
+    "crosstab": true,       
+    "datasource" : "data",      // Default - data
+    "smartCategory": true,      // Detect weeks, months
+    "xaxisname": "time",        // default - time
     "colorRange": {
         "minprofit": "aaaaaa",
         "maxprofit": "000000",
@@ -93,7 +94,7 @@ var jsonData = {
         "sale": 15444
     }],
 
-    "data1": [{
+    "datamv": [{
         "time": "2009-4-10",
         "population": "324324",
     }, {

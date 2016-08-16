@@ -4,7 +4,8 @@ function Model(data) { // Contructor function to parse and validate data
         item, // Data parsing variables
         date,
         index,
-        value;
+        value, 
+        dataAr = data[data.datasource || "data"];
 
     if (typeof data === "string") { // If data is string; convert to
         data = JSON.parse(data); // JSON object
@@ -55,9 +56,9 @@ function Model(data) { // Contructor function to parse and validate data
     }
 
 
-    if (Array.isArray(data.data)) { // Copy over data to category if Array
-        for (i = 0, len = data.data.length; i < len; ++i) {
-            item = data.data[i];
+    if (Array.isArray(dataAr)) { // Copy over data to category if Array
+        for (i = 0, len = dataAr.length; i < len; ++i) {
+            item = dataAr[i];
             date = new Date(item.time);
             for (key in item) {
                 if (key === this.xaxisname) {
