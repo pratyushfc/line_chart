@@ -15,24 +15,41 @@ Multiple variables plot against time in multiple synchronised chart
 # Json Structure
 
 ```
+
 {
-	"dimensions" : {					// Size of canvas
-		"width" : 600,		
-		"height" : 400,
-	},
+    "dimensions": { // Size of canvas
+        "width": 370,
+        "height": 240,
+    },
 
-	"caption" : "Caption here",
-	"subcaption" : "Sub Caption here",
+    "caption": "Caption",
+    "subcaption": "Subcaption",
+    "type": "column",           // line, column
+    "crosstab": true,       
+    "datasource" : "data",      // Default - data
+    "smartCategory": true,      // Detect weeks, months
+    "xaxisname": "time",        // default - time
+    "colorRange": {
+        "minprofit": "aaaaaa",
+        "maxprofit": "000000",
+        "minloss": "770000",
+        "maxloss": "ff6600"
+    },
 
-	interpolation : true,				// Default true; if false nearest value will be shown
 
-	"data" : [{
-			time : 05-15-2012,			// time in mm-dd-yyyy format
-			sale : 120
-		}, 
-		{
-			time : 06-26-2015,
-			hike : 1.5
-		}]			
-}
+    "data": [{
+        "category": "Coffee",
+        "zone": "South",
+        "name": "Amaretto",
+        "profit": -5105,
+        "sale": 19011
+    }, {
+        "category": "Coffee",
+        "zone": "West",
+        "name": "Amaretto",
+        "profit": -5105,
+        "sale": 7011
+    }]
+
+
 ```
