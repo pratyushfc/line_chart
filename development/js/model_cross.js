@@ -130,10 +130,12 @@ CrossModel.prototype.getPlotData = function(){
 }	// end getPlotData
 
 CrossModel.prototype.getColorByProfit = function(profit){
-	var minProfit = this.min.profit;
-	var maxProfit = this.max.profit;
-	var minLoss = this.min.loss;
-	var maxLoss = this.max.loss;
+	var minProfit = this.min.profit,
+		maxProfit = this.max.profit,
+		minLoss = this.min.loss,
+		maxLoss = this.max.loss;
+
+	this.data.colorRange = this.data.colorRange || {};
 
 	var color1, color2;
 
@@ -148,11 +150,11 @@ CrossModel.prototype.getColorByProfit = function(profit){
 	}
 
 	if(profit > 0 ){
-		color1 = this.data.colorRange.minprofit;
-		color2 = this.data.colorRange.maxprofit;
+		color1 = this.data.colorRange.maxprofit || "000000";
+		color2 = this.data.colorRange.minprofit || "aaaaaa";
 	} else {
-		color1 = this.data.colorRange.minloss;
-		color2 = this.data.colorRange.maxloss;
+		color1 = this.data.colorRange.minloss || "ff9966";
+		color2 = this.data.colorRange.maxloss || "770000";
 		//profit = -profit;
 	}
 	var hex = function(x) {

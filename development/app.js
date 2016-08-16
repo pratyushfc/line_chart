@@ -6,16 +6,16 @@ var jsonData = {
 
     "caption": "Caption",
     "subcaption": "Subcaption",
-    "type": "column",           // line, column
+    "type": "line",           // line, column
     "crosschartoff": false,     // force switch off crosschart 
     "datasource" : "data",      // Default - data
-    "smartCategory": true,      // Detect weeks, months
+    "smartCategory": false,      // Detect weeks, months
     "xaxisname": "time",        // default - time
     "colorRange": {
         "minprofit": "aaaaaa",
         "maxprofit": "000000",
-        "minloss": "770000",
-        "maxloss": "ff6600"
+        "minloss": "ff9966",
+        "maxloss": "770000"
     },
 
 
@@ -77,7 +77,7 @@ var jsonData = {
         "category": "Espresso",
         "zone": "Central",
         "name": "Mocha",
-        "profit": -14646,
+        "profit": -10646,
         "sale": 35218
     }, {
         "category": "Espresso",
@@ -89,7 +89,7 @@ var jsonData = {
         "category": "Espresso",
         "zone": "South",
         "name": "Lattee",
-        "profit": 3872,
+        "profit": 13872,
         "sale": 15444
     }],
 

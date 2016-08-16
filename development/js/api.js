@@ -29,6 +29,7 @@ MultiVariantChart.prototype.reverse = function(fn) {
     this.engine.reverse();
 } // end reverse
 
+// Function to determine if data is of crosschart type
 MultiVariantChart.prototype.isCrossChart = function(arr) {
     var i = 0,
         len = arr.length;
