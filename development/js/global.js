@@ -1,4 +1,3 @@
-"use strict";
 String.prototype.in = function(arr, readFn){
     var i = 0,
         len = arr.length,

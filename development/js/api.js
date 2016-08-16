@@ -1,8 +1,9 @@
 "use strict"
 // Exposing public Api
 window.MultiVariantChart = function(data, selector) {
-    var t = performance.now();
-    if (data.crosstab) {
+    var t = performance.now(),
+        dataAr = data[data.datasource || "data"];
+    if (this.isCrossChart(dataAr) && !data.crosschartoff) {
         var model = new CrossModel(data);
         this.engine = new CrossController(model);
         document.getElementById(selector).setAttribute("id", selector + "cross");
@@ -21,12 +22,26 @@ window.MultiVariantChart = function(data, selector) {
 
 MultiVariantChart.prototype.sort = function(fn) {
     this.engine.rearrange(fn);
-}
+}   // end sort
 
 
 MultiVariantChart.prototype.reverse = function(fn) {
     this.engine.reverse();
 } // end reverse
+
+MultiVariantChart.prototype.isCrossChart = function(arr) {
+    var i = 0,
+        len = arr.length;
+    for(i = len; i--; ){
+        if(!arr[i].category || !arr[i].zone){
+            return false;
+        }
+        if(!arr[i].profit || !arr[i].sale || !arr[i].name){
+            return false;
+        }
+    }
+    return true;
+} // end isCrossChart
 
 // Data function; helper for sorting
 window.Sort = {

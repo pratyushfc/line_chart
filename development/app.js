@@ -6,10 +6,9 @@ var jsonData = {
 
     "caption": "Caption",
     "subcaption": "Subcaption",
-    "interpolation": true,      // Default true
     "type": "column",           // line, column
-    "crosstab": true,       
-    "datasource" : "data",      // Default - data
+    "crosschartoff": false,     // force switch off crosschart 
+    "datasource" : "datamv",      // Default - data
     "smartCategory": true,      // Detect weeks, months
     "xaxisname": "time",        // default - time
     "colorRange": {
