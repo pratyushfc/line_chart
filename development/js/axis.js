@@ -187,7 +187,7 @@ Axis.prototype.placeLabel = function(canvas, isLabelTop){
 
         stringTime = this.convertValue(item);
 
-        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment);
+        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment, 6);
     }
 };
 

@@ -5,7 +5,7 @@ function Model(data, library) { // Contructor function to parse and validate dat
         date,
         index,
         value,
-        error = "", 
+        errorMsg = "", 
         dataAr = data[data.datasource || "data"];
 
     if (typeof data === "string") { // If data is string; convert to
@@ -35,8 +35,8 @@ function Model(data, library) { // Contructor function to parse and validate dat
     if(data.xaxisname){                     // Setting xaxis name
         this.xaxisname = data.xaxisname;
     } else {
-        error = "Error XAxis Undefined : xaxis name was not defined in json";
-        library.error(error);
+        errorMsg = "Error XAxis Undefined : xaxis name was not defined in json";
+        library.error(errorMsg);
     }
 
 
@@ -70,9 +70,9 @@ function Model(data, library) { // Contructor function to parse and validate dat
             date = new Date(item.time);
 
             if(!item[this.xaxisname]){
-                error = "Error XAxis Undefined : xaxis value '" + this.xaxisname +  
+                errorMsg = "Error XAxis Undefined : xaxis value '" + this.xaxisname +  
                         "' not found at index " + i;
-                library.error(error);
+                error(errorMsg);
             }
 
             for (key in item) {

@@ -12,7 +12,9 @@ String.prototype.in = function(arr, readFn){
     return false
 }
 
-var setAll = function(arr, val, size){
+// Function to set All variables in array to specific value
+// similar to memset in C
+function setAll(arr, val, size){
     var i = 0,
         len = size || arr.length;
     for(i = len; i--;){
@@ -22,6 +24,18 @@ var setAll = function(arr, val, size){
             arr[i] = val;
         }
     }
+}
+
+// Function to trim text based on size provided
+function trimText(string, length){
+    string += "";
+    if(!string || !length){
+        return;
+    }
+    if(string.length <= length){
+        return string;
+    }
+    return string.substr(0, 7) + ""; 
 }
 
 

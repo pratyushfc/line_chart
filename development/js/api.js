@@ -2,16 +2,24 @@
 // Exposing public Api
 window.MultiVariantChart = function(data, selector) {
     var t = performance.now(),
-        dataAr = data[data.datasource || "data"];
-    if (this.isCrossChart(dataAr) && !data.crosschartoff) {
+        dataAr = data[data.datasource || "data"],
+        isCrossData = this.isCrossChart(dataAr) && !data.crosschartoff,
+        model;
+
+    if(isCrossData){ 
         document.getElementById(selector).setAttribute("id", selector + "cross");
-        this.rootEl = document.getElementById(selector + "cross");
-        var model = new CrossModel(data, this);
+        selector += 'cross';
+    }
+
+    // binding error function to rootelement
+    error = error.bind(document.getElementById(selector));
+        
+    if (isCrossData) {
+        model = new CrossModel(data, this);
         this.engine = new CrossController(model);
-        this.engine.render(selector + "cross");
+        this.engine.render(selector);
     } else {
-        this.rootEl = document.getElementById(selector);
-        var model = new Model(data, this);
+        model = new Model(data, this);
         this.engine = new Engine(model);
         this.engine.render({
             selector: selector,
@@ -19,11 +27,12 @@ window.MultiVariantChart = function(data, selector) {
             smartCategory: data.smartCategory
         });
     }
+
     console.log("rendered in ", performance.now() - t, " ms")
 };
 
-MultiVariantChart.prototype.error = function(msg) {
-    this.rootEl.appendChild(document.createTextNode(msg));
+function error(msg) {
+    this.appendChild(document.createTextNode(msg));
     throw Error(msg);
 }   // end eror
 

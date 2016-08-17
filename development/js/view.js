@@ -16,15 +16,15 @@ function RenderEngine(engine, selector, dimension, name, isTop, className, dragO
 
     this.rootElement.appendChild(this.svg); // adding our canvas to parent element
 
-    this.marginX = 0.13 * this.width; // Margin will be used for labels
+    this.marginX = 0.18 * this.width; // Margin will be used for labels
     // and ticks
     if (!this.isLabelTop) {
         this.marginY = 0.1 * this.height;
     } else {
         this.marginY = 0.2 * this.height;
     }
-    this.shiftRatioX = 0.81; // Shifting values for better
-    this.shiftRatioY = 0.7; // screen accomodation
+    this.shiftRatioX = 0.78; // Shifting values for better
+    this.shiftRatioY = 0.68; // screen accomodation
 
     this.plotCircleRadius = 5;
 
@@ -394,14 +394,25 @@ RenderEngine.prototype.getRatio = function(x) {
     } // end getRatio
 
 
-RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, alignment) {
+RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, alignment, trim) {
         var i, len, align,      // loop iteration variables
-            textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            textElement = document.createElementNS("http://www.w3.org/2000/svg", "text"),
+            simpleTooltip;
 
         x = this.convert(x, y).x;
         y = this.convert(x, y).y;
         textElement.setAttribute("x", x);
         textElement.setAttribute("y", y);
+
+        trim = trim || Infinity;
+        if(text.length > trim){
+            console.log(text, text.length, trimText(text, trim))
+            simpleTooltip = document.createElement("title");
+            simpleTooltip.innerHTML = text;
+            textElement.appendChild(simpleTooltip);
+            text = trimText(text, trim);
+        }
+
         if (className) {
             textElement.setAttribute("class", className);
         }
@@ -413,7 +424,7 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
             transform += ")";
             textElement.setAttribute("transform", transform);
         }
-        textElement.innerHTML = text;
+        textElement.appendChild(document.createTextNode(text));
         this.svg.appendChild(textElement);
 
         if(alignment){

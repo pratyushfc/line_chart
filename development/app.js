@@ -6,11 +6,11 @@ var jsonData = {
 
     "caption": "Caption",
     "subcaption": "Subcaption",
-    "type": "line",           // line, column
+    "type": "column",           // line, column
     "crosschartoff": false,     // force switch off crosschart 
     "datasource" : "data",      // Default - data
-    "smartCategory": false,      // Detect weeks, months
-    "xaxisname": "name",        // default - time
+    "smartCategory": true,      // Detect weeks, months
+    "xaxisname": "time",        // default - time
     "colorRange": {
         "minprofit": "aaaaaa",
         "maxprofit": "000000",
@@ -252,6 +252,15 @@ var jsonData = {
     }, {
         "time": "2011-12-10",
         "test5": "2011-12-10"
+    }, {
+        "time": "2010-4-10",
+        "test6": "April"
+    }, {
+        "time": "2010-8-10",
+        "test6": "December"
+    }, {
+        "time": "2011-12-10",
+        "test6": "January"
     }],
 
 }
