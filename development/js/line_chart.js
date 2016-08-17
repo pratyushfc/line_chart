@@ -45,14 +45,22 @@ function LineChart(renderEngine) {
 // Public apis availaible for use
 LineChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // Function to render points
 
-    var i, len, dateItem, prevDateItem, valueItem, prevValueItem;
+    var i = 0, 
+        len = 0,
+        dateItem, 
+        prevDateItem, 
+        valueItem, 
+        prevValueItem,
+        line,
+        lineAr  = [];
 
     for (i = 1, len = dateOfVariable.length; i < len; ++i) {
         dateItem = dateOfVariable[i];
         prevDateItem = dateOfVariable[i - 1];
         valueItem = valueOfVariable[i];
         prevValueItem = valueOfVariable[i - 1];
-        this.renderEngine.plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
+        line = this.renderEngine.plotLine(prevDateItem, prevValueItem, dateItem, valueItem);
+        lineAr.push({line : line});
     }
     for (i = 0, len = dateOfVariable.length; i < len; ++i) {
         dateItem = dateOfVariable[i];
@@ -65,6 +73,94 @@ LineChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // 
             xvalue : dateItem,
             yvalue : valueItem
         }); // Storing the current circle with its values
+        if(lineAr[i - 1]){
+            this.plotCirclesObject[i].circle.style.visibility = "hidden";
+            lineAr[i - 1].circle = circle;
+        }
+        console.log(lineAr)
+    }
+
+    // animateLine
+    this.animateLine(lineAr);
+}
+
+LineChart.prototype.animateLine = function(lineAr) {
+    var canvas = this.renderEngine,
+        infoAr = [],
+        i = 0,
+        len = lineAr.length,
+        diff = 0,
+        item,
+        line,
+        animTime = 2000,
+        steps = 100,
+        lineOb;
+
+    function getProperty(el, prop){
+        return parseFloat(el.getAttribute(prop));
+    }
+    // Getting info for every line
+    for(i = 0; i < len; ++i){
+        item = {};
+        lineOb = lineAr[i];
+        line = lineOb.line;
+        // Getting line properties
+        item.x1 = getProperty(line, "x1");
+        item.x2 = getProperty(line, "x2");
+        item.y1 = getProperty(line, "y1");
+        item.y2 = getProperty(line, "y2");
+        // setting circle
+        item.circle = lineOb.circle;
+        // setting end point to start points
+        item.ex = item.x1;
+        item.ey = item.y1;
+        // saving steps
+        item.step = parseInt((item.x2 - item.x1) * 1.4); 
+        // Calculating steps
+        item.stepX = (item.x2 - item.x1) / item.step;
+        item.stepY = (item.y2 - item.y1) / item.step;
+        // saving line
+        item.line = line;
+        // Setting end point value to start point
+        line.setAttribute("x2", item.x1);
+        line.setAttribute("y2", item.y1);
+
+        infoAr.push(item);
+        
+    }
+    this.lineAnimAr = infoAr;
+    console.log(this.lineAnimAr)
+    this.__animate__(true);
+
+}   // end animateLine
+
+LineChart.prototype.__animate__ = function(twice){
+    if(this.animatingLineIndex === undefined){
+        this.animatingLineIndex = 0;
+    }
+    var animArr = this.lineAnimAr,
+        self = this.__animate__.bind(this), 
+        currentLine = animArr[this.animatingLineIndex];
+
+    if(!currentLine){
+        return;
+    }
+
+    if(!currentLine.step){
+        currentLine.circle.style.visibility = "";
+        this.animatingLineIndex += 1;
+    } else {
+        currentLine.step--;
+        currentLine.ex += currentLine.stepX;
+        currentLine.ey += currentLine.stepY;
+        currentLine.line.setAttribute("x2", currentLine.ex);
+        currentLine.line.setAttribute("y2", currentLine.ey);
+    }
+
+    setTimeout(self.bind(this, false), 1);
+    if(twice){
+        setTimeout(self.bind(this, false), 1);
+        setTimeout(self.bind(this, false), 1);
     }
 }
 

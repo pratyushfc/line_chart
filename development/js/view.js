@@ -474,7 +474,7 @@ RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style) {
     y2 = this.yaxis.estimateRange(y2);
 
     style = style || "chart-line";
-    this.drawLine(x1, y1, x2, y2, style);
+    return this.drawLine(x1, y1, x2, y2, style);
 }
 
 RenderEngine.prototype.plotCircle = function(x, y) {
