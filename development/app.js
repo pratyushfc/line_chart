@@ -8,7 +8,7 @@ var jsonData = {
     "subcaption": "Subcaption",
     "type": "column",           // line, column
     "crosschartoff": false,     // force switch off crosschart 
-    "datasource" : "data",      // Default - data
+    "datasource" : "datamv",      // Default - data
     "smartCategory": true,      // Detect weeks, months
     "xaxisname": "time",        // default - time
     "colorRange": {

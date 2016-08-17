@@ -139,6 +139,7 @@ Engine.prototype.render = function(ob) {
             range : this.model.getX(key),
             shrink : item.shiftRatioX,
             basicRange : true,
+            trimSize : 8,
             alignment : "center-horizontal down"
         }));
 
@@ -150,8 +151,9 @@ Engine.prototype.render = function(ob) {
                 key : key,
                 sortAr : item.xaxis.rangeArray,
                 isDateType : item.xaxis.isDateType,
-                isNumericType : item.xaxis.isNumericType
+                isNumericType : item.xaxis.isNumericType,
             }),
+            trimSize : 8,
             shrink : item.shiftRatioY,
             smartCategory : smartCategory,
             readFn : function(item){
