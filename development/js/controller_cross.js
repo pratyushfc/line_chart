@@ -54,7 +54,7 @@ CrossController.prototype.render = function(selector){
 	// Rendering text product type
 	item = new RenderEngine(this, selector, dwarfDimension, key);
 	item.marginY *= 1;
-	item.marginX *= 1;
+	item.marginX *= 0.64;
 	item.shiftRatioX *= 1;
 	item.shiftRatioY *= 1;
 	item.attachAxisX(new XAxis({
@@ -67,7 +67,8 @@ CrossController.prototype.render = function(selector){
 		height : dwarfDimension.height,
 		width : dwarfDimension.width,
 		shrink : 1,
-		range : ["Product type &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Product"],
+		range : ["Product type &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+			 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Product"],
 		alignment : "left-10px left-10px"
 	}))
     .drawAxisYLabel();
@@ -200,11 +201,11 @@ CrossController.prototype.render = function(selector){
 				shrink : 0.8,
 				range : uniqueNameList
 		}))
+		.chartLabel("Sum of sales")
 		.drawAxisX()
 		.drawAxisXLabel()
 		.attachChart(new ColumnCrossChart(item, columnWidth))
-		.renderChart(arItem2, this.model.getColorByProfit.bind(this.model))
-		.chartLabel("Sum of sales");       
+		.renderChart(arItem2, this.model.getColorByProfit.bind(this.model));       
 	
 	}
 

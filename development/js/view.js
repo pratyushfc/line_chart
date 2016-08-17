@@ -372,8 +372,9 @@ RenderEngine.prototype.chartLabel = function(text) {
     if(!text){
         this.drawRect(rectLeft, rectTop, rectWidth, rectHeight, "chart-label-back");
     }
+    console.log(text)
     textEl = this.__placeText(rectWidth / 2, rectTop, text || key.toUpperCase(), "chart-label", "", "down center-horizontal center-vertical");
-
+    return this;
 }
 
 RenderEngine.prototype.getRatio = function(x) {
@@ -404,14 +405,7 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
         textElement.setAttribute("x", x);
         textElement.setAttribute("y", y);
 
-        trim = trim || Infinity;
-        if(text.length > trim){
-            console.log(text, text.length, trimText(text, trim))
-            simpleTooltip = document.createElement("title");
-            simpleTooltip.innerHTML = text;
-            textElement.appendChild(simpleTooltip);
-            text = trimText(text, trim);
-        }
+
 
         if (className) {
             textElement.setAttribute("class", className);
@@ -424,7 +418,7 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
             transform += ")";
             textElement.setAttribute("transform", transform);
         }
-        textElement.appendChild(document.createTextNode(text));
+        textElement.innerHTML = trimText(text, trim);
         this.svg.appendChild(textElement);
 
         if(alignment){

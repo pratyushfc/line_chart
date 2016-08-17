@@ -28,8 +28,9 @@ function setAll(arr, val, size){
 
 // Function to trim text based on size provided
 function trimText(string, length){
+    length = length || Infinity;
     string += "";
-    if(!string || !length){
+    if(!string){
         return;
     }
     if(string.length <= length){

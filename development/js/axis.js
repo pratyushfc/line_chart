@@ -11,6 +11,7 @@ function Axis(ob){
 	this.displayFn = ob.displayFn || function (item) { return item; };
 	this.alignment = ob.alignment || "";
 	this.__getRangeArray__();
+	this.trimSize = ob.trimSize || Infinity;
 }
 
 // Function to estimate actual graph positions from value
@@ -187,7 +188,7 @@ Axis.prototype.placeLabel = function(canvas, isLabelTop){
 
         stringTime = this.convertValue(item);
 
-        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment, 6);
+        this.labelArray[i] = canvas.__placeText(x, y, stringTime, "axis-label xaxis-label", null, alignment, this.trimSize);
     }
 };
 
