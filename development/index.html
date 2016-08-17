@@ -41,10 +41,10 @@
 	<script src="app.js"></script>
 	<script type="text/javascript">
 	// User logic - hide buttons if crosstab is on
-		setTimeout(function hideButtons(){
-			console.log(jsonData.crossTab)
-			if(!jsonData.crosstab){
+		setTimeout(function showButtons(){
+			if(!chart.isCrossChart(jsonData[jsonData.datasource || "data"]) || jsonData.crosschartoff){
 				document.getElementById("btn").style.position = "relative";
+				document.getElementById("btn").style.top = "0px";
 			}
 		}, 0);
 	</script>

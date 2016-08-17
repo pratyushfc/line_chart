@@ -6,11 +6,11 @@ var jsonData = {
 
     "caption": "Caption",
     "subcaption": "Subcaption",
-    "type": "column",           // line, column
-    "crosschartoff": false,     // force switch off crosschart 
-    "datasource" : "datamv",      // Default - data
+    "type": "line",             // line, column
+    "crosschartoff": true,      // force switch off crosschart 
+    "datasource" : "data",    // Default - data
     "smartCategory": true,      // Detect weeks, months
-    "xaxisname": "time",        // default - time
+    "xaxisname": "name",        // default - time
     "colorRange": {
         "minprofit": "aaaaaa",
         "maxprofit": "000000",

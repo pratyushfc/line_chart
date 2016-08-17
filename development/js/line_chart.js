@@ -61,8 +61,10 @@ LineChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // 
         this.plotCirclesObject.push({
             circle: circle,
             x : circle.getAttribute("cx"),
-            y: circle.getAttribute("cy")
-        }); // Storing the current circle with its x value
+            y: circle.getAttribute("cy"),
+            xvalue : dateItem,
+            yvalue : valueItem
+        }); // Storing the current circle with its values
     }
 }
 
