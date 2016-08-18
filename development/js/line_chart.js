@@ -93,7 +93,7 @@ LineChart.prototype.animateLine = function(lineAr) {
         diff = 0,
         item,
         line,
-        animTime = 2000,
+        animTime = 1000,
         steps = 100,
         lineOb,
         pixelPerMs = 1;
@@ -167,9 +167,9 @@ LineChart.prototype.__animate__ = function(twice){
         }
     }
 
-    setTimeout(self.bind(this, false), 1);
+    setTimeout(self.bind(this, false), 15);
     if(twice){
-        setTimeout(self.bind(this, false), 1);
+        setTimeout(self.bind(this, true), 15);
     }
 }
 

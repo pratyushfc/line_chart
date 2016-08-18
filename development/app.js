@@ -11,7 +11,7 @@ var jsonData = {
     "datasource" : "datamv",    // Default - data
     "smartCategory": true,      // Detect weeks, months
     "xaxisname": "time",        // default - time
-    "animate" : false,
+    "animate" : true,
     "colorRange": {
         "minprofit": "aaaaaa",
         "maxprofit": "000000",

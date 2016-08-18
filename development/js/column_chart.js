@@ -14,15 +14,19 @@ ColumnChart.prototype = Object.create(Chart.prototype);
 // Public apis availaible for use
 ColumnChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // Function to render points
 
-    var i, len, dateItem, valueItem;
+    var i, len, dateItem, valueItem,
+        x,
+        y,
+        rect,
+        rectAr = [];
 
     for (i = 0, len = dateOfVariable.length; i < len; ++i) {
         dateItem = dateOfVariable[i];
         valueItem = valueOfVariable[i];
-        var x = this.renderEngine.xaxis.estimateRange(dateItem) - (this.columnWidth / 2);
-        var y = this.renderEngine.yaxis.estimateRange(valueItem);
-        var rect = this.renderEngine.drawRect(x, y, this.columnWidth, y, "data-column");
-
+        x = this.renderEngine.xaxis.estimateRange(dateItem) - (this.columnWidth / 2);
+        y = this.renderEngine.yaxis.estimateRange(valueItem);
+        rect = this.renderEngine.drawRect(x, y, this.columnWidth, y, "data-column");
+        rectAr.push(rect);
         this.columnsObject.push({
             x1: Math.floor(rect.getAttribute("x")),
             x2: Math.floor(Number(rect.getAttribute("x")) + this.columnWidth),
@@ -63,7 +67,68 @@ ColumnChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { /
         });
 
     }
+    if(config.animate){
+        this.__animate__(rectAr);
+    }
 }
+
+
+ColumnChart.prototype.__animate__ = function(rectAr) {
+    var i = 0,
+        len = rectAr.length,
+        infoAr = [],
+        item = {},
+        speed = 5;
+
+    function getProperty(el, prop){
+        return parseFloat(el.getAttribute(prop));
+    }
+
+    for(i = 0; i < len; ++i){
+        item = {};
+        item.rect = rectAr[i];
+        item.height = getProperty(item.rect, "height");
+        item.y = getProperty(item.rect, "y");
+        item.currentHeight = 0;
+        item.currentY = item.y + item.height;
+        item.count = parseInt(item.height / speed);
+        item.steps = (item.height / item.count);
+        item.rect.setAttribute("height", "0");
+        infoAr.push(item);
+    }
+    this.__transition__(infoAr, true);
+}   // end __animate__
+
+ColumnChart.prototype.__transition__ = function(infoAr, repeat) {
+    var i = infoAr.length,
+        item = {},
+        loop = false,
+        self = this.__transition__.bind(this, infoAr),
+        selfR = this.__transition__.bind(this, infoAr, true),
+        time = 30;
+    while(i--){
+        item = infoAr[i];
+        // console.log(i, item)
+        if(item.count){
+            item.count--;
+            item.currentHeight += item.steps;
+            item.currentY -= item.steps;
+            //if(this.renderEngine.key === "population") console.log(i, item.currentHeight, item.steps, item.count)
+            item.rect.setAttribute("height", item.currentHeight);
+            item.rect.setAttribute("y", item.currentY);
+            if(item.count){
+                loop = true;
+            }
+        }
+    }
+
+    if(loop && repeat){
+        setTimeout(selfR, time);
+        setTimeout(selfR, time);
+        setTimeout(selfR, time);
+        setTimeout(selfR, time);
+    }
+} //end transition
 
 ColumnChart.prototype.highlight = function(x1, y1, x2, y2) {
 
