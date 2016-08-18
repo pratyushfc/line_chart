@@ -352,7 +352,7 @@ RenderEngine.prototype.__drawCircle = function(x, y, r, className) { // Private 
 
 
 
-RenderEngine.prototype.chartLabel = function(text) {
+RenderEngine.prototype.chartLabel = function(text, alignment) {
     var key = this.key;
     var textEl;
     var rectTop, rectLeft, rectHeight, rectWidth;
@@ -360,19 +360,21 @@ RenderEngine.prototype.chartLabel = function(text) {
     if (!this.isLabelTop) {
         rectTop = this.height - this.marginY - 1;
         rectLeft = 0;
-        rectWidth = this.width * this.shiftRatioX + this.marginX - 1;
+        rectWidth = this.width * this.shiftRatioX * 1.05 - 1;
         rectHeight = this.height * 0.1;
     } else {
         rectTop = -1 * this.marginY / 3;
         rectLeft = 0;
-        rectWidth = this.width * this.shiftRatioX + this.marginX - 1;
+        rectWidth = this.width * this.shiftRatioX * 1.05 - 1;
         rectHeight = this.height * 0.1;
     }
+
+    alignment = alignment || "down center-horizontal center-vertical";
 
     if(!text){
         this.drawRect(rectLeft, rectTop, rectWidth, rectHeight, "chart-label-back");
     }
-    textEl = this.__placeText(rectWidth / 2, rectTop, text || key.toUpperCase(), "chart-label", "", "down center-horizontal center-vertical");
+    textEl = this.__placeText(rectWidth / 2, rectTop, text || key.toUpperCase(), "chart-label", "", alignment);
     return this;
 }
 

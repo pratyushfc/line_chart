@@ -118,13 +118,13 @@ LineChart.prototype.animateLine = function(lineAr) {
         item.ey = item.y1;
         // saving steps
         item.xCount = parseInt((item.x2 - item.x1) * pixelPerMs);
-        item.yCount = parseInt((item.y2 - item.y1) * pixelPerMs);
+        item.yCount = item.xCount || parseInt((item.y2 - item.y1) * pixelPerMs);
         // Setting absolute values
         item.xCount = Math.abs(item.xCount);
         item.yCount = Math.abs(item.yCount);
         // Calculating steps
         item.stepX = (item.x2 - item.x1) / item.xCount;
-        item.stepY = (item.y2 - item.y1) / item.yCount;
+        item.stepY = (item.y2 - item.y1) / (item.xCount || item.yCount);
         // saving line
         item.line = line;
         // Setting end point value to start point
@@ -146,7 +146,7 @@ LineChart.prototype.__animate__ = function(twice){
     var animArr = this.lineAnimAr,
         self = this.__animate__.bind(this), 
         currentLine = animArr[this.animatingLineIndex],
-        j;
+        delay = 4;
 
     if(!currentLine){
         return;
@@ -167,12 +167,9 @@ LineChart.prototype.__animate__ = function(twice){
         }
     }
 
-    setTimeout(self.bind(this, false), 1);
+    setTimeout(self.bind(this, false), delay);
     if(twice){
-        j = 7;
-        while(j--){
-            setTimeout(self.bind(this, false), 1);
-        }
+        setTimeout(self.bind(this, false), delay);
     }
 }
 

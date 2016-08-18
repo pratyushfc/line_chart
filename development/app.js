@@ -8,9 +8,9 @@ var jsonData = {
     "subcaption": "Subcaption",
     "type": "line",             // line, column
     "crosschartoff": true,      // force switch off crosschart 
-    "datasource" : "datamv",      // Default - data
+    "datasource" : "data",      // Default - data
     "smartCategory": true,      // Detect weeks, months
-    "xaxisname": "time",        // default - time
+    "xaxisname": "name",        // default - time
     "animate" : true,
     "colorRange": {
         "minprofit": "aaaaaa",
