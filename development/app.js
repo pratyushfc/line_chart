@@ -1,5 +1,5 @@
 var jsonData = {
-    "dimensions": { // Size of canvas
+    "dimensions": {             // Size of canvas
         "width": 370,
         "height": 240,
     },
@@ -8,7 +8,7 @@ var jsonData = {
     "subcaption": "Subcaption",
     "type": "line",             // line, column
     "crosschartoff": true,      // force switch off crosschart 
-    "datasource" : "data",    // Default - data
+    "datasource" : "data",      // Default - data
     "smartCategory": true,      // Detect weeks, months
     "xaxisname": "name",        // default - time
     "animate" : true,
