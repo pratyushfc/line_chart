@@ -123,8 +123,8 @@ ColumnChart.prototype.__transition__ = function(infoAr, repeat) {
     }
 
     if(loop && repeat){
-        setTimeout(selfR, time);
-        setTimeout(selfR, time);
+        setTimeout(self, time);
+        setTimeout(self, time);
         setTimeout(selfR, time);
         setTimeout(selfR, time);
     }

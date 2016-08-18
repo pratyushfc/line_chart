@@ -146,7 +146,8 @@ LineChart.prototype.__animate__ = function(twice){
     }
     var animArr = this.lineAnimAr,
         self = this.__animate__.bind(this), 
-        currentLine = animArr[this.animatingLineIndex];
+        currentLine = animArr[this.animatingLineIndex],
+        j;
 
     if(!currentLine){
         return;
@@ -167,9 +168,12 @@ LineChart.prototype.__animate__ = function(twice){
         }
     }
 
-    setTimeout(self.bind(this, false), 15);
+    setTimeout(self.bind(this, false), 1);
     if(twice){
-        setTimeout(self.bind(this, true), 15);
+        j = 7;
+        while(j--){
+            setTimeout(self.bind(this, false), 1);
+        }
     }
 }
 

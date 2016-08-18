@@ -7,10 +7,10 @@ var jsonData = {
     "caption": "Caption",
     "subcaption": "Subcaption",
     "type": "line",             // line, column
-    "crosschartoff": false,      // force switch off crosschart 
-    "datasource" : "datamv",    // Default - data
+    "crosschartoff": true,      // force switch off crosschart 
+    "datasource" : "data",    // Default - data
     "smartCategory": true,      // Detect weeks, months
-    "xaxisname": "time",        // default - time
+    "xaxisname": "name",        // default - time
     "animate" : true,
     "colorRange": {
         "minprofit": "aaaaaa",
