@@ -73,15 +73,16 @@ LineChart.prototype.renderData = function(dateOfVariable, valueOfVariable) { // 
             xvalue : dateItem,
             yvalue : valueItem
         }); // Storing the current circle with its values
-        if(lineAr[i - 1]){
+        if(lineAr[i - 1] && config.animate){
             this.plotCirclesObject[i].circle.style.visibility = "hidden";
             lineAr[i - 1].circle = circle;
         }
-        console.log(lineAr)
     }
 
     // animateLine
-    this.animateLine(lineAr);
+    if(config.animate){
+        this.animateLine(lineAr);
+    }
 }
 
 LineChart.prototype.animateLine = function(lineAr) {
@@ -94,7 +95,8 @@ LineChart.prototype.animateLine = function(lineAr) {
         line,
         animTime = 2000,
         steps = 100,
-        lineOb;
+        lineOb,
+        pixelPerMs = 1;
 
     function getProperty(el, prop){
         return parseFloat(el.getAttribute(prop));
@@ -115,10 +117,15 @@ LineChart.prototype.animateLine = function(lineAr) {
         item.ex = item.x1;
         item.ey = item.y1;
         // saving steps
-        item.step = parseInt((item.x2 - item.x1) * 1.4); 
+        item.xCount = parseInt((item.x2 - item.x1) * pixelPerMs);
+        item.yCount = parseInt((item.y2 - item.y1) * pixelPerMs);
+        // Setting absolute values
+        item.xCount = Math.abs(item.xCount);
+        item.yCount = Math.abs(item.yCount);
         // Calculating steps
-        item.stepX = (item.x2 - item.x1) / item.step;
-        item.stepY = (item.y2 - item.y1) / item.step;
+        item.stepX = (item.x2 - item.x1) / item.xCount;
+        item.stepY = (item.y2 - item.y1) / item.yCount;
+        console.log(item.stepX, item.stepY, item.xCount, item.yCount)
         // saving line
         item.line = line;
         // Setting end point value to start point
@@ -129,7 +136,6 @@ LineChart.prototype.animateLine = function(lineAr) {
         
     }
     this.lineAnimAr = infoAr;
-    console.log(this.lineAnimAr)
     this.__animate__(true);
 
 }   // end animateLine
@@ -145,21 +151,24 @@ LineChart.prototype.__animate__ = function(twice){
     if(!currentLine){
         return;
     }
-
-    if(!currentLine.step){
+    if(!currentLine.xCount && !currentLine.yCount){
         currentLine.circle.style.visibility = "";
         this.animatingLineIndex += 1;
     } else {
-        currentLine.step--;
-        currentLine.ex += currentLine.stepX;
-        currentLine.ey += currentLine.stepY;
-        currentLine.line.setAttribute("x2", currentLine.ex);
-        currentLine.line.setAttribute("y2", currentLine.ey);
+        if(currentLine.xCount > 0){
+            currentLine.xCount--;
+            currentLine.ex += currentLine.stepX;
+            currentLine.line.setAttribute("x2", currentLine.ex);
+        }
+        if(currentLine.yCount > 0){
+            currentLine.yCount--;
+            currentLine.ey += currentLine.stepY;
+            currentLine.line.setAttribute("y2", currentLine.ey);
+        }
     }
 
     setTimeout(self.bind(this, false), 1);
     if(twice){
-        setTimeout(self.bind(this, false), 1);
         setTimeout(self.bind(this, false), 1);
     }
 }

@@ -1,11 +1,13 @@
 "use strict"
+// To save the configuration
+var config = {};
 // Exposing public Api
 window.MultiVariantChart = function(data, selector) {
     var t = performance.now(),
         dataAr = data[data.datasource || "data"],
         isCrossData = this.isCrossChart(dataAr) && !data.crosschartoff,
         model;
-
+    config = data;
     if(isCrossData){ 
         document.getElementById(selector).setAttribute("id", selector + "cross");
         selector += 'cross';

@@ -7,10 +7,11 @@ var jsonData = {
     "caption": "Caption",
     "subcaption": "Subcaption",
     "type": "line",             // line, column
-    "crosschartoff": true,      // force switch off crosschart 
-    "datasource" : "data",    // Default - data
+    "crosschartoff": false,      // force switch off crosschart 
+    "datasource" : "datamv",    // Default - data
     "smartCategory": true,      // Detect weeks, months
-    "xaxisname": "name",        // default - time
+    "xaxisname": "time",        // default - time
+    "animate" : false,
     "colorRange": {
         "minprofit": "aaaaaa",
         "maxprofit": "000000",
@@ -127,10 +128,10 @@ var jsonData = {
         "time": "2014-1-10",
         "population": 1618174413
     }, {
-        "time": "4-10-2010",
-        "sale1": "472"
+        "time": "6-10-2009",
+        "sale1": "572"
     }, {
-        "time": "2010-4-10",
+        "time": "2010-4-12",
         "sale1": 475
     }, {
         "time": "2010-8-10",
