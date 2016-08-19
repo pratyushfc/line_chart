@@ -84,20 +84,17 @@ body{
 .chart .axis-label{
 	font-size: 13px;
 	text-align : left;
-	stroke: #ABABAB;
+	stroke: #E3E3E3;
 	stroke-width: 0.3;
 }
 
 .chart .xaxis-label{
-
 }
-
 .chart .yaxis-label{
-
 }
 
 .chart .plot-circle{
-	stroke: #1D79CB;
+	stroke: #609dd2;
 	stroke-width: 1.4;
 	fill: white;
 	z-index : 99;
@@ -107,7 +104,7 @@ body{
 }
 
 .chart .plot-circle-hover{
-	stroke: #BC4445;
+	stroke: #d26060;
 	stroke-width: 3;
 }
 
@@ -125,7 +122,7 @@ body{
 
 }
 .chart .chart-line{
-	stroke: #1E7AC9;
+	stroke: #609dd2;
 	stroke-width: 6;
 }
 
@@ -167,7 +164,7 @@ body{
 }
 
 .chart .data-column{
-	fill : #1E7ACD;
+	fill : #609dd2;
 	stroke : #86B6E1;
 	stroke-width : 0.8;
 	-webkit-transition: all 0.2s;
@@ -178,7 +175,7 @@ body{
 	stroke-width: 2;
 }
 .chart .data-column-hover{
-	fill : #BC4445;
+	fill : #d26060;
 }
 
 

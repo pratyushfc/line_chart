@@ -99,12 +99,6 @@ function Model(data, library) { // Contructor function to parse and validate dat
         } // End for loop
     } // End copy data
 
-    // Sorting each category's data array by time
-    for (key in this.data.category) {
-        this.data.category[key].sort(sortByTime);
-    }
-    // Sorting the date array
-    this.data.dateArray.sort(sortByTime);
 } // End Chart Constructor Function
 
 Model.prototype.getMaxPointsOfAllChart = function() {
@@ -173,6 +167,13 @@ Model.prototype.getY = function(ob) {
         if(ob.sortAr){
 
             this.data.category[idx].sort(function(a, b){
+                
+                if(a.xaxis === b.xaxis){
+                    if(a.yaxis === b.yaxis){
+                        return 0;
+                    }
+                    return a.yaxis > b.yaxis ? -1 : 1;
+                }                
 
                 if(isDateType){
                     a = new Date(a.xaxis);

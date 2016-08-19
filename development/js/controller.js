@@ -92,22 +92,26 @@ Engine.prototype.render = function(ob) {
         item, 
         selector = ob.selector,
         type = ob.type,
-        smartCategory = ob.smartCategory;
+        smartCategory = ob.smartCategory,
+        rootEl = this.rootEl,
+        captionBox,
+        captionEl,
+        subCaptionEl;
 
-    this.rootEl = document.getElementById(selector);
-    this.rootEl.innerHTML = "";
-    this.rootEl.setAttribute("class", "pallete");
-    var captionBox = document.createElement("div");
+    rootEl = document.getElementById(selector);
+    rootEl.innerHTML = "";
+    rootEl.setAttribute("class", "pallete");
+    captionBox = document.createElement("div");
     captionBox.setAttribute('class', 'caption-box');
-    var captionEl = document.createElement("h2");
+    captionEl = document.createElement("h2");
     captionEl.setAttribute('class', 'caption');
-    var subCaptionEl = document.createElement("h4");
+    subCaptionEl = document.createElement("h4");
     subCaptionEl.setAttribute('class', 'sub-caption');
     captionBox.appendChild(captionEl);
     captionBox.appendChild(subCaptionEl);
     captionEl.innerHTML = this.model.getCaption();
     subCaptionEl.innerHTML = this.model.getSubCaption();
-    this.rootEl.appendChild(captionBox);
+    rootEl.appendChild(captionBox);
 
     // Count number of charts possible in one row
     this.numChartsRow = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; //getting width first
