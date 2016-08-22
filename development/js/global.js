@@ -1,11 +1,13 @@
 "use strict";
-String.prototype.in = function(arr, readFn){
+String.prototype.in = function(arr, readFn) {
     var i = 0,
         len = arr.length,
-        readFn = readFn || function(item){ return item; };
+        readFn = readFn || function(item) {
+            return item;
+        };
 
-    for(i = len; i--;){
-        if((readFn(arr[i]) + "").toLowerCase() === this.valueOf().toLowerCase()){
+    for (i = len; i--;) {
+        if ((readFn(arr[i]) + "").toLowerCase() === this.valueOf().toLowerCase()) {
             return i;
         }
     }
@@ -14,11 +16,11 @@ String.prototype.in = function(arr, readFn){
 
 // Function to set All variables in array to specific value
 // similar to memset in C
-function setAll(arr, val, size){
+function setAll(arr, val, size) {
     var i = 0,
         len = size || arr.length;
-    for(i = len; i--;){
-        if(size){
+    for (i = len; i--;) {
+        if (size) {
             arr.push(val);
         } else {
             arr[i] = val;
@@ -27,16 +29,16 @@ function setAll(arr, val, size){
 }
 
 // Function to trim text based on size provided
-function trimText(string, length){
+function trimText(string, length) {
     length = length || Infinity;
     string += "";
-    if(!string){
+    if (!string) {
         return;
     }
-    if(string.length <= length){
+    if (string.length <= length) {
         return string;
     }
-    return string.substr(0, 7) + ""; 
+    return string.substr(0, 7) + "";
 }
 
 
@@ -98,7 +100,7 @@ var timeInWords = function(date) { // Conver  joined dates to 'Feb'06' format
 
 var shortNumber = function(num) {
 
-    if(typeof num !== "number"){
+    if (typeof num !== "number") {
         return num;
     }
 
@@ -166,36 +168,39 @@ var numberOfDigits = function(num) {
 }
 
 
-var createRange = function(ob){
+var createRange = function(ob) {
 
-    if(!ob || typeof ob !== "object"){
+    if (!ob || typeof ob !== "object") {
         return [];
-    }true
+    }
+    true
 
-    if(ob.basic){
+    if (ob.basic) {
         return createBasicRange(ob);
     }
 
     var i, j, temp,
-        rangeArray = [],            // final range array that the
-                                    // function will return
+        rangeArray = [], // final range array that the
+        // function will return
         beautyLimits = beautifyLimits({
-            min : ob.min,
-            max : ob.max
+            min: ob.min,
+            max: ob.max
         }),
         calcMin = beautyLimits.min,
         calcMax = beautyLimits.max,
-        computedMin = 0, computedMax = 0,   // variable to store final limits of
-                                    // calculated range
+        computedMin = 0,
+        computedMax = 0, // variable to store final limits of
+        // calculated range
         difference = 0,
-        steps = 0,                      // Variable to store steps from
-                                    // min to max
+        steps = 0, // Variable to store steps from
+        // min to max
 
-        twoDigitMin = 0, twoDigitMax = 0,   // Variables to store leading
-                                    // two digits of max and min
+        twoDigitMin = 0,
+        twoDigitMax = 0, // Variables to store leading
+        // two digits of max and min
 
-        stepsDown = 0,              // A variable to store how
-                                    // many divisions were made
+        stepsDown = 0, // A variable to store how
+        // many divisions were made
         twoDigitMax = calcMax,
         rangeArray = [];
 
@@ -239,11 +244,11 @@ var createRange = function(ob){
         steps = 5;
     } else if (difference <= 40) {
         steps = 7;
-    } else if (difference <= 50){
+    } else if (difference <= 50) {
         steps = 10;
-    } else if (difference <= 75){
+    } else if (difference <= 75) {
         steps = 15;
-    } else{
+    } else {
         steps = 20;
     }
 
@@ -268,8 +273,8 @@ var createRange = function(ob){
 
     return rangeArray;
 }
-var beautifyLimits = function(ob){
-    if(!ob){
+var beautifyLimits = function(ob) {
+    if (!ob) {
         return;
     }
     var minValue = ob.min;
@@ -309,44 +314,44 @@ var beautifyLimits = function(ob){
     };
 }
 
-var createBasicRange = function(ob){        // Function to get array of range with
-                                                        // optional divisions parameter for number of
-                                                        // divisions on axis
-    if(!ob || typeof ob !== "object"){
-        return [];
-    }
-    --divisions;
+var createBasicRange = function(ob) { // Function to get array of range with
+        // optional divisions parameter for number of
+        // divisions on axis
+        if (!ob || typeof ob !== "object") {
+            return [];
+        }
+        --divisions;
 
-    var i = 0,
-        min = ob.min,           // Getting min
-        max = ob.max,           // and max
-        difference = (max - min),    // Calculating steps value
-        temp = 0,
-        divisions = ob.divisions || 5,
-        rangeArray = [];
+        var i = 0,
+            min = ob.min, // Getting min
+            max = ob.max, // and max
+            difference = (max - min), // Calculating steps value
+            temp = 0,
+            divisions = ob.divisions || 5,
+            rangeArray = [];
 
-    for(i = 0; i <= divisions; ++i){
-        temp = (i / divisions) * difference + min;
-        
-        rangeArray.push(temp);
-    }
+        for (i = 0; i <= divisions; ++i) {
+            temp = (i / divisions) * difference + min;
 
-    
-    return rangeArray;
-} //get createBasicRange
+            rangeArray.push(temp);
+        }
 
-var readArray = function(ar, readFn){
-    var i = 0,
-        len = ar.length,
-        genAr = [];
 
-    for(i = 0; i < len; ++i){
-        genAr.push(readFn(ar[i]));
-    }
-    return genAr;
-}   // end readArray
+        return rangeArray;
+    } //get createBasicRange
 
-function typeOfArray (ob) {
+var readArray = function(ar, readFn) {
+        var i = 0,
+            len = ar.length,
+            genAr = [];
+
+        for (i = 0; i < len; ++i) {
+            genAr.push(readFn(ar[i]));
+        }
+        return genAr;
+    } // end readArray
+
+function typeOfArray(ob) {
     var i = 0,
         j = 0,
         item,
@@ -357,85 +362,83 @@ function typeOfArray (ob) {
         smart = ob.smart,
         str = "",
         len = arr.length,
-        categoryArr = [["January", "February", "March"
-        , "April", "May", "June", "July", "August", "September" 
-        , "October", "November", "December"],
-        ["Jan", "Feb", "Mar", "Apr", "May" 
-        , "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
-        ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        ["Sunday", "Monday", "Tuesday" 
-            , "Wednesday", "Thursday", "Friday", "Saturday"]],
+        categoryArr = [
+            ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+            ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        ],
 
         isDate = true,
         isNumeric = true,
         typeMatch = true,
         boolAr = [],
         finalAr = [],
-        readFn = readFn || function(item){ return item; };
+        readFn = readFn || function(item) {
+            return item;
+        };
 
 
-    for(i = len; i--; ){
+    for (i = len; i--;) {
         item = readFn(arr[i]);
 
         // Check for Date
-        if(isDate && typeof item !== "string" || isNaN(+new Date(item)) ){
+        if (isDate && typeof item !== "string" || isNaN(+new Date(item))) {
             isDate = false;
         }
-        if(isDate && item.split("-").length !== 3){
+        if (isDate && item.split("-").length !== 3) {
             isDate = false;
         }
 
         // Check if numeric
-        if(isNumeric && isNaN(+item)){
+        if (isNumeric && isNaN(+item)) {
             isNumeric = false;
         }
 
         // break if item is not of any type
-        if(!isDate && !isNumeric){
+        if (!isDate && !isNumeric) {
             break;
         }
 
     }
 
-    if(isDate){
+    if (isDate) {
         return "date";
     }
 
-    if(isNumeric){
+    if (isNumeric) {
         return "numeric";
     }
 
     // Algo to match array with any category
     setAll(boolAr, false, len);
     len2 = categoryArr.length;
-    for(j = 0; j < len2 && smart; ++j){
+    for (j = 0; j < len2 && smart; ++j) {
         item = categoryArr[j];
-        if(j) setAll(boolAr, false);
+        if (j) setAll(boolAr, false);
 
         typeMatch = true;
-        for(i = 0; i < len; ++i){
+        for (i = 0; i < len; ++i) {
             str = readFn(arr[i]) + "";
-            if(str.in(item) === false){
+            if (str.in(item) === false) {
                 typeMatch = false;
                 break;
             } else {
                 boolAr[str.in(item)] = true;
             }
         }
-        if(typeMatch){
+        if (typeMatch) {
             return item;
         }
     }
 
-    for(i = 0; i < len; ++i){
+    for (i = 0; i < len; ++i) {
         item = readFn(arr[i]);
-        if(finalAr.indexOf(item) === -1){
+        if (finalAr.indexOf(item) === -1) {
             finalAr.push(item);
         }
     }
 
     return finalAr;
 }
-
-

@@ -1,16 +1,16 @@
 var jsonData = {
     "dimensions": {             // Size of canvas
         "width": 370,
-        "height": 240,
+        "height": 250,
     },
 
     "caption": "Caption",
     "subcaption": "Subcaption",
-    "type": "column",             // line, column
+    "type": "line",             // line, column
     "crosschartoff": false,      // force switch off crosschart 
     "datasource" : "data",      // Default - data
     "smartCategory": true,      // Detect weeks, months
-    "xaxisname": "time",        // default - time
+    "xaxisname": "name",        // default - time
     "animate" : true,
     "colorRange": {
         "minprofit": "aaaaaa",

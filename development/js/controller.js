@@ -1,6 +1,6 @@
-function Engine(model) {    // An object to fetch data from 'Chart' and make
-                            // it more meaningful
-    this.model = model;     // saved chart so that it can be used by other functions
+function Engine(model) { // An object to fetch data from 'Chart' and make
+    // it more meaningful
+    this.model = model; // saved chart so that it can be used by other functions
 }
 
 
@@ -24,7 +24,9 @@ Engine.prototype.getXRange = function() {
 
 Engine.prototype.getXRangeOfVariable = function(idx) {
     var i, len, item; // Loop variables
-    var dataArray = this.model.getY({key : idx});
+    var dataArray = this.model.getY({
+        key: idx
+    });
     var yDateArray = [];
 
     for (i = 0, len = dataArray.length; i < len; ++i) {
@@ -36,7 +38,9 @@ Engine.prototype.getXRangeOfVariable = function(idx) {
 }
 Engine.prototype.getYRangeOfVariable = function(idx) {
     var i, len, item; // Loop variables
-    var dataArray = this.model.getY({key : idx});
+    var dataArray = this.model.getY({
+        key: idx
+    });
     var yDataArray = [];
 
     for (i = 0, len = dataArray.length; i < len; ++i) {
@@ -56,19 +60,21 @@ Engine.prototype.getValueAtPosition = function(ob) {
 
     var xValue = ob.point,
         key = ob.key,
-        yArray = this.model.getY({key : key}), 
+        yArray = this.model.getY({
+            key: key
+        }),
         convertFn = ob.convertFn,
         readFn = ob.readFn,
         i = 0,
         len = yArray.length;
 
-    if(isNaN(xValue)){
+    if (isNaN(xValue)) {
         return;
     }
 
 
-    for(i = len; i--; ){
-        if(readFn(yArray[i].xaxis) === xValue){
+    for (i = len; i--;) {
+        if (readFn(yArray[i].xaxis) === xValue) {
             return yArray[i];
         }
     }
@@ -89,7 +95,7 @@ Engine.prototype.render = function(ob) {
     var i = 0,
         len = 0,
         key = 0,
-        item, 
+        item,
         selector = ob.selector,
         type = ob.type,
         smartCategory = ob.smartCategory,
@@ -127,8 +133,8 @@ Engine.prototype.render = function(ob) {
 
     this.renderEngineObject = {};
     var dimension = {
-        height : this.model.getWidth(),
-        width : this.model.getWidth()
+        height: this.model.getWidth(),
+        width: this.model.getWidth()
     }
 
     for (var idx in allVariables) {
@@ -138,32 +144,33 @@ Engine.prototype.render = function(ob) {
 
         // Attaching xaxis module
         item.attachAxisX(new XAxis({
-            height : dimension.height,
-            width : dimension.width,
-            range : this.model.getX(key),
-            shrink : item.shiftRatioX,
-            basicRange : true,
-            trimSize : 8,
-            alignment : "center-horizontal down"
+            height: dimension.height,
+            width: dimension.width,
+            range: this.model.getX(key),
+            shrink: item.shiftRatioX,
+            basicRange: true,
+            trimSize: 8,
+            alignment: "center-horizontal down"
         }));
 
-   
+
         item.attachAxisY(new YAxis({
-            height : dimension.height,
-            width : dimension.width,
-            range : this.model.getY({
-                key : key,
-                sortAr : item.xaxis.rangeArray,
-                isDateType : item.xaxis.isDateType,
-                isNumericType : item.xaxis.isNumericType,
+            height: dimension.height,
+            width: dimension.width,
+            range: this.model.getY({
+                key: key,
+                sortAr: item.xaxis.rangeArray,
+                isDateType: item.xaxis.isDateType,
+                isNumericType: item.xaxis.isNumericType,
             }),
-            trimSize : 8,
-            shrink : item.shiftRatioY,
-            smartCategory : smartCategory,
-            readFn : function(item){
+            trimSize: 8,
+            startFromOne: type.toLowerCase() === "column",
+            shrink: item.shiftRatioY,
+            smartCategory: smartCategory,
+            readFn: function(item) {
                 return item.value;
             },
-            alignment : "left left-10px half-center-vertical"
+            alignment: "left left-10px half-center-vertical"
         }));
 
         item.drawAxisX();
@@ -200,7 +207,9 @@ Engine.prototype.__prepareArrange__ = function() {
             this.storeSvgArray.push({
                 svg: this.renderEngineObject[key].svg,
                 key: key,
-                data: this.model.getY({key : key}),
+                data: this.model.getY({
+                    key: key
+                }),
                 object: this.renderEngineObject[key]
             });
             this.storeSvgDimensionArray.push(cumulativeOffset(this.renderEngineObject[key].svg))

@@ -30,62 +30,62 @@ function RenderEngine(engine, selector, dimension, name, isTop, className, dragO
 
     // Saving X coordinate to retrieve position value later by Vertical line
     this.xCoords = {};
-    if(!dragOff){
+    if (!dragOff) {
         this.__dragListener__();
     }
 } // end renderengine constructor
 
 
-RenderEngine.prototype.attachAxisX = function(axis){
-    this.xaxis = axis;
-    return this;
-} // end setXAxis
+RenderEngine.prototype.attachAxisX = function(axis) {
+        this.xaxis = axis;
+        return this;
+    } // end setXAxis
 
-RenderEngine.prototype.attachAxisY = function(axis){
-    this.yaxis = axis;
-    return this;
-} // end setYAxis
+RenderEngine.prototype.attachAxisY = function(axis) {
+        this.yaxis = axis;
+        return this;
+    } // end setYAxis
 
-RenderEngine.prototype.drawAxisX = function(notDrawTicks){
-    this.xaxis.plotAxis(this);
-    notDrawTicks = notDrawTicks || false;
-    if(!notDrawTicks) this.xaxis.plotTicks(this);
-    return this;
-} // end setXAxis
+RenderEngine.prototype.drawAxisX = function(notDrawTicks) {
+        this.xaxis.plotAxis(this);
+        notDrawTicks = notDrawTicks || false;
+        if (!notDrawTicks) this.xaxis.plotTicks(this);
+        return this;
+    } // end setXAxis
 
-RenderEngine.prototype.drawAxisY = function(extra){
-    this.yaxis.plotAxis(this);
+RenderEngine.prototype.drawAxisY = function(extra) {
+        this.yaxis.plotAxis(this);
 
-    extra = extra || false;
-    if(!extra){
-        this.yaxis.plotTicks(this);
-        this.yaxis.placeDivBoxes(this);   
-    }
-    return this;
-} // end setYAxis
+        extra = extra || false;
+        if (!extra) {
+            this.yaxis.plotTicks(this);
+            this.yaxis.placeDivBoxes(this);
+        }
+        return this;
+    } // end setYAxis
 
-RenderEngine.prototype.drawAxisXLabel = function(isChartLabelTop){
-    this.xaxis.placeLabel(this, isChartLabelTop);
-    return this;
-} // end drawAxisXLabel
+RenderEngine.prototype.drawAxisXLabel = function(isChartLabelTop) {
+        this.xaxis.placeLabel(this, isChartLabelTop);
+        return this;
+    } // end drawAxisXLabel
 
-RenderEngine.prototype.drawAxisYLabel = function(al){
-    this.yaxis.placeLabel(this, al);
-    return this;
-} // end drawAxisYLabel
+RenderEngine.prototype.drawAxisYLabel = function(al) {
+        this.yaxis.placeLabel(this, al);
+        return this;
+    } // end drawAxisYLabel
 
-RenderEngine.prototype.removeAxisXLabel = function(){
-    this.xaxis.removeLabel(this);
-    return this;
-} // end removeAxisXLabels
+RenderEngine.prototype.removeAxisXLabel = function() {
+        this.xaxis.removeLabel(this);
+        return this;
+    } // end removeAxisXLabels
 
-RenderEngine.prototype.removeElement = function(el){
-    if(!el){
-      return el;
-    }
-    this.svg.removeChild(el);
-    return el;
-} // end removeAxisXLabels
+RenderEngine.prototype.removeElement = function(el) {
+        if (!el) {
+            return el;
+        }
+        this.svg.removeChild(el);
+        return el;
+    } // end removeAxisXLabels
 
 RenderEngine.prototype.__dragListener__ = function() {
         var _this = this,
@@ -103,44 +103,44 @@ RenderEngine.prototype.__dragListener__ = function() {
         */
         var dragStatus = 0;
 
-        function refreshSvgCoordinate () {
+        function refreshSvgCoordinate() {
             svgLeft = cumulativeOffset(_this.svg).left;
             svgTop = cumulativeOffset(_this.svg).top;
         }
 
         this.svg.addEventListener("mousedown", function(e) {
-        	refreshSvgCoordinate();
+            refreshSvgCoordinate();
             var event = new CustomEvent(
                 "selectionmousedown", {
                     detail: {
-                    	x: e.clientX - svgLeft,
-                    	y: e.pageY - svgTop
+                        x: e.clientX - svgLeft,
+                        y: e.pageY - svgTop
                     }
-            });
+                });
             document.dispatchEvent(event);
         });
 
         document.addEventListener("mouseup", function(e) {
-        	refreshSvgCoordinate();
+            refreshSvgCoordinate();
             var event = new CustomEvent(
                 "selectionmouseup", {
                     detail: {
-                    	x: e.clientX - svgLeft,
-                    	y: e.pageY - svgTop
+                        x: e.clientX - svgLeft,
+                        y: e.pageY - svgTop
                     }
                 });
             document.dispatchEvent(event);
         });
 
         this.svg.addEventListener("mousemove", function(e) {
-        	refreshSvgCoordinate();
+            refreshSvgCoordinate();
             var event = new CustomEvent(
                 "selectionmousemove", {
                     detail: {
-                    	x: e.clientX - svgLeft,
-                    	y: e.pageY - svgTop
+                        x: e.clientX - svgLeft,
+                        y: e.pageY - svgTop
                     }
-            });
+                });
             document.dispatchEvent(event);
         });
 
@@ -174,7 +174,7 @@ RenderEngine.prototype.__dragListener__ = function() {
 
         document.addEventListener("selectionmousemove", function(e) {
             svgTop = _this.height - _this.marginY - _this.height * _this.shiftRatioY;
-            if (dragStatus === 1 && e.detail.x >= _this.marginX && e.detail.y >= svgTop && e.detail.y <= svgBottom ) {
+            if (dragStatus === 1 && e.detail.x >= _this.marginX && e.detail.y >= svgTop && e.detail.y <= svgBottom) {
                 end.x = e.detail.x;
                 end.y = e.detail.y;
                 _this.__drawBox__(start, end);
@@ -215,43 +215,47 @@ RenderEngine.prototype.__boxRemoveFocus__ = function() {
 
     } // end __boxRemoveFocus
 RenderEngine.prototype.__drawBox__ = function(start, end) {
-    var _this = this;
+
+
+    var _this = this,
+        svgLeft = cumulativeOffset(this.svg).left,
+        svgTop = cumulativeOffset(this.svg).top,
+        x = start.x,
+        y = start.y,
+        w = end.x - start.x,
+        h = end.y - start.y,
+        selectionBox = _this.selectionBox;
+    
     if (!_this.selectionBox) {
         _this.selectionBox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        selectionBox = _this.selectionBox;
         _this.svg.appendChild(_this.selectionBox);
+        selectionBox.setAttribute("style", "opacity: 0.2");
+        selectionBox.setAttribute("class", "selection-box");
     }
 
-    var svgLeft = cumulativeOffset(this.svg).left;
-    var svgTop = cumulativeOffset(this.svg).top;
-
-    var x = start.x;
-    var y = start.y;
-    var w = end.x - start.x;
-    var h = end.y - start.y;
-
-    if(w < 0 && h < 0){
-    	y = end.y;
-    	h *= -1;
-    	x = end.x;
-    	w *= -1;
+    // Conditions to the dragbox in range
+    if (w < 0 && h < 0) {
+        y = end.y;
+        h *= -1;
+        x = end.x;
+        w *= -1;
     }
 
-    if(w < 0 && h >= 0){
-    	x = end.x;
-    	w *= -1;
+    if (w < 0 && h >= 0) {
+        x = end.x;
+        w *= -1;
     }
 
-    if(w >= 0 && h < 0){
-    	y = end.y;
-    	h *= -1;
+    if (w >= 0 && h < 0) {
+        y = end.y;
+        h *= -1;
     }
-
-    _this.selectionBox.setAttribute("x", x);
-    _this.selectionBox.setAttribute("y", y);
-    _this.selectionBox.setAttribute("width", w);
-    _this.selectionBox.setAttribute("height", h);
-    _this.selectionBox.setAttribute("style", "opacity: 0.2");
-    _this.selectionBox.setAttribute("class", "selection-box");
+    // Setting the attribute of rect box
+    selectionBox.setAttribute("x", x);
+    selectionBox.setAttribute("y", y);
+    selectionBox.setAttribute("width", w);
+    selectionBox.setAttribute("height", h);
 
     // highlighting charts in the area
     _this.attachedChart.highlight(x, y, x + w, y + h);
@@ -285,23 +289,23 @@ RenderEngine.prototype.__shiftY = function(coor) {
 
 
 RenderEngine.prototype.drawLine = function(x1, y1, x2, y2, className) { // Private function to
-    // draw lines
-    var coord1 = this.convert(x1, y1); // Getting converted axis
-    var coord2 = this.convert(x2, y2); // according to canvas
-    var line = document.createElementNS("http://www.w3.org/2000/svg", "line"); // creating our
-    // element line.
+        // draw lines
+        var coord1 = this.convert(x1, y1); // Getting converted axis
+        var coord2 = this.convert(x2, y2); // according to canvas
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "line"); // creating our
+        // element line.
 
-    line.setAttribute("x1", coord1.x); // setting line
-    line.setAttribute("y1", coord1.y); // coordinates
-    line.setAttribute("x2", coord2.x); // and styles
-    line.setAttribute("y2", coord2.y); // with shifting
+        line.setAttribute("x1", coord1.x); // setting line
+        line.setAttribute("y1", coord1.y); // coordinates
+        line.setAttribute("x2", coord2.x); // and styles
+        line.setAttribute("y2", coord2.y); // with shifting
 
-    if (className) {
-        line.setAttribute("class", className);
-    }
-    this.svg.appendChild(line); // Drawing line to our canvas
-    return line;
-} // end drawLine function
+        if (className) {
+            line.setAttribute("class", className);
+        }
+        this.svg.appendChild(line); // Drawing line to our canvas
+        return line;
+    } // end drawLine function
 
 RenderEngine.prototype.drawRect = function(x1, y1, w, h, className, color) { // Private function to
         // draw lines
@@ -320,7 +324,7 @@ RenderEngine.prototype.drawRect = function(x1, y1, w, h, className, color) { // 
         rect.setAttribute("width", w); // and styles
         rect.setAttribute("height", h); // with shifting
         rect.style.fill = color;
-        
+
         if (className) {
             rect.setAttribute("class", className);
         }
@@ -331,8 +335,6 @@ RenderEngine.prototype.drawRect = function(x1, y1, w, h, className, color) { // 
 
 RenderEngine.prototype.__drawCircle = function(x, y, r, className) { // Private function to
         // draw circle
-
-
         var coord = this.convert(x, y); // according to canvas
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // creating our
         // element line.
@@ -347,15 +349,10 @@ RenderEngine.prototype.__drawCircle = function(x, y, r, className) { // Private 
         // Drawing line to our canvas
     } // end constructor function
 
-
-
-
-
-
 RenderEngine.prototype.chartLabel = function(text, alignment) {
-    var key = this.key;
-    var textEl;
-    var rectTop, rectLeft, rectHeight, rectWidth;
+    var key = this.key,
+        textEl,
+        rectTop, rectLeft, rectHeight, rectWidth;
 
     if (!this.isLabelTop) {
         rectTop = this.height - this.marginY - 1;
@@ -371,7 +368,7 @@ RenderEngine.prototype.chartLabel = function(text, alignment) {
 
     alignment = alignment || "down center-horizontal center-vertical";
 
-    if(!text){
+    if (!text) {
         this.drawRect(rectLeft, rectTop, rectWidth, rectHeight, "chart-label-back");
     }
     textEl = this.__placeText(rectWidth / 2, rectTop, text || key.toUpperCase(), "chart-label", "", alignment);
@@ -397,7 +394,7 @@ RenderEngine.prototype.getRatio = function(x) {
 
 
 RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, alignment, trim) {
-        var i, len, align,      // loop iteration variables
+        var i, len, align, // loop iteration variables
             textElement = document.createElementNS("http://www.w3.org/2000/svg", "text"),
             simpleTooltip;
 
@@ -422,44 +419,46 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
         textElement.innerHTML = trimText(text, trim);
         this.svg.appendChild(textElement);
 
-        if(alignment){
+        // Logic to shift element based on given
+        // alignment
+        if (alignment) {
             alignment = alignment.split(" ");
-            for(i in alignment){
+            for (i in alignment) {
                 align = alignment[i];
-                if(align && align === "center-horizontal"){
+                if (align && align === "center-horizontal") {
                     x = x - textElement.clientWidth / 2;
                 }
-                if(align && align === "down"){
+                if (align && align === "down") {
                     y = y + +textElement.clientHeight;
                 }
-                if(align && align === "center-vertical"){
+                if (align && align === "center-vertical") {
                     y = y + textElement.clientHeight / 2;
                 }
-                if(align && align === "half-center-vertical"){
+                if (align && align === "half-center-vertical") {
                     y = y + textElement.clientHeight / 4;
                 }
-                if(align && align === "half-right"){
+                if (align && align === "half-right") {
                     x = x + textElement.clientWidth / 2;
                 }
-                if(align && align === "right-10px"){
+                if (align && align === "right-10px") {
                     x = x + 10;
                 }
-                if(align && align === "up"){
+                if (align && align === "up") {
                     y = y - +textElement.clientHeight;
                 }
-                if(align && align === "left-10px"){
+                if (align && align === "left-10px") {
                     x = x - 10;
                 }
-                if(align && align === "half-left"){
+                if (align && align === "half-left") {
                     x = x - textElement.clientWidth / 2;
                 }
-                if(align && align === "right"){
+                if (align && align === "right") {
                     x = x + textElement.clientWidth;
                 }
-                if(align && align === "half-right"){
+                if (align && align === "half-right") {
                     x = x + textElement.clientWidth / 2;
                 }
-                if(align && align === "left"){
+                if (align && align === "left") {
                     x = x - textElement.clientWidth;
                 }
                 textElement.setAttribute("x", x)
@@ -468,7 +467,7 @@ RenderEngine.prototype.__placeText = function(x, y, text, className, rotate, ali
         }
         return textElement;
     } // End placetext
-
+// Function to plot line on svg
 RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style) {
     x1 = this.xaxis.estimateRange(x1);
     x2 = this.xaxis.estimateRange(x2);
@@ -478,7 +477,7 @@ RenderEngine.prototype.plotLine = function(x1, y1, x2, y2, style) {
     style = style || "chart-line";
     return this.drawLine(x1, y1, x2, y2, style);
 }
-
+// Function to draw circle on svg
 RenderEngine.prototype.plotCircle = function(x, y) {
     var value = y;
     x = this.xaxis.estimateRange(x);
@@ -486,8 +485,3 @@ RenderEngine.prototype.plotCircle = function(x, y) {
     var className = 'plot-circle';
     return this.__drawCircle(x, y, this.plotCircleRadius, className);
 }
-
-
-
-
-/* Function to replace existing */

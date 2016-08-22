@@ -5,7 +5,7 @@ function Model(data, library) { // Contructor function to parse and validate dat
         date,
         index,
         value,
-        errorMsg = "", 
+        errorMsg = "",
         dataAr = data[data.datasource || "data"];
 
     if (typeof data === "string") { // If data is string; convert to
@@ -23,16 +23,16 @@ function Model(data, library) { // Contructor function to parse and validate dat
         yaxis: 5
     }
 
-    this.interpolation = true;          // Default value of interpolation
-    if(data.interpolation === false){   // to false
+    this.interpolation = true; // Default value of interpolation
+    if (data.interpolation === false) { // to false
         this.interpolation = false;
     }
 
     this.type = data.type || "line"; // Fetching type of chart; default line
     this.data.caption = data.caption || ""; // Fetching values for caption and
     this.data.subcaption = data.subcaption || ""; // subcaption; default "" string
-    
-    if(data.xaxisname){                     // Setting xaxis name
+
+    if (data.xaxisname) { // Setting xaxis name
         this.xaxisname = data.xaxisname;
     } else {
         errorMsg = "Error XAxis Undefined : xaxis name was not defined in json";
@@ -69,9 +69,9 @@ function Model(data, library) { // Contructor function to parse and validate dat
             item = dataAr[i];
             date = new Date(item.time);
 
-            if(!item[this.xaxisname]){
-                errorMsg = "Error XAxis Undefined : xaxis value '" + this.xaxisname +  
-                        "' not found at index " + i;
+            if (!item[this.xaxisname]) {
+                errorMsg = "Error XAxis Undefined : xaxis value '" + this.xaxisname +
+                    "' not found at index " + i;
                 error(errorMsg);
             }
 
@@ -85,14 +85,14 @@ function Model(data, library) { // Contructor function to parse and validate dat
                 var joinedDate = joinDate(date.getYear(), date.getMonth());
 
                 this.data.category[key].push({
-                    value : item[key],
-                    xaxis : item[this.xaxisname]
+                    value: item[key],
+                    xaxis: item[this.xaxisname]
                 });
 
             }
 
             // Push current date to date Array
-            if(this.data.dateArray.indexOf(item[this.xaxisname]) === -1){
+            if (this.data.dateArray.indexOf(item[this.xaxisname]) === -1) {
                 this.data.dateArray.push(item[this.xaxisname]);
             }
 
@@ -112,11 +112,11 @@ Model.prototype.getMaxPointsOfAllChart = function() {
     return max;
 
 }
-
+// Get chart type
 Model.prototype.getType = function() {
         return this.type;
     } // end getType
-
+// Get minimum for X
 Model.prototype.getMinX = function() {
         return this.data.dateArray[0];
     } //  End getMinX
@@ -164,18 +164,18 @@ Model.prototype.getY = function(ob) {
             _this = this,
             sortAr = ob.sortAr || [];
 
-        if(ob.sortAr){
+        if (ob.sortAr) {
 
-            this.data.category[idx].sort(function(a, b){
-                
-                if(a.xaxis === b.xaxis){
-                    if(a.yaxis === b.yaxis){
+            this.data.category[idx].sort(function(a, b) {
+
+                if (a.xaxis === b.xaxis) {
+                    if (a.yaxis === b.yaxis) {
                         return 0;
                     }
                     return a.yaxis > b.yaxis ? -1 : 1;
-                }                
+                }
 
-                if(isDateType){
+                if (isDateType) {
                     a = new Date(a.xaxis);
                     b = new Date(b.xaxis);
 
@@ -183,7 +183,7 @@ Model.prototype.getY = function(ob) {
                     b = joinDate(b.getYear(), b.getMonth());
 
                     return a - b;
-                } else if(isNumericType){
+                } else if (isNumericType) {
                     return a.xaxis - b.xaxis;
                 } else {
                     return a.xaxis.in(sortAr) - b.xaxis.in(sortAr);
@@ -213,4 +213,3 @@ Model.prototype.getCaption = function() {
 Model.prototype.getSubCaption = function() {
         return this.data.subcaption;
     } // End getSubCaption()
-
