@@ -6,9 +6,9 @@ var jsonData = {
 
     "caption": "Caption",
     "subcaption": "Subcaption",
-    "type": "line",             // line, column
-    "crosschartoff": true,      // force switch off crosschart 
-    "datasource" : "datamv",      // Default - data
+    "type": "column",             // line, column
+    "crosschartoff": false,      // force switch off crosschart 
+    "datasource" : "data",      // Default - data
     "smartCategory": true,      // Detect weeks, months
     "xaxisname": "time",        // default - time
     "animate" : true,
@@ -108,7 +108,7 @@ var jsonData = {
         "population": 4451251998
     }, {
         "time": "2012-3-10",
-        "population": 4980593131
+        "population": 4780593131
     }, {
         "time": "2012-7-10",
         "population": 1329978264

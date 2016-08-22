@@ -120,7 +120,7 @@ RenderEngine.prototype.__dragListener__ = function() {
             document.dispatchEvent(event);
         });
 
-        this.svg.addEventListener("mouseup", function(e) {
+        document.addEventListener("mouseup", function(e) {
         	refreshSvgCoordinate();
             var event = new CustomEvent(
                 "selectionmouseup", {
@@ -146,7 +146,7 @@ RenderEngine.prototype.__dragListener__ = function() {
 
 
         document.addEventListener("selectionmousedown", function(e) {
-            svgBottom = cumulativeOffset(_this.svg).top + _this.height - _this.marginY;
+            svgBottom = cumulativeOffset(_this.svg).top + _this.height - _this.marginY * 1.9;
             svgTop = _this.height - _this.marginY - _this.height * _this.shiftRatioY;
             _this.__sigMouseDown__();
             if ((dragStatus === 0 || dragStatus === 2) && e.detail.x >= _this.marginX && e.detail.y >= svgTop && e.detail.y <= svgBottom) {

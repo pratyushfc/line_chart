@@ -147,7 +147,7 @@ body{
 	fill: #FFFFFF;
 }
 .chart .div-lines:nth-child(odd){
-	fill: #F7F7F7;
+	fill: #F4F7F7;
 }
 .chart{
     -webkit-touch-callout: none;
